@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package reflink.api;
+
+// ----- Client -> Server -----
+enum RefereeVote {
+  REFEREE_VOTE_UNSPECIFIED = 0;
+  REFEREE_VOTE_DISAGREE = 1;
+  REFEREE_VOTE_AGREE = 2;
+}
+
+message RefereeStreamRequest {
+  int32 panel_id = 1;
+  RefereeVote referee_vote = 2;
+}
+
+// ----- Server -> Client -----
+
+enum MatchPhase {
+  MATCH_PHASE_IDLE_UNSPECIFIED = 0;
+  MATCH_PHASE_PRE_MATCH = 1;
+  MATCH_PHASE_AUTO = 2;
+  MATCH_PHASE_TELEOP = 3;
+  MATCH_PHASE_ENDGAME = 4;
+  MATCH_PHASE_POST_MATCH = 5;
+}
+
+message RefereeStreamResponse {
+  int32 match_id = 1;
+  MatchPhase match_phase = 2;
+}
+
+service RefereePanelService {
+  rpc RefereeStream(stream RefereeStreamRequest) returns (stream RefereeStreamResponse);
+}
