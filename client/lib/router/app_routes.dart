@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 enum AppRoute {
   // Public routes
   splash(path: '/', name: 'splash'),
+  settings(path: '/settings', name: 'settings'),
   headReferee(path: '/headReferee', name: 'headReferee'),
   referee(path: '/referee/:id', name: 'referee');
 

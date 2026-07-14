@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package reflink.common;
+
+enum PanelType {
+  PANEL_TYPE_UNSPECIFIED = 0;
+  PANEL_TYPE_HEAD_REFEREE = 1;
+  PANEL_TYPE_RED_NEAR = 2;
+  PANEL_TYPE_RED_FAR = 3;
+  PANEL_TYPE_BLUE_NEAR = 4;
+  PANEL_TYPE_BLUE_FAR = 5;
+}
+
+enum RefereeVote {
+  REFEREE_VOTE_UNSPECIFIED = 0;
+  REFEREE_VOTE_DISAGREE = 1;
+  REFEREE_VOTE_AGREE = 2;
+}
+
+enum AutoClimbState {
+  AUTO_CLIMB_STATE_UNSPECIFIED = 0;
+  AUTO_CLIMB_STATE_NOTHING = 1;
+  AUTO_CLIMB_STATE_LEVEL_1 = 2;
+}
+
+enum CardType {
+  CARD_TYPE_UNSPECIFIED = 0;
+  CARD_TYPE_YELLOW = 1;
+  CARD_TYPE_RED = 2;
+}
+
+enum EndgameClimbState {
+  ENDGAME_CLIMB_STATE_UNSPECIFIED = 0;
+  ENDGAME_CLIMB_STATE_NOTHING = 1;
+  ENDGAME_CLIMB_STATE_LEVEL_1 = 2;
+  ENDGAME_CLIMB_STATE_LEVEL_2 = 3;
+  ENDGAME_CLIMB_STATE_LEVEL_3 = 4;
+}
+
+message RefereePanelState {
+  RefereeVote referee_vote = 1;
+  AutoClimbState auto_climb_alliance_station_1 = 2;
+  AutoClimbState auto_climb_alliance_station_2 = 3;
+  AutoClimbState auto_climb_alliance_station_3 = 4;
+  bool auto_submitted = 5;
+  bool auto_issue = 6;
+  int32 red_minor_fouls = 7;
+  int32 red_major_fouls = 8;
+  int32 blue_minor_fouls = 9;
+  int32 blue_major_fouls = 10;
+  CardType red_alliance_station_1 = 11;
+  CardType red_alliance_station_2 = 12;
+  CardType red_alliance_station_3 = 13;
+  CardType blue_alliance_station_1 = 14;
+  CardType blue_alliance_station_2 = 15;
+  CardType blue_alliance_station_3 = 16;
+  bool rp_issue = 17;
+  bool discussion_needed = 18;
+  EndgameClimbState endgame_climb_alliance_station_1 = 19;
+  EndgameClimbState endgame_climb_alliance_station_2 = 20;
+  EndgameClimbState endgame_climb_alliance_station_3 = 21;
+  bool endgame_submitted = 22;
+  bool endgame_issue = 23;
+}
+
+enum MatchPhase {
+  MATCH_PHASE_IDLE_UNSPECIFIED = 0;
+  MATCH_PHASE_PRE_MATCH = 1;
+  MATCH_PHASE_AUTO = 2;
+  MATCH_PHASE_TELEOP = 3;
+  MATCH_PHASE_ENDGAME = 4;
+  MATCH_PHASE_POST_MATCH = 5;
+}

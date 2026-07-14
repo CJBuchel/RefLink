@@ -164,7 +164,7 @@ final class RefereePanelServerProvider
 }
 
 String _$refereePanelServerHash() =>
-    r'b6278c9ef8324af161b672a33632c5237a02b85e';
+    r'eec6a5ea9a73d609f0c3eadbee032f825e454182';
 
 abstract class _$RefereePanelServer extends $Notifier<RefereeStreamResponse> {
   RefereeStreamResponse build();
@@ -216,7 +216,7 @@ final class RefereePanelProvider
   }
 }
 
-String _$refereePanelHash() => r'00824d1258fad90433c3f51b690c3cd220114e58';
+String _$refereePanelHash() => r'04dc9a7f8888807a313777d8058e7c3a885326fd';
 
 abstract class _$RefereePanel extends $Notifier<RefereeStreamRequest> {
   RefereeStreamRequest build();

@@ -15,61 +15,53 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
-@$core.Deprecated('Use refereeVoteDescriptor instead')
-const RefereeVote$json = {
-  '1': 'RefereeVote',
-  '2': [
-    {'1': 'REFEREE_VOTE_UNSPECIFIED', '2': 0},
-    {'1': 'REFEREE_VOTE_DISAGREE', '2': 1},
-    {'1': 'REFEREE_VOTE_AGREE', '2': 2},
-  ],
+@$core.Deprecated('Use getHealthRequestDescriptor instead')
+const GetHealthRequest$json = {
+  '1': 'GetHealthRequest',
 };
 
-/// Descriptor for `RefereeVote`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List refereeVoteDescriptor = $convert.base64Decode(
-    'CgtSZWZlcmVlVm90ZRIcChhSRUZFUkVFX1ZPVEVfVU5TUEVDSUZJRUQQABIZChVSRUZFUkVFX1'
-    'ZPVEVfRElTQUdSRUUQARIWChJSRUZFUkVFX1ZPVEVfQUdSRUUQAg==');
+/// Descriptor for `GetHealthRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getHealthRequestDescriptor =
+    $convert.base64Decode('ChBHZXRIZWFsdGhSZXF1ZXN0');
 
-@$core.Deprecated('Use matchPhaseDescriptor instead')
-const MatchPhase$json = {
-  '1': 'MatchPhase',
-  '2': [
-    {'1': 'MATCH_PHASE_IDLE_UNSPECIFIED', '2': 0},
-    {'1': 'MATCH_PHASE_PRE_MATCH', '2': 1},
-    {'1': 'MATCH_PHASE_AUTO', '2': 2},
-    {'1': 'MATCH_PHASE_TELEOP', '2': 3},
-    {'1': 'MATCH_PHASE_ENDGAME', '2': 4},
-    {'1': 'MATCH_PHASE_POST_MATCH', '2': 5},
-  ],
+@$core.Deprecated('Use getHealthResponseDescriptor instead')
+const GetHealthResponse$json = {
+  '1': 'GetHealthResponse',
 };
 
-/// Descriptor for `MatchPhase`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List matchPhaseDescriptor = $convert.base64Decode(
-    'CgpNYXRjaFBoYXNlEiAKHE1BVENIX1BIQVNFX0lETEVfVU5TUEVDSUZJRUQQABIZChVNQVRDSF'
-    '9QSEFTRV9QUkVfTUFUQ0gQARIUChBNQVRDSF9QSEFTRV9BVVRPEAISFgoSTUFUQ0hfUEhBU0Vf'
-    'VEVMRU9QEAMSFwoTTUFUQ0hfUEhBU0VfRU5ER0FNRRAEEhoKFk1BVENIX1BIQVNFX1BPU1RfTU'
-    'FUQ0gQBQ==');
+/// Descriptor for `GetHealthResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getHealthResponseDescriptor =
+    $convert.base64Decode('ChFHZXRIZWFsdGhSZXNwb25zZQ==');
 
 @$core.Deprecated('Use refereeStreamRequestDescriptor instead')
 const RefereeStreamRequest$json = {
   '1': 'RefereeStreamRequest',
   '2': [
-    {'1': 'panel_id', '3': 1, '4': 1, '5': 5, '10': 'panelId'},
     {
-      '1': 'referee_vote',
-      '3': 2,
+      '1': 'panel',
+      '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.reflink.api.RefereeVote',
-      '10': 'refereeVote'
+      '6': '.reflink.common.PanelType',
+      '10': 'panel'
+    },
+    {'1': 'match_id', '3': 2, '4': 1, '5': 5, '10': 'matchId'},
+    {
+      '1': 'state',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.RefereePanelState',
+      '10': 'state'
     },
   ],
 };
 
 /// Descriptor for `RefereeStreamRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List refereeStreamRequestDescriptor = $convert.base64Decode(
-    'ChRSZWZlcmVlU3RyZWFtUmVxdWVzdBIZCghwYW5lbF9pZBgBIAEoBVIHcGFuZWxJZBI7CgxyZW'
-    'ZlcmVlX3ZvdGUYAiABKA4yGC5yZWZsaW5rLmFwaS5SZWZlcmVlVm90ZVILcmVmZXJlZVZvdGU=');
+    'ChRSZWZlcmVlU3RyZWFtUmVxdWVzdBIvCgVwYW5lbBgBIAEoDjIZLnJlZmxpbmsuY29tbW9uLl'
+    'BhbmVsVHlwZVIFcGFuZWwSGQoIbWF0Y2hfaWQYAiABKAVSB21hdGNoSWQSNwoFc3RhdGUYAyAB'
+    'KAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVIFc3RhdGU=');
 
 @$core.Deprecated('Use refereeStreamResponseDescriptor instead')
 const RefereeStreamResponse$json = {
@@ -81,13 +73,47 @@ const RefereeStreamResponse$json = {
       '3': 2,
       '4': 1,
       '5': 14,
-      '6': '.reflink.api.MatchPhase',
+      '6': '.reflink.common.MatchPhase',
       '10': 'matchPhase'
+    },
+    {
+      '1': 'alliance_station_1_team_number',
+      '3': 3,
+      '4': 1,
+      '5': 9,
+      '10': 'allianceStation1TeamNumber'
+    },
+    {
+      '1': 'alliance_station_2_team_number',
+      '3': 4,
+      '4': 1,
+      '5': 9,
+      '10': 'allianceStation2TeamNumber'
+    },
+    {
+      '1': 'alliance_station_3_team_number',
+      '3': 5,
+      '4': 1,
+      '5': 9,
+      '10': 'allianceStation3TeamNumber'
+    },
+    {
+      '1': 'partner_panel',
+      '3': 6,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.RefereePanelState',
+      '10': 'partnerPanel'
     },
   ],
 };
 
 /// Descriptor for `RefereeStreamResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List refereeStreamResponseDescriptor = $convert.base64Decode(
-    'ChVSZWZlcmVlU3RyZWFtUmVzcG9uc2USGQoIbWF0Y2hfaWQYASABKAVSB21hdGNoSWQSOAoLbW'
-    'F0Y2hfcGhhc2UYAiABKA4yFy5yZWZsaW5rLmFwaS5NYXRjaFBoYXNlUgptYXRjaFBoYXNl');
+    'ChVSZWZlcmVlU3RyZWFtUmVzcG9uc2USGQoIbWF0Y2hfaWQYASABKAVSB21hdGNoSWQSOwoLbW'
+    'F0Y2hfcGhhc2UYAiABKA4yGi5yZWZsaW5rLmNvbW1vbi5NYXRjaFBoYXNlUgptYXRjaFBoYXNl'
+    'EkIKHmFsbGlhbmNlX3N0YXRpb25fMV90ZWFtX251bWJlchgDIAEoCVIaYWxsaWFuY2VTdGF0aW'
+    '9uMVRlYW1OdW1iZXISQgoeYWxsaWFuY2Vfc3RhdGlvbl8yX3RlYW1fbnVtYmVyGAQgASgJUhph'
+    'bGxpYW5jZVN0YXRpb24yVGVhbU51bWJlchJCCh5hbGxpYW5jZV9zdGF0aW9uXzNfdGVhbV9udW'
+    '1iZXIYBSABKAlSGmFsbGlhbmNlU3RhdGlvbjNUZWFtTnVtYmVyEkYKDXBhcnRuZXJfcGFuZWwY'
+    'BiABKAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVIMcGFydG5lclBhbmVs');

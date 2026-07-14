@@ -99,4 +99,4 @@ final class PanelNameProvider
   }
 }
 
-String _$panelNameHash() => r'a4ecd8a08ad5025eb2a13cca884a9ba76813bdeb';
+String _$panelNameHash() => r'28a38dae05904cf63bf5e3c2236233ff27ce5b70';

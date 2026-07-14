@@ -3,13 +3,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ref_link/base/base_scaffold.dart';
 import 'package:ref_link/models/panel_types.dart';
-import 'package:ref_link/providers/panel_id_provider.dart';
 import 'package:ref_link/router/app_routes.dart';
 import 'package:ref_link/router/deferred_widget.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 // Deferred
 import 'package:ref_link/views/splash/splash_view.dart' deferred as splash;
+import 'package:ref_link/views/settings/settings_view.dart'
+    deferred as settings;
 import 'package:ref_link/views/referee/referee_view.dart' deferred as referee;
 
 part 'router.g.dart';
@@ -104,6 +105,19 @@ GoRouter router(Ref ref) {
                 libraryKey: AppRoute.splash.path,
                 libraryLoader: splash.loadLibrary,
                 builder: (context) => splash.SplashView(),
+              ),
+            ),
+          ),
+
+          GoRoute(
+            name: AppRoute.settings.name,
+            path: AppRoute.settings.path,
+            pageBuilder: (context, state) => _buildTransitionPage(
+              key: state.pageKey,
+              child: DeferredWidget(
+                libraryKey: AppRoute.settings.path,
+                libraryLoader: settings.loadLibrary,
+                builder: (context) => settings.SettingsView(),
               ),
             ),
           ),

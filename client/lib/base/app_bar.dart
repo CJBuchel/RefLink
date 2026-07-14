@@ -1,3 +1,4 @@
+import 'package:ref_link/providers/health_provider.dart';
 import 'package:ref_link/providers/panel_id_provider.dart';
 import 'package:ref_link/router/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -14,17 +15,17 @@ class BaseAppBar extends ConsumerWidget implements PreferredSizeWidget {
     if (!showActions) return [];
     return [
       IconButton(
+        icon: const Icon(Icons.settings_outlined),
+        tooltip: 'Settings',
+        onPressed: () => AppRoute.settings.push(context),
+      ),
+      IconButton(
         icon: Icon(Icons.logout),
         onPressed: () {
           ref.read(panelIdProvider.notifier).clearId();
           context.goNamed(AppRoute.splash.name);
         },
       ),
-      // IconButton(
-      //   icon: const Icon(Icons.settings_outlined),
-      //   tooltip: 'Settings',
-      //   onPressed: () => AppRoute.settings.push(context),
-      // ),
     ];
   }
 
@@ -32,15 +33,27 @@ class BaseAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final canPop = context.canPop();
     final panelId = ref.watch(panelNameProvider);
+    final isConnected = ref.watch(isConnectedProvider).value ?? false;
+
+    Widget getTitle() {
+      if (isConnected) {
+        return Text(panelId, style: TextStyle(fontSize: 20));
+      } else {
+        return Text(
+          "Disconnected",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        );
+      }
+    }
 
     return AppBar(
-      backgroundColor: null,
+      backgroundColor: isConnected ? null : Colors.red,
       automaticallyImplyLeading: false,
-      leadingWidth: canPop ? 56 : 260,
+      leadingWidth: 260,
       leading: Center(
         child: Text("Qualification 20/42", style: TextStyle(fontSize: 20)),
       ),
-      title: Text(panelId, style: TextStyle(fontSize: 20)),
+      title: getTitle(),
       actions: canPop
           ? []
           : [

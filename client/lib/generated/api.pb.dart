@@ -14,20 +14,98 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'api.pbenum.dart';
+import 'common.pb.dart' as $1;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
 
-export 'api.pbenum.dart';
+export 'common.pb.dart';
+
+class GetHealthRequest extends $pb.GeneratedMessage {
+  factory GetHealthRequest() => create();
+
+  GetHealthRequest._();
+
+  factory GetHealthRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetHealthRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetHealthRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
+      createEmptyInstance: create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetHealthRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetHealthRequest copyWith(void Function(GetHealthRequest) updates) =>
+      super.copyWith((message) => updates(message as GetHealthRequest))
+          as GetHealthRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetHealthRequest create() => GetHealthRequest._();
+  @$core.override
+  GetHealthRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetHealthRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetHealthRequest>(create);
+  static GetHealthRequest? _defaultInstance;
+}
+
+class GetHealthResponse extends $pb.GeneratedMessage {
+  factory GetHealthResponse() => create();
+
+  GetHealthResponse._();
+
+  factory GetHealthResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetHealthResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetHealthResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
+      createEmptyInstance: create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetHealthResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetHealthResponse copyWith(void Function(GetHealthResponse) updates) =>
+      super.copyWith((message) => updates(message as GetHealthResponse))
+          as GetHealthResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetHealthResponse create() => GetHealthResponse._();
+  @$core.override
+  GetHealthResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetHealthResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetHealthResponse>(create);
+  static GetHealthResponse? _defaultInstance;
+}
 
 class RefereeStreamRequest extends $pb.GeneratedMessage {
   factory RefereeStreamRequest({
-    $core.int? panelId,
-    RefereeVote? refereeVote,
+    $1.PanelType? panel,
+    $core.int? matchId,
+    $1.RefereePanelState? state,
   }) {
     final result = create();
-    if (panelId != null) result.panelId = panelId;
-    if (refereeVote != null) result.refereeVote = refereeVote;
+    if (panel != null) result.panel = panel;
+    if (matchId != null) result.matchId = matchId;
+    if (state != null) result.state = state;
     return result;
   }
 
@@ -44,9 +122,11 @@ class RefereeStreamRequest extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'RefereeStreamRequest',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
       createEmptyInstance: create)
-    ..aI(1, _omitFieldNames ? '' : 'panelId')
-    ..aE<RefereeVote>(2, _omitFieldNames ? '' : 'refereeVote',
-        enumValues: RefereeVote.values)
+    ..aE<$1.PanelType>(1, _omitFieldNames ? '' : 'panel',
+        enumValues: $1.PanelType.values)
+    ..aI(2, _omitFieldNames ? '' : 'matchId')
+    ..aOM<$1.RefereePanelState>(3, _omitFieldNames ? '' : 'state',
+        subBuilder: $1.RefereePanelState.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -69,32 +149,54 @@ class RefereeStreamRequest extends $pb.GeneratedMessage {
   static RefereeStreamRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get panelId => $_getIZ(0);
+  $1.PanelType get panel => $_getN(0);
   @$pb.TagNumber(1)
-  set panelId($core.int value) => $_setSignedInt32(0, value);
+  set panel($1.PanelType value) => $_setField(1, value);
   @$pb.TagNumber(1)
-  $core.bool hasPanelId() => $_has(0);
+  $core.bool hasPanel() => $_has(0);
   @$pb.TagNumber(1)
-  void clearPanelId() => $_clearField(1);
+  void clearPanel() => $_clearField(1);
 
   @$pb.TagNumber(2)
-  RefereeVote get refereeVote => $_getN(1);
+  $core.int get matchId => $_getIZ(1);
   @$pb.TagNumber(2)
-  set refereeVote(RefereeVote value) => $_setField(2, value);
+  set matchId($core.int value) => $_setSignedInt32(1, value);
   @$pb.TagNumber(2)
-  $core.bool hasRefereeVote() => $_has(1);
+  $core.bool hasMatchId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearRefereeVote() => $_clearField(2);
+  void clearMatchId() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $1.RefereePanelState get state => $_getN(2);
+  @$pb.TagNumber(3)
+  set state($1.RefereePanelState value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasState() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearState() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $1.RefereePanelState ensureState() => $_ensure(2);
 }
 
 class RefereeStreamResponse extends $pb.GeneratedMessage {
   factory RefereeStreamResponse({
     $core.int? matchId,
-    MatchPhase? matchPhase,
+    $1.MatchPhase? matchPhase,
+    $core.String? allianceStation1TeamNumber,
+    $core.String? allianceStation2TeamNumber,
+    $core.String? allianceStation3TeamNumber,
+    $1.RefereePanelState? partnerPanel,
   }) {
     final result = create();
     if (matchId != null) result.matchId = matchId;
     if (matchPhase != null) result.matchPhase = matchPhase;
+    if (allianceStation1TeamNumber != null)
+      result.allianceStation1TeamNumber = allianceStation1TeamNumber;
+    if (allianceStation2TeamNumber != null)
+      result.allianceStation2TeamNumber = allianceStation2TeamNumber;
+    if (allianceStation3TeamNumber != null)
+      result.allianceStation3TeamNumber = allianceStation3TeamNumber;
+    if (partnerPanel != null) result.partnerPanel = partnerPanel;
     return result;
   }
 
@@ -112,8 +214,16 @@ class RefereeStreamResponse extends $pb.GeneratedMessage {
       package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
       createEmptyInstance: create)
     ..aI(1, _omitFieldNames ? '' : 'matchId')
-    ..aE<MatchPhase>(2, _omitFieldNames ? '' : 'matchPhase',
-        enumValues: MatchPhase.values)
+    ..aE<$1.MatchPhase>(2, _omitFieldNames ? '' : 'matchPhase',
+        enumValues: $1.MatchPhase.values)
+    ..aOS(3, _omitFieldNames ? '' : 'allianceStation1TeamNumber',
+        protoName: 'alliance_station_1_team_number')
+    ..aOS(4, _omitFieldNames ? '' : 'allianceStation2TeamNumber',
+        protoName: 'alliance_station_2_team_number')
+    ..aOS(5, _omitFieldNames ? '' : 'allianceStation3TeamNumber',
+        protoName: 'alliance_station_3_team_number')
+    ..aOM<$1.RefereePanelState>(6, _omitFieldNames ? '' : 'partnerPanel',
+        subBuilder: $1.RefereePanelState.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -146,13 +256,51 @@ class RefereeStreamResponse extends $pb.GeneratedMessage {
   void clearMatchId() => $_clearField(1);
 
   @$pb.TagNumber(2)
-  MatchPhase get matchPhase => $_getN(1);
+  $1.MatchPhase get matchPhase => $_getN(1);
   @$pb.TagNumber(2)
-  set matchPhase(MatchPhase value) => $_setField(2, value);
+  set matchPhase($1.MatchPhase value) => $_setField(2, value);
   @$pb.TagNumber(2)
   $core.bool hasMatchPhase() => $_has(1);
   @$pb.TagNumber(2)
   void clearMatchPhase() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get allianceStation1TeamNumber => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set allianceStation1TeamNumber($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasAllianceStation1TeamNumber() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearAllianceStation1TeamNumber() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get allianceStation2TeamNumber => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set allianceStation2TeamNumber($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasAllianceStation2TeamNumber() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearAllianceStation2TeamNumber() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get allianceStation3TeamNumber => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set allianceStation3TeamNumber($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasAllianceStation3TeamNumber() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearAllianceStation3TeamNumber() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  $1.RefereePanelState get partnerPanel => $_getN(5);
+  @$pb.TagNumber(6)
+  set partnerPanel($1.RefereePanelState value) => $_setField(6, value);
+  @$pb.TagNumber(6)
+  $core.bool hasPartnerPanel() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearPartnerPanel() => $_clearField(6);
+  @$pb.TagNumber(6)
+  $1.RefereePanelState ensurePartnerPanel() => $_ensure(5);
 }
 
 const $core.bool _omitFieldNames =

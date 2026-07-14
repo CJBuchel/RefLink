@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package reflink.db;
+
+import public "common.proto";
+
+message MatchStateRecord {
+  int32 match_id = 1;
+  common.MatchPhase match_phase = 2;
+  // common.HeadRefereeState hr = 3; // (TODO)
+  common.RefereePanelState rn = 4;
+  common.RefereePanelState rf = 5;
+  common.RefereePanelState bn = 6;
+  common.RefereePanelState bf = 7;
+}

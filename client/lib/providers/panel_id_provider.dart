@@ -1,3 +1,4 @@
+import 'package:ref_link/generated/db.pbenum.dart';
 import 'package:ref_link/helpers/local_storage.dart';
 import 'package:ref_link/models/panel_types.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -35,21 +36,19 @@ class PanelId extends _$PanelId {
 @riverpod
 String panelName(Ref ref) {
   final panelId = ref.watch(panelIdProvider);
-  try {
-    PanelType pt = getPanelFromString(panelId);
-    switch (pt) {
-      case PanelType.headReferee:
-        return 'Head Referee';
-      case PanelType.redNear:
-        return 'Red Near Referee';
-      case PanelType.redFar:
-        return 'Red Far Referee';
-      case PanelType.blueNear:
-        return 'Blue Near Referee';
-      case PanelType.blueFar:
-        return 'Blue Far Referee';
-    }
-  } catch (e) {
-    return "N/A";
+  PanelType pt = getPanelFromString(panelId);
+  switch (pt) {
+    case PanelType.PANEL_TYPE_HEAD_REFEREE:
+      return 'Head Referee';
+    case PanelType.PANEL_TYPE_RED_NEAR:
+      return 'Red Near Referee';
+    case PanelType.PANEL_TYPE_RED_FAR:
+      return 'Red Far Referee';
+    case PanelType.PANEL_TYPE_BLUE_NEAR:
+      return 'Blue Near Referee';
+    case PanelType.PANEL_TYPE_BLUE_FAR:
+      return 'Blue Far Referee';
+    default:
+      return 'N/A';
   }
 }

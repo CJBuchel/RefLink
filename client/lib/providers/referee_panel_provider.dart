@@ -1,6 +1,9 @@
 import 'package:ref_link/generated/api.pbgrpc.dart';
 import 'package:ref_link/helpers/local_storage.dart';
 import 'package:ref_link/helpers/protobuf_helper.dart';
+import 'package:ref_link/models/panel_types.dart';
+import 'package:ref_link/providers/panel_id_provider.dart';
+import 'package:ref_link/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:ref_link/helpers/reconnecting_bidirectional_stream.dart';
 import 'package:ref_link/providers/grpc_channel_provider.dart';
@@ -33,7 +36,7 @@ refereePanelConnection(Ref ref) {
 class RefereePanelServer extends _$RefereePanelServer {
   static const _key = "refereePanelServerState";
 
-  RefereeStreamResponse _getRefereePanelServerState() {
+  RefereeStreamResponse getRefereePanelServerState() {
     final buffer = localStorage.getString(_key);
     return buffer != null
         ? ProtobufHelper.decode(buffer, RefereeStreamResponse.fromBuffer)
@@ -45,10 +48,6 @@ class RefereePanelServer extends _$RefereePanelServer {
   }
 
   void _updateState(RefereeStreamResponse newState) {
-    if (newState.matchId != state.matchId) {
-      // reset the panel if this is a new match (clears old stored local data)
-      ref.read(refereePanelProvider.notifier).resetPanel();
-    }
     state = newState;
     _setRefereePanelServerState(newState);
   }
@@ -61,7 +60,7 @@ class RefereePanelServer extends _$RefereePanelServer {
       _updateState(message);
     });
 
-    return _getRefereePanelServerState();
+    return getRefereePanelServerState();
   }
 }
 
@@ -70,31 +69,65 @@ class RefereePanel extends _$RefereePanel {
   static const _key = "refereePanelState";
   late final connection = ref.read(refereePanelConnectionProvider);
 
+  PanelType panelType = PanelType.PANEL_TYPE_UNSPECIFIED;
+  int matchId = 0;
+
   @override
   RefereeStreamRequest build() {
+    panelType = getPanelFromString(ref.watch(panelIdProvider));
+    ref.listen(refereePanelServerProvider, (previous, next) {
+      if (previous?.matchId != next.matchId) {
+        logger.w("Panel reset (new match)");
+        matchId = next.matchId;
+        resetPanel();
+      }
+    });
     final saved = localStorage.getString(_key);
 
-    return saved != null
+    final buffer = saved != null
         ? ProtobufHelper.decode(saved, RefereeStreamRequest.fromBuffer)
         : RefereeStreamRequest();
+
+    buffer.panel = panelType;
+    buffer.matchId = matchId;
+    return buffer;
   }
 
-  void _updateAndSend(Function(RefereeStreamRequest request) update) {
-    final newState = state.deepCopy();
-    update(newState);
-    state = newState;
-    localStorage.setString(_key, ProtobufHelper.encode(newState));
-    connection.send(newState);
+  void _updateAndSend(RefereeStreamRequest update) {
+    update.matchId = matchId;
+    update.panel = panelType;
+    localStorage.setString(_key, ProtobufHelper.encode(update));
+    connection.send(update);
+    state = update;
+  }
+
+  void _updateAndSendPanelState(void Function(RefereePanelState panel) update) {
+    final updated = state.deepCopy();
+    updated.state = updated.state.deepCopy();
+    update(updated.state);
+    _updateAndSend(updated);
   }
 
   void resetPanel() {
-    final defaultState = RefereeStreamRequest.getDefault();
-    _updateAndSend((request) => request = defaultState);
+    final defaultState = RefereeStreamRequest();
+    _updateAndSend(defaultState);
+  }
+
+  void setMatchId(int id) {
+    final updated = state.deepCopy();
+    updated.matchId = id;
+    _updateAndSend(updated);
+  }
+
+  void setPanelType(PanelType panel) {
+    final updated = state.deepCopy();
+    updated.panel = panel;
+    _updateAndSend(updated);
   }
 
   void setRefereeVote(bool agree) {
-    _updateAndSend((request) {
-      request.refereeVote = agree
+    _updateAndSendPanelState((panel) {
+      panel.refereeVote = agree
           ? RefereeVote.REFEREE_VOTE_AGREE
           : RefereeVote.REFEREE_VOTE_DISAGREE;
     });

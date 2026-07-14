@@ -2,32 +2,33 @@ syntax = "proto3";
 
 package reflink.api;
 
-// ----- Client -> Server -----
-enum RefereeVote {
-  REFEREE_VOTE_UNSPECIFIED = 0;
-  REFEREE_VOTE_DISAGREE = 1;
-  REFEREE_VOTE_AGREE = 2;
+import public "common.proto";
+
+message GetHealthRequest {}
+message GetHealthResponse {}
+
+service HealthService {
+  rpc GetHealth(GetHealthRequest) returns (GetHealthResponse);
+  rpc StreamHealth(GetHealthRequest) returns (stream GetHealthResponse);
 }
 
+// ----- Client -> Server -----
+
 message RefereeStreamRequest {
-  int32 panel_id = 1;
-  RefereeVote referee_vote = 2;
+  common.PanelType panel = 1;
+  int32 match_id = 2;
+  common.RefereePanelState state = 3;
 }
 
 // ----- Server -> Client -----
 
-enum MatchPhase {
-  MATCH_PHASE_IDLE_UNSPECIFIED = 0;
-  MATCH_PHASE_PRE_MATCH = 1;
-  MATCH_PHASE_AUTO = 2;
-  MATCH_PHASE_TELEOP = 3;
-  MATCH_PHASE_ENDGAME = 4;
-  MATCH_PHASE_POST_MATCH = 5;
-}
-
 message RefereeStreamResponse {
   int32 match_id = 1;
-  MatchPhase match_phase = 2;
+  common.MatchPhase match_phase = 2;
+  string alliance_station_1_team_number = 3;
+  string alliance_station_2_team_number = 4;
+  string alliance_station_3_team_number = 5;
+  common.RefereePanelState partner_panel = 6;
 }
 
 service RefereePanelService {
