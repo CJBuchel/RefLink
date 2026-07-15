@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package reflink.fms;
+
+import public "common.proto";
+
+message FmsTeamState {
+  common.TeamAllianceStationType alliance_station = 1;
+  int32 team_number = 2;
+  bool bypassed = 3;
+  bool estop = 4;
+  bool astop = 5;
+}
+
+message FmsMatchInfo {
+  int32 match_id = 1;
+  int32 match_number = 2;
+  common.MatchType match_type = 3;
+  common.MatchPhase match_phase = 4;
+  int32 time_remaining_sec = 5;
+  repeated FmsTeamState teams = 6;
+}
+
+message FmsConnectionStatus {
+  bool connected = 1;
+  string host = 2;
+  int32 port = 3;
+  string last_error = 4;
+}
+
+message GetMatchInfoRequest {}
+message StreamMatchInfoRequest {}
+message StreamConnectionStatusRequest {}
+
+service FmsService {
+  rpc GetMatchInfo(GetMatchInfoRequest) returns (FmsMatchInfo);
+  rpc StreamMatchInfo(StreamMatchInfoRequest) returns (stream FmsMatchInfo);
+  rpc StreamConnectionStatus(StreamConnectionStatusRequest) returns (stream FmsConnectionStatus);
+}

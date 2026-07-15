@@ -1,3 +1,4 @@
+import 'package:ref_link/providers/fms_provider.dart';
 import 'package:ref_link/providers/health_provider.dart';
 import 'package:ref_link/providers/panel_id_provider.dart';
 import 'package:ref_link/router/app_routes.dart';
@@ -34,6 +35,12 @@ class BaseAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final canPop = context.canPop();
     final panelId = ref.watch(panelNameProvider);
     final isConnected = ref.watch(isConnectedProvider).value ?? false;
+    final matchInfo = ref.watch(arenaMatchInfoProvider).value;
+
+    final matchLabel = matchInfo == null || matchInfo.matchNumber == 0
+        ? "No Match"
+        : "${matchTypeLabel(matchInfo.matchType)} ${matchInfo.matchNumber}";
+    final timerLabel = matchTimerLabel(matchInfo?.timeRemainingSec ?? 0);
 
     Widget getTitle() {
       if (isConnected) {
@@ -51,14 +58,14 @@ class BaseAppBar extends ConsumerWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       leadingWidth: 260,
       leading: Center(
-        child: Text("Qualification 20/42", style: TextStyle(fontSize: 20)),
+        child: Text(matchLabel, style: TextStyle(fontSize: 20)),
       ),
       title: getTitle(),
       actions: canPop
           ? []
           : [
               Text(
-                "2:10",
+                timerLabel,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SizedBox(width: 40),

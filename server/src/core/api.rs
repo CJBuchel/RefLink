@@ -7,10 +7,11 @@ use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
   core::shutdown::ShutdownNotifier,
-  generated::api::{
-    health_service_server::HealthServiceServer, referee_panel_service_server::RefereePanelServiceServer,
+  generated::{
+    api::{health_service_server::HealthServiceServer, referee_panel_service_server::RefereePanelServiceServer},
+    fms::fms_service_server::FmsServiceServer,
   },
-  modules::{health::HealthApi, referee_panel::RefereePanelApi},
+  modules::{fms::FmsApi, health::HealthApi, referee_panel::RefereePanelApi},
 };
 
 pub struct Api {
@@ -46,7 +47,8 @@ impl Api {
       .layer(GrpcWebLayer::new())
       // Add services
       .add_service(HealthServiceServer::new(HealthApi {}))
-      .add_service(RefereePanelServiceServer::new(RefereePanelApi {}));
+      .add_service(RefereePanelServiceServer::new(RefereePanelApi {}))
+      .add_service(FmsServiceServer::new(FmsApi {}));
     match router
       .serve_with_shutdown(self.addr, async move {
         shutdown_rx.recv().await.ok();

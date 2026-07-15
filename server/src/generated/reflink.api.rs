@@ -13,18 +13,33 @@ pub struct RefereeStreamRequest {
     pub state: ::core::option::Option<super::common::RefereePanelState>,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RefereeTeamState {
+    #[prost(string, tag = "1")]
+    pub team_number: ::prost::alloc::string::String,
+    #[prost(bool, tag = "2")]
+    pub bypassed: bool,
+    #[prost(enumeration = "super::common::TeamAllianceStationType", tag = "3")]
+    pub alliance_station: i32,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct RefereeStreamResponse {
     #[prost(int32, tag = "1")]
     pub match_id: i32,
     #[prost(enumeration = "super::common::MatchPhase", tag = "2")]
     pub match_phase: i32,
-    #[prost(string, tag = "3")]
-    pub alliance_station_1_team_number: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
-    pub alliance_station_2_team_number: ::prost::alloc::string::String,
-    #[prost(string, tag = "5")]
-    pub alliance_station_3_team_number: ::prost::alloc::string::String,
+    #[prost(message, optional, tag = "3")]
+    pub red_alliance_team_1_state: ::core::option::Option<RefereeTeamState>,
+    #[prost(message, optional, tag = "4")]
+    pub red_alliance_team_2_state: ::core::option::Option<RefereeTeamState>,
+    #[prost(message, optional, tag = "5")]
+    pub red_alliance_team_3_state: ::core::option::Option<RefereeTeamState>,
     #[prost(message, optional, tag = "6")]
+    pub blue_alliance_team_1_state: ::core::option::Option<RefereeTeamState>,
+    #[prost(message, optional, tag = "7")]
+    pub blue_alliance_team_2_state: ::core::option::Option<RefereeTeamState>,
+    #[prost(message, optional, tag = "8")]
+    pub blue_alliance_team_3_state: ::core::option::Option<RefereeTeamState>,
+    #[prost(message, optional, tag = "9")]
     pub partner_panel: ::core::option::Option<super::common::RefereePanelState>,
 }
 /// Generated client implementations.

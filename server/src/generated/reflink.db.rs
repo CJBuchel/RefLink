@@ -5,7 +5,8 @@ pub struct MatchStateRecord {
     pub match_id: i32,
     #[prost(enumeration = "super::common::MatchPhase", tag = "2")]
     pub match_phase: i32,
-    /// common.HeadRefereeState hr = 3; // (TODO)
+    #[prost(message, optional, tag = "3")]
+    pub hr: ::core::option::Option<super::common::RefereePanelState>,
     #[prost(message, optional, tag = "4")]
     pub rn: ::core::option::Option<super::common::RefereePanelState>,
     #[prost(message, optional, tag = "5")]

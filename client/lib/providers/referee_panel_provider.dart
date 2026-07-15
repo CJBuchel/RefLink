@@ -75,6 +75,7 @@ class RefereePanel extends _$RefereePanel {
   @override
   RefereeStreamRequest build() {
     panelType = getPanelFromString(ref.watch(panelIdProvider));
+    matchId = ref.read(refereePanelServerProvider).matchId; // get initial
     ref.listen(refereePanelServerProvider, (previous, next) {
       if (previous?.matchId != next.matchId) {
         logger.w("Panel reset (new match)");
@@ -111,6 +112,9 @@ class RefereePanel extends _$RefereePanel {
   void resetPanel() {
     final defaultState = RefereeStreamRequest();
     _updateAndSend(defaultState);
+    ref.invalidate(refereeSubtractionModeProvider);
+    ref.invalidate(refereeCardModeProvider);
+    ref.invalidate(refereeEndgameModeProvider);
   }
 
   void setMatchId(int id) {
@@ -131,5 +135,209 @@ class RefereePanel extends _$RefereePanel {
           ? RefereeVote.REFEREE_VOTE_AGREE
           : RefereeVote.REFEREE_VOTE_DISAGREE;
     });
+  }
+
+  void setStation1AutoClimbState(AutoClimbState climb) {
+    _updateAndSendPanelState((panel) {
+      panel.autoClimbAllianceStation1 = climb;
+    });
+  }
+
+  void setStation2AutoClimbState(AutoClimbState climb) {
+    _updateAndSendPanelState((panel) {
+      panel.autoClimbAllianceStation2 = climb;
+    });
+  }
+
+  void setStation3AutoClimbState(AutoClimbState climb) {
+    _updateAndSendPanelState((panel) {
+      panel.autoClimbAllianceStation3 = climb;
+    });
+  }
+
+  void setStation1EndgameClimbState(EndgameClimbState climb) {
+    _updateAndSendPanelState((panel) {
+      panel.endgameClimbAllianceStation1 = climb;
+    });
+  }
+
+  void setStation2EndgameClimbState(EndgameClimbState climb) {
+    _updateAndSendPanelState((panel) {
+      panel.endgameClimbAllianceStation2 = climb;
+    });
+  }
+
+  void setStation3EndgameClimbState(EndgameClimbState climb) {
+    _updateAndSendPanelState((panel) {
+      panel.endgameClimbAllianceStation3 = climb;
+    });
+  }
+
+  void submitAuto() {
+    _updateAndSendPanelState((panel) {
+      panel.autoSubmitted = true;
+    });
+  }
+
+  void submitEndgame() {
+    _updateAndSendPanelState((panel) {
+      panel.endgameSubmitted = true;
+    });
+  }
+
+  void setAutoIssue() {
+    _updateAndSendPanelState((panel) {
+      panel.autoIssue = true;
+    });
+  }
+
+  void setRpIssue() {
+    _updateAndSendPanelState((panel) {
+      panel.rpIssue = true;
+    });
+  }
+
+  void setDiscussionNeeded() {
+    _updateAndSendPanelState((panel) {
+      panel.discussionNeeded = true;
+    });
+  }
+
+  void setEndgameIssue() {
+    _updateAndSendPanelState((panel) {
+      panel.endgameIssue = true;
+    });
+  }
+
+  void addFoul({required bool red, required bool major}) {
+    _updateAndSendPanelState((panel) {
+      if (red) {
+        panel.redMajorFouls += major ? 1 : 0;
+        panel.redMinorFouls += major ? 0 : 1;
+      } else {
+        panel.blueMajorFouls += major ? 1 : 0;
+        panel.blueMinorFouls += major ? 0 : 1;
+      }
+    });
+  }
+
+  void removeFoul({required bool red, required bool major}) {
+    _updateAndSendPanelState((panel) {
+      if (red) {
+        panel.redMajorFouls -= major ? 1 : 0;
+        panel.redMinorFouls -= major ? 0 : 1;
+      } else {
+        panel.blueMajorFouls -= major ? 1 : 0;
+        panel.blueMinorFouls -= major ? 0 : 1;
+      }
+    });
+  }
+
+  void setCardState(
+    CardType cardType,
+    TeamAllianceStationType allianceStation,
+  ) {
+    switch (allianceStation) {
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_1:
+        _updateAndSendPanelState((panel) {
+          panel.blueAllianceStation1 = cardType;
+        });
+        break;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_2:
+        _updateAndSendPanelState((panel) {
+          panel.blueAllianceStation2 = cardType;
+        });
+        break;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_3:
+        _updateAndSendPanelState((panel) {
+          panel.blueAllianceStation3 = cardType;
+        });
+        break;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_1:
+        _updateAndSendPanelState((panel) {
+          panel.redAllianceStation1 = cardType;
+        });
+        break;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_2:
+        _updateAndSendPanelState((panel) {
+          panel.redAllianceStation2 = cardType;
+        });
+        break;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_3:
+        _updateAndSendPanelState((panel) {
+          panel.redAllianceStation3 = cardType;
+        });
+        break;
+      default:
+        break;
+    }
+  }
+
+  CardType getAllianceStationCard(TeamAllianceStationType allianceStation) {
+    final panel = state.state;
+    switch (allianceStation) {
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_1:
+        return panel.blueAllianceStation1;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_2:
+        return panel.blueAllianceStation2;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_3:
+        return panel.blueAllianceStation3;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_1:
+        return panel.redAllianceStation1;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_2:
+        return panel.redAllianceStation2;
+      case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_3:
+        return panel.redAllianceStation3;
+      default:
+        return CardType.CARD_TYPE_UNSPECIFIED;
+    }
+  }
+}
+
+@riverpod
+class RefereeSubtractionMode extends _$RefereeSubtractionMode {
+  void setSubtractionMode(bool subtraction) {
+    state = subtraction;
+  }
+
+  void toggleSubtractionMode() {
+    state = !state;
+  }
+
+  @override
+  bool build() {
+    return false;
+  }
+}
+
+@riverpod
+class RefereeCardMode extends _$RefereeCardMode {
+  void setCardMode(bool mode) {
+    state = mode;
+  }
+
+  void toggleCardMode() {
+    state = !state;
+  }
+
+  @override
+  bool build() {
+    return false;
+  }
+}
+
+@riverpod
+class RefereeEndgameMode extends _$RefereeEndgameMode {
+  void setEndgameMode(bool endgame) {
+    state = endgame;
+  }
+
+  void toggleEndgameMode() {
+    state = !state;
+  }
+
+  @override
+  bool build() {
+    return false;
   }
 }

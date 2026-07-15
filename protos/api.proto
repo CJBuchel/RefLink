@@ -22,13 +22,22 @@ message RefereeStreamRequest {
 
 // ----- Server -> Client -----
 
+message RefereeTeamState {
+  string team_number = 1;
+  bool bypassed = 2;
+ common.TeamAllianceStationType alliance_station = 3;
+}
+
 message RefereeStreamResponse {
   int32 match_id = 1;
   common.MatchPhase match_phase = 2;
-  string alliance_station_1_team_number = 3;
-  string alliance_station_2_team_number = 4;
-  string alliance_station_3_team_number = 5;
-  common.RefereePanelState partner_panel = 6;
+  RefereeTeamState red_alliance_team_1_state = 3;
+  RefereeTeamState red_alliance_team_2_state = 4;
+  RefereeTeamState red_alliance_team_3_state = 5;
+  RefereeTeamState blue_alliance_team_1_state = 6;
+  RefereeTeamState blue_alliance_team_2_state = 7;
+  RefereeTeamState blue_alliance_team_3_state = 8;
+  common.RefereePanelState partner_panel = 9;
 }
 
 service RefereePanelService {

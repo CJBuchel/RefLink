@@ -16,3 +16,12 @@ PanelType getPanelFromString(String? id) {
       return PanelType.PANEL_TYPE_UNSPECIFIED;
   }
 }
+
+bool isRedPanel(PanelType panel) {
+  return panel == PanelType.PANEL_TYPE_RED_NEAR ||
+      panel == PanelType.PANEL_TYPE_RED_FAR;
+}
+
+bool isRedPanelFromString(String? id) {
+  return isRedPanel(getPanelFromString(id));
+}

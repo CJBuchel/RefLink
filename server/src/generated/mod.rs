@@ -11,3 +11,7 @@ pub mod db {
 pub mod common {
   include!("reflink.common.rs");
 }
+#[allow(clippy::all, clippy::pedantic)]
+pub mod fms {
+  include!("reflink.fms.rs");
+}

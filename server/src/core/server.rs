@@ -1,12 +1,10 @@
-use std::{net::SocketAddr, sync::Arc};
-
 use anyhow::Result;
-use tokio::sync::RwLock;
 
 use crate::{
   config::ServerConfig,
-  core::{api::Api, scheduler::SchedulerPool, shutdown::ShutdownNotifier},
+  core::{api::Api, events::init_event_bus, scheduler::SchedulerPool},
   db::init_db,
+  modules::fms,
 };
 
 pub struct Server {
@@ -29,6 +27,12 @@ impl Server {
 
     // let shutdown_notifier = ShutdownNotifier::get();
 
+    // Init event bus
+    if let Err(e) = init_event_bus(1024) {
+      log::error!("Failed to initialize event bus: {}", e);
+      return Err(e);
+    }
+
     // Init DB
     if let Err(e) = init_db(None).await {
       log::error!("Failed to initialize database: {}", e);
@@ -44,7 +48,14 @@ impl Server {
     }
 
     // Spawn API Server
-    self.scheduler.spawn(api_service(self.config));
+    self.scheduler.spawn(api_service(self.config.clone()));
+
+    // Spawn FMS connector (Cheesy Arena)
+    if self.config.fms_enabled {
+      self.scheduler.spawn(fms::run(self.config.clone()));
+    } else {
+      log::info!("FMS connector disabled (fms_enabled=false)");
+    }
 
     // Await all services
     self.scheduler.wait_all().await?;

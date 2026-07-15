@@ -29,6 +29,14 @@ const MatchStateRecord$json = {
       '10': 'matchPhase'
     },
     {
+      '1': 'hr',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.RefereePanelState',
+      '10': 'hr'
+    },
+    {
       '1': 'rn',
       '3': 4,
       '4': 1,
@@ -66,8 +74,9 @@ const MatchStateRecord$json = {
 /// Descriptor for `MatchStateRecord`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List matchStateRecordDescriptor = $convert.base64Decode(
     'ChBNYXRjaFN0YXRlUmVjb3JkEhkKCG1hdGNoX2lkGAEgASgFUgdtYXRjaElkEjsKC21hdGNoX3'
-    'BoYXNlGAIgASgOMhoucmVmbGluay5jb21tb24uTWF0Y2hQaGFzZVIKbWF0Y2hQaGFzZRIxCgJy'
-    'bhgEIAEoCzIhLnJlZmxpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJybhIxCgJyZhgFIA'
-    'EoCzIhLnJlZmxpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJyZhIxCgJibhgGIAEoCzIh'
-    'LnJlZmxpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJibhIxCgJiZhgHIAEoCzIhLnJlZm'
-    'xpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJiZg==');
+    'BoYXNlGAIgASgOMhoucmVmbGluay5jb21tb24uTWF0Y2hQaGFzZVIKbWF0Y2hQaGFzZRIxCgJo'
+    'chgDIAEoCzIhLnJlZmxpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJochIxCgJybhgEIA'
+    'EoCzIhLnJlZmxpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJybhIxCgJyZhgFIAEoCzIh'
+    'LnJlZmxpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJyZhIxCgJibhgGIAEoCzIhLnJlZm'
+    'xpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJibhIxCgJiZhgHIAEoCzIhLnJlZmxpbmsu'
+    'Y29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJiZg==');

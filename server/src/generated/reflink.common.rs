@@ -50,6 +50,47 @@ pub struct RefereePanelState {
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
+pub enum TeamAllianceStationType {
+    Unspecified = 0,
+    Red1 = 1,
+    Red2 = 2,
+    Red3 = 3,
+    Blue1 = 4,
+    Blue2 = 5,
+    Blue3 = 6,
+}
+impl TeamAllianceStationType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Unspecified => "TEAM_ALLIANCE_STATION_TYPE_UNSPECIFIED",
+            Self::Red1 => "TEAM_ALLIANCE_STATION_TYPE_RED_1",
+            Self::Red2 => "TEAM_ALLIANCE_STATION_TYPE_RED_2",
+            Self::Red3 => "TEAM_ALLIANCE_STATION_TYPE_RED_3",
+            Self::Blue1 => "TEAM_ALLIANCE_STATION_TYPE_BLUE_1",
+            Self::Blue2 => "TEAM_ALLIANCE_STATION_TYPE_BLUE_2",
+            Self::Blue3 => "TEAM_ALLIANCE_STATION_TYPE_BLUE_3",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "TEAM_ALLIANCE_STATION_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
+            "TEAM_ALLIANCE_STATION_TYPE_RED_1" => Some(Self::Red1),
+            "TEAM_ALLIANCE_STATION_TYPE_RED_2" => Some(Self::Red2),
+            "TEAM_ALLIANCE_STATION_TYPE_RED_3" => Some(Self::Red3),
+            "TEAM_ALLIANCE_STATION_TYPE_BLUE_1" => Some(Self::Blue1),
+            "TEAM_ALLIANCE_STATION_TYPE_BLUE_2" => Some(Self::Blue2),
+            "TEAM_ALLIANCE_STATION_TYPE_BLUE_3" => Some(Self::Blue3),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
 pub enum PanelType {
     Unspecified = 0,
     HeadReferee = 1,
@@ -242,6 +283,38 @@ impl MatchPhase {
             "MATCH_PHASE_TELEOP" => Some(Self::Teleop),
             "MATCH_PHASE_ENDGAME" => Some(Self::Endgame),
             "MATCH_PHASE_POST_MATCH" => Some(Self::PostMatch),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum MatchType {
+    Unspecified = 0,
+    Practice = 1,
+    Qualification = 2,
+    Playoff = 3,
+}
+impl MatchType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Unspecified => "MATCH_TYPE_UNSPECIFIED",
+            Self::Practice => "MATCH_TYPE_PRACTICE",
+            Self::Qualification => "MATCH_TYPE_QUALIFICATION",
+            Self::Playoff => "MATCH_TYPE_PLAYOFF",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "MATCH_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
+            "MATCH_TYPE_PRACTICE" => Some(Self::Practice),
+            "MATCH_TYPE_QUALIFICATION" => Some(Self::Qualification),
+            "MATCH_TYPE_PLAYOFF" => Some(Self::Playoff),
             _ => None,
         }
     }

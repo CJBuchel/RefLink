@@ -15,6 +15,29 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use teamAllianceStationTypeDescriptor instead')
+const TeamAllianceStationType$json = {
+  '1': 'TeamAllianceStationType',
+  '2': [
+    {'1': 'TEAM_ALLIANCE_STATION_TYPE_UNSPECIFIED', '2': 0},
+    {'1': 'TEAM_ALLIANCE_STATION_TYPE_RED_1', '2': 1},
+    {'1': 'TEAM_ALLIANCE_STATION_TYPE_RED_2', '2': 2},
+    {'1': 'TEAM_ALLIANCE_STATION_TYPE_RED_3', '2': 3},
+    {'1': 'TEAM_ALLIANCE_STATION_TYPE_BLUE_1', '2': 4},
+    {'1': 'TEAM_ALLIANCE_STATION_TYPE_BLUE_2', '2': 5},
+    {'1': 'TEAM_ALLIANCE_STATION_TYPE_BLUE_3', '2': 6},
+  ],
+};
+
+/// Descriptor for `TeamAllianceStationType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List teamAllianceStationTypeDescriptor = $convert.base64Decode(
+    'ChdUZWFtQWxsaWFuY2VTdGF0aW9uVHlwZRIqCiZURUFNX0FMTElBTkNFX1NUQVRJT05fVFlQRV'
+    '9VTlNQRUNJRklFRBAAEiQKIFRFQU1fQUxMSUFOQ0VfU1RBVElPTl9UWVBFX1JFRF8xEAESJAog'
+    'VEVBTV9BTExJQU5DRV9TVEFUSU9OX1RZUEVfUkVEXzIQAhIkCiBURUFNX0FMTElBTkNFX1NUQV'
+    'RJT05fVFlQRV9SRURfMxADEiUKIVRFQU1fQUxMSUFOQ0VfU1RBVElPTl9UWVBFX0JMVUVfMRAE'
+    'EiUKIVRFQU1fQUxMSUFOQ0VfU1RBVElPTl9UWVBFX0JMVUVfMhAFEiUKIVRFQU1fQUxMSUFOQ0'
+    'VfU1RBVElPTl9UWVBFX0JMVUVfMxAG');
+
 @$core.Deprecated('Use panelTypeDescriptor instead')
 const PanelType$json = {
   '1': 'PanelType',
@@ -118,6 +141,23 @@ final $typed_data.Uint8List matchPhaseDescriptor = $convert.base64Decode(
     '9QSEFTRV9QUkVfTUFUQ0gQARIUChBNQVRDSF9QSEFTRV9BVVRPEAISFgoSTUFUQ0hfUEhBU0Vf'
     'VEVMRU9QEAMSFwoTTUFUQ0hfUEhBU0VfRU5ER0FNRRAEEhoKFk1BVENIX1BIQVNFX1BPU1RfTU'
     'FUQ0gQBQ==');
+
+@$core.Deprecated('Use matchTypeDescriptor instead')
+const MatchType$json = {
+  '1': 'MatchType',
+  '2': [
+    {'1': 'MATCH_TYPE_UNSPECIFIED', '2': 0},
+    {'1': 'MATCH_TYPE_PRACTICE', '2': 1},
+    {'1': 'MATCH_TYPE_QUALIFICATION', '2': 2},
+    {'1': 'MATCH_TYPE_PLAYOFF', '2': 3},
+  ],
+};
+
+/// Descriptor for `MatchType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List matchTypeDescriptor = $convert.base64Decode(
+    'CglNYXRjaFR5cGUSGgoWTUFUQ0hfVFlQRV9VTlNQRUNJRklFRBAAEhcKE01BVENIX1RZUEVfUF'
+    'JBQ1RJQ0UQARIcChhNQVRDSF9UWVBFX1FVQUxJRklDQVRJT04QAhIWChJNQVRDSF9UWVBFX1BM'
+    'QVlPRkYQAw==');
 
 @$core.Deprecated('Use refereePanelStateDescriptor instead')
 const RefereePanelState$json = {

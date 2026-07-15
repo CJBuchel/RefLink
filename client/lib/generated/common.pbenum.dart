@@ -14,6 +14,48 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+class TeamAllianceStationType extends $pb.ProtobufEnum {
+  static const TeamAllianceStationType TEAM_ALLIANCE_STATION_TYPE_UNSPECIFIED =
+      TeamAllianceStationType._(
+          0, _omitEnumNames ? '' : 'TEAM_ALLIANCE_STATION_TYPE_UNSPECIFIED');
+  static const TeamAllianceStationType TEAM_ALLIANCE_STATION_TYPE_RED_1 =
+      TeamAllianceStationType._(
+          1, _omitEnumNames ? '' : 'TEAM_ALLIANCE_STATION_TYPE_RED_1');
+  static const TeamAllianceStationType TEAM_ALLIANCE_STATION_TYPE_RED_2 =
+      TeamAllianceStationType._(
+          2, _omitEnumNames ? '' : 'TEAM_ALLIANCE_STATION_TYPE_RED_2');
+  static const TeamAllianceStationType TEAM_ALLIANCE_STATION_TYPE_RED_3 =
+      TeamAllianceStationType._(
+          3, _omitEnumNames ? '' : 'TEAM_ALLIANCE_STATION_TYPE_RED_3');
+  static const TeamAllianceStationType TEAM_ALLIANCE_STATION_TYPE_BLUE_1 =
+      TeamAllianceStationType._(
+          4, _omitEnumNames ? '' : 'TEAM_ALLIANCE_STATION_TYPE_BLUE_1');
+  static const TeamAllianceStationType TEAM_ALLIANCE_STATION_TYPE_BLUE_2 =
+      TeamAllianceStationType._(
+          5, _omitEnumNames ? '' : 'TEAM_ALLIANCE_STATION_TYPE_BLUE_2');
+  static const TeamAllianceStationType TEAM_ALLIANCE_STATION_TYPE_BLUE_3 =
+      TeamAllianceStationType._(
+          6, _omitEnumNames ? '' : 'TEAM_ALLIANCE_STATION_TYPE_BLUE_3');
+
+  static const $core.List<TeamAllianceStationType> values =
+      <TeamAllianceStationType>[
+    TEAM_ALLIANCE_STATION_TYPE_UNSPECIFIED,
+    TEAM_ALLIANCE_STATION_TYPE_RED_1,
+    TEAM_ALLIANCE_STATION_TYPE_RED_2,
+    TEAM_ALLIANCE_STATION_TYPE_RED_3,
+    TEAM_ALLIANCE_STATION_TYPE_BLUE_1,
+    TEAM_ALLIANCE_STATION_TYPE_BLUE_2,
+    TEAM_ALLIANCE_STATION_TYPE_BLUE_3,
+  ];
+
+  static final $core.List<TeamAllianceStationType?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 6);
+  static TeamAllianceStationType? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const TeamAllianceStationType._(super.value, super.name);
+}
+
 class PanelType extends $pb.ProtobufEnum {
   static const PanelType PANEL_TYPE_UNSPECIFIED =
       PanelType._(0, _omitEnumNames ? '' : 'PANEL_TYPE_UNSPECIFIED');
@@ -173,6 +215,31 @@ class MatchPhase extends $pb.ProtobufEnum {
       value < 0 || value >= _byValue.length ? null : _byValue[value];
 
   const MatchPhase._(super.value, super.name);
+}
+
+class MatchType extends $pb.ProtobufEnum {
+  static const MatchType MATCH_TYPE_UNSPECIFIED =
+      MatchType._(0, _omitEnumNames ? '' : 'MATCH_TYPE_UNSPECIFIED');
+  static const MatchType MATCH_TYPE_PRACTICE =
+      MatchType._(1, _omitEnumNames ? '' : 'MATCH_TYPE_PRACTICE');
+  static const MatchType MATCH_TYPE_QUALIFICATION =
+      MatchType._(2, _omitEnumNames ? '' : 'MATCH_TYPE_QUALIFICATION');
+  static const MatchType MATCH_TYPE_PLAYOFF =
+      MatchType._(3, _omitEnumNames ? '' : 'MATCH_TYPE_PLAYOFF');
+
+  static const $core.List<MatchType> values = <MatchType>[
+    MATCH_TYPE_UNSPECIFIED,
+    MATCH_TYPE_PRACTICE,
+    MATCH_TYPE_QUALIFICATION,
+    MATCH_TYPE_PLAYOFF,
+  ];
+
+  static final $core.List<MatchType?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 3);
+  static MatchType? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const MatchType._(super.value, super.name);
 }
 
 const $core.bool _omitEnumNames =

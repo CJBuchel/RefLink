@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ref_link/generated/api.pbgrpc.dart';
 import 'package:ref_link/providers/referee_panel_provider.dart';
-import 'package:ref_link/views/referee/auto_phase.dart';
+import 'package:ref_link/views/referee/main_phase_layout/main_phase.dart';
+import 'package:ref_link/views/referee/post_match_phase.dart';
 import 'package:ref_link/views/referee/pre_match_phase.dart';
+import 'package:ref_link/views/referee/auto_phase_layout/auto_phase.dart';
 
 class RefereeView extends HookConsumerWidget {
   final PanelType panelType;
@@ -26,12 +28,22 @@ class RefereeView extends HookConsumerWidget {
       case MatchPhase.MATCH_PHASE_AUTO:
         view = RefereeAutoMatchPhase();
       case MatchPhase.MATCH_PHASE_TELEOP:
-      // view = RefereeTeleopPhase
+        if (!panelState.autoSubmitted) {
+          view = RefereeAutoMatchPhase();
+        } else {
+          view = RefereeMainPhase();
+        }
       case MatchPhase.MATCH_PHASE_ENDGAME:
-      // view = RefereeEndgamePhase
+        if (!panelState.autoSubmitted) {
+          view = RefereeAutoMatchPhase();
+        } else {
+          view = RefereeMainPhase();
+        }
       case MatchPhase.MATCH_PHASE_POST_MATCH:
         if (panelState.autoSubmitted && panelState.endgameSubmitted) {
-          view = RefereePreMatchPhase();
+          view = RefereePostMatchPhase();
+        } else {
+          view = RefereeMainPhase();
         }
       default:
     }

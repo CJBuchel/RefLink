@@ -1,6 +1,7 @@
 use anyhow::Result;
 
 use crate::{
+  core::events::{ChangeEvent, ChangeOperation, EVENT_BUS},
   db,
   generated::{
     common::{PanelType, RefereePanelState},
@@ -25,6 +26,15 @@ impl MatchStateRepository for MatchStateRecord {
       Ok(id) => id,
       Err(e) => return Err(anyhow::anyhow!(e)),
     };
+
+    if let Some(bus) = EVENT_BUS.get() {
+      let _ = bus.publish(ChangeEvent::Record {
+        operation: ChangeOperation::Update,
+        id: id.clone(),
+        data: Some(record),
+      });
+    }
+
     Ok(id)
   }
 
@@ -50,6 +60,7 @@ impl MatchStateRepository for MatchStateRecord {
   async fn update_panel_state(match_id: i32, panel_type: PanelType, record: RefereePanelState) -> Result<String> {
     let mut match_state = Self::get_match_state(match_id).await?;
     match panel_type {
+      PanelType::HeadReferee => match_state.hr = Some(record),
       PanelType::RedNear => match_state.rn = Some(record),
       PanelType::RedFar => match_state.rf = Some(record),
       PanelType::BlueNear => match_state.bn = Some(record),

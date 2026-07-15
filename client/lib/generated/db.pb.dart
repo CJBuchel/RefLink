@@ -24,6 +24,7 @@ class MatchStateRecord extends $pb.GeneratedMessage {
   factory MatchStateRecord({
     $core.int? matchId,
     $0.MatchPhase? matchPhase,
+    $0.RefereePanelState? hr,
     $0.RefereePanelState? rn,
     $0.RefereePanelState? rf,
     $0.RefereePanelState? bn,
@@ -32,6 +33,7 @@ class MatchStateRecord extends $pb.GeneratedMessage {
     final result = create();
     if (matchId != null) result.matchId = matchId;
     if (matchPhase != null) result.matchPhase = matchPhase;
+    if (hr != null) result.hr = hr;
     if (rn != null) result.rn = rn;
     if (rf != null) result.rf = rf;
     if (bn != null) result.bn = bn;
@@ -55,6 +57,8 @@ class MatchStateRecord extends $pb.GeneratedMessage {
     ..aI(1, _omitFieldNames ? '' : 'matchId')
     ..aE<$0.MatchPhase>(2, _omitFieldNames ? '' : 'matchPhase',
         enumValues: $0.MatchPhase.values)
+    ..aOM<$0.RefereePanelState>(3, _omitFieldNames ? '' : 'hr',
+        subBuilder: $0.RefereePanelState.create)
     ..aOM<$0.RefereePanelState>(4, _omitFieldNames ? '' : 'rn',
         subBuilder: $0.RefereePanelState.create)
     ..aOM<$0.RefereePanelState>(5, _omitFieldNames ? '' : 'rf',
@@ -102,50 +106,60 @@ class MatchStateRecord extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearMatchPhase() => $_clearField(2);
 
-  /// common.HeadRefereeState hr = 3; // (TODO)
+  @$pb.TagNumber(3)
+  $0.RefereePanelState get hr => $_getN(2);
+  @$pb.TagNumber(3)
+  set hr($0.RefereePanelState value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasHr() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearHr() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $0.RefereePanelState ensureHr() => $_ensure(2);
+
   @$pb.TagNumber(4)
-  $0.RefereePanelState get rn => $_getN(2);
+  $0.RefereePanelState get rn => $_getN(3);
   @$pb.TagNumber(4)
   set rn($0.RefereePanelState value) => $_setField(4, value);
   @$pb.TagNumber(4)
-  $core.bool hasRn() => $_has(2);
+  $core.bool hasRn() => $_has(3);
   @$pb.TagNumber(4)
   void clearRn() => $_clearField(4);
   @$pb.TagNumber(4)
-  $0.RefereePanelState ensureRn() => $_ensure(2);
+  $0.RefereePanelState ensureRn() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  $0.RefereePanelState get rf => $_getN(3);
+  $0.RefereePanelState get rf => $_getN(4);
   @$pb.TagNumber(5)
   set rf($0.RefereePanelState value) => $_setField(5, value);
   @$pb.TagNumber(5)
-  $core.bool hasRf() => $_has(3);
+  $core.bool hasRf() => $_has(4);
   @$pb.TagNumber(5)
   void clearRf() => $_clearField(5);
   @$pb.TagNumber(5)
-  $0.RefereePanelState ensureRf() => $_ensure(3);
+  $0.RefereePanelState ensureRf() => $_ensure(4);
 
   @$pb.TagNumber(6)
-  $0.RefereePanelState get bn => $_getN(4);
+  $0.RefereePanelState get bn => $_getN(5);
   @$pb.TagNumber(6)
   set bn($0.RefereePanelState value) => $_setField(6, value);
   @$pb.TagNumber(6)
-  $core.bool hasBn() => $_has(4);
+  $core.bool hasBn() => $_has(5);
   @$pb.TagNumber(6)
   void clearBn() => $_clearField(6);
   @$pb.TagNumber(6)
-  $0.RefereePanelState ensureBn() => $_ensure(4);
+  $0.RefereePanelState ensureBn() => $_ensure(5);
 
   @$pb.TagNumber(7)
-  $0.RefereePanelState get bf => $_getN(5);
+  $0.RefereePanelState get bf => $_getN(6);
   @$pb.TagNumber(7)
   set bf($0.RefereePanelState value) => $_setField(7, value);
   @$pb.TagNumber(7)
-  $core.bool hasBf() => $_has(5);
+  $core.bool hasBf() => $_has(6);
   @$pb.TagNumber(7)
   void clearBf() => $_clearField(7);
   @$pb.TagNumber(7)
-  $0.RefereePanelState ensureBf() => $_ensure(5);
+  $0.RefereePanelState ensureBf() => $_ensure(6);
 }
 
 const $core.bool _omitFieldNames =

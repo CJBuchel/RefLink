@@ -178,24 +178,113 @@ class RefereeStreamRequest extends $pb.GeneratedMessage {
   $1.RefereePanelState ensureState() => $_ensure(2);
 }
 
+class RefereeTeamState extends $pb.GeneratedMessage {
+  factory RefereeTeamState({
+    $core.String? teamNumber,
+    $core.bool? bypassed,
+    $1.TeamAllianceStationType? allianceStation,
+  }) {
+    final result = create();
+    if (teamNumber != null) result.teamNumber = teamNumber;
+    if (bypassed != null) result.bypassed = bypassed;
+    if (allianceStation != null) result.allianceStation = allianceStation;
+    return result;
+  }
+
+  RefereeTeamState._();
+
+  factory RefereeTeamState.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory RefereeTeamState.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RefereeTeamState',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'teamNumber')
+    ..aOB(2, _omitFieldNames ? '' : 'bypassed')
+    ..aE<$1.TeamAllianceStationType>(
+        3, _omitFieldNames ? '' : 'allianceStation',
+        enumValues: $1.TeamAllianceStationType.values)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RefereeTeamState clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RefereeTeamState copyWith(void Function(RefereeTeamState) updates) =>
+      super.copyWith((message) => updates(message as RefereeTeamState))
+          as RefereeTeamState;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RefereeTeamState create() => RefereeTeamState._();
+  @$core.override
+  RefereeTeamState createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static RefereeTeamState getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RefereeTeamState>(create);
+  static RefereeTeamState? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get teamNumber => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set teamNumber($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTeamNumber() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTeamNumber() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get bypassed => $_getBF(1);
+  @$pb.TagNumber(2)
+  set bypassed($core.bool value) => $_setBool(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasBypassed() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearBypassed() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $1.TeamAllianceStationType get allianceStation => $_getN(2);
+  @$pb.TagNumber(3)
+  set allianceStation($1.TeamAllianceStationType value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasAllianceStation() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearAllianceStation() => $_clearField(3);
+}
+
 class RefereeStreamResponse extends $pb.GeneratedMessage {
   factory RefereeStreamResponse({
     $core.int? matchId,
     $1.MatchPhase? matchPhase,
-    $core.String? allianceStation1TeamNumber,
-    $core.String? allianceStation2TeamNumber,
-    $core.String? allianceStation3TeamNumber,
+    RefereeTeamState? redAllianceTeam1State,
+    RefereeTeamState? redAllianceTeam2State,
+    RefereeTeamState? redAllianceTeam3State,
+    RefereeTeamState? blueAllianceTeam1State,
+    RefereeTeamState? blueAllianceTeam2State,
+    RefereeTeamState? blueAllianceTeam3State,
     $1.RefereePanelState? partnerPanel,
   }) {
     final result = create();
     if (matchId != null) result.matchId = matchId;
     if (matchPhase != null) result.matchPhase = matchPhase;
-    if (allianceStation1TeamNumber != null)
-      result.allianceStation1TeamNumber = allianceStation1TeamNumber;
-    if (allianceStation2TeamNumber != null)
-      result.allianceStation2TeamNumber = allianceStation2TeamNumber;
-    if (allianceStation3TeamNumber != null)
-      result.allianceStation3TeamNumber = allianceStation3TeamNumber;
+    if (redAllianceTeam1State != null)
+      result.redAllianceTeam1State = redAllianceTeam1State;
+    if (redAllianceTeam2State != null)
+      result.redAllianceTeam2State = redAllianceTeam2State;
+    if (redAllianceTeam3State != null)
+      result.redAllianceTeam3State = redAllianceTeam3State;
+    if (blueAllianceTeam1State != null)
+      result.blueAllianceTeam1State = blueAllianceTeam1State;
+    if (blueAllianceTeam2State != null)
+      result.blueAllianceTeam2State = blueAllianceTeam2State;
+    if (blueAllianceTeam3State != null)
+      result.blueAllianceTeam3State = blueAllianceTeam3State;
     if (partnerPanel != null) result.partnerPanel = partnerPanel;
     return result;
   }
@@ -216,13 +305,25 @@ class RefereeStreamResponse extends $pb.GeneratedMessage {
     ..aI(1, _omitFieldNames ? '' : 'matchId')
     ..aE<$1.MatchPhase>(2, _omitFieldNames ? '' : 'matchPhase',
         enumValues: $1.MatchPhase.values)
-    ..aOS(3, _omitFieldNames ? '' : 'allianceStation1TeamNumber',
-        protoName: 'alliance_station_1_team_number')
-    ..aOS(4, _omitFieldNames ? '' : 'allianceStation2TeamNumber',
-        protoName: 'alliance_station_2_team_number')
-    ..aOS(5, _omitFieldNames ? '' : 'allianceStation3TeamNumber',
-        protoName: 'alliance_station_3_team_number')
-    ..aOM<$1.RefereePanelState>(6, _omitFieldNames ? '' : 'partnerPanel',
+    ..aOM<RefereeTeamState>(3, _omitFieldNames ? '' : 'redAllianceTeam1State',
+        protoName: 'red_alliance_team_1_state',
+        subBuilder: RefereeTeamState.create)
+    ..aOM<RefereeTeamState>(4, _omitFieldNames ? '' : 'redAllianceTeam2State',
+        protoName: 'red_alliance_team_2_state',
+        subBuilder: RefereeTeamState.create)
+    ..aOM<RefereeTeamState>(5, _omitFieldNames ? '' : 'redAllianceTeam3State',
+        protoName: 'red_alliance_team_3_state',
+        subBuilder: RefereeTeamState.create)
+    ..aOM<RefereeTeamState>(6, _omitFieldNames ? '' : 'blueAllianceTeam1State',
+        protoName: 'blue_alliance_team_1_state',
+        subBuilder: RefereeTeamState.create)
+    ..aOM<RefereeTeamState>(7, _omitFieldNames ? '' : 'blueAllianceTeam2State',
+        protoName: 'blue_alliance_team_2_state',
+        subBuilder: RefereeTeamState.create)
+    ..aOM<RefereeTeamState>(8, _omitFieldNames ? '' : 'blueAllianceTeam3State',
+        protoName: 'blue_alliance_team_3_state',
+        subBuilder: RefereeTeamState.create)
+    ..aOM<$1.RefereePanelState>(9, _omitFieldNames ? '' : 'partnerPanel',
         subBuilder: $1.RefereePanelState.create)
     ..hasRequiredFields = false;
 
@@ -265,42 +366,81 @@ class RefereeStreamResponse extends $pb.GeneratedMessage {
   void clearMatchPhase() => $_clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get allianceStation1TeamNumber => $_getSZ(2);
+  RefereeTeamState get redAllianceTeam1State => $_getN(2);
   @$pb.TagNumber(3)
-  set allianceStation1TeamNumber($core.String value) => $_setString(2, value);
+  set redAllianceTeam1State(RefereeTeamState value) => $_setField(3, value);
   @$pb.TagNumber(3)
-  $core.bool hasAllianceStation1TeamNumber() => $_has(2);
+  $core.bool hasRedAllianceTeam1State() => $_has(2);
   @$pb.TagNumber(3)
-  void clearAllianceStation1TeamNumber() => $_clearField(3);
+  void clearRedAllianceTeam1State() => $_clearField(3);
+  @$pb.TagNumber(3)
+  RefereeTeamState ensureRedAllianceTeam1State() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  $core.String get allianceStation2TeamNumber => $_getSZ(3);
+  RefereeTeamState get redAllianceTeam2State => $_getN(3);
   @$pb.TagNumber(4)
-  set allianceStation2TeamNumber($core.String value) => $_setString(3, value);
+  set redAllianceTeam2State(RefereeTeamState value) => $_setField(4, value);
   @$pb.TagNumber(4)
-  $core.bool hasAllianceStation2TeamNumber() => $_has(3);
+  $core.bool hasRedAllianceTeam2State() => $_has(3);
   @$pb.TagNumber(4)
-  void clearAllianceStation2TeamNumber() => $_clearField(4);
+  void clearRedAllianceTeam2State() => $_clearField(4);
+  @$pb.TagNumber(4)
+  RefereeTeamState ensureRedAllianceTeam2State() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  $core.String get allianceStation3TeamNumber => $_getSZ(4);
+  RefereeTeamState get redAllianceTeam3State => $_getN(4);
   @$pb.TagNumber(5)
-  set allianceStation3TeamNumber($core.String value) => $_setString(4, value);
+  set redAllianceTeam3State(RefereeTeamState value) => $_setField(5, value);
   @$pb.TagNumber(5)
-  $core.bool hasAllianceStation3TeamNumber() => $_has(4);
+  $core.bool hasRedAllianceTeam3State() => $_has(4);
   @$pb.TagNumber(5)
-  void clearAllianceStation3TeamNumber() => $_clearField(5);
+  void clearRedAllianceTeam3State() => $_clearField(5);
+  @$pb.TagNumber(5)
+  RefereeTeamState ensureRedAllianceTeam3State() => $_ensure(4);
 
   @$pb.TagNumber(6)
-  $1.RefereePanelState get partnerPanel => $_getN(5);
+  RefereeTeamState get blueAllianceTeam1State => $_getN(5);
   @$pb.TagNumber(6)
-  set partnerPanel($1.RefereePanelState value) => $_setField(6, value);
+  set blueAllianceTeam1State(RefereeTeamState value) => $_setField(6, value);
   @$pb.TagNumber(6)
-  $core.bool hasPartnerPanel() => $_has(5);
+  $core.bool hasBlueAllianceTeam1State() => $_has(5);
   @$pb.TagNumber(6)
-  void clearPartnerPanel() => $_clearField(6);
+  void clearBlueAllianceTeam1State() => $_clearField(6);
   @$pb.TagNumber(6)
-  $1.RefereePanelState ensurePartnerPanel() => $_ensure(5);
+  RefereeTeamState ensureBlueAllianceTeam1State() => $_ensure(5);
+
+  @$pb.TagNumber(7)
+  RefereeTeamState get blueAllianceTeam2State => $_getN(6);
+  @$pb.TagNumber(7)
+  set blueAllianceTeam2State(RefereeTeamState value) => $_setField(7, value);
+  @$pb.TagNumber(7)
+  $core.bool hasBlueAllianceTeam2State() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearBlueAllianceTeam2State() => $_clearField(7);
+  @$pb.TagNumber(7)
+  RefereeTeamState ensureBlueAllianceTeam2State() => $_ensure(6);
+
+  @$pb.TagNumber(8)
+  RefereeTeamState get blueAllianceTeam3State => $_getN(7);
+  @$pb.TagNumber(8)
+  set blueAllianceTeam3State(RefereeTeamState value) => $_setField(8, value);
+  @$pb.TagNumber(8)
+  $core.bool hasBlueAllianceTeam3State() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearBlueAllianceTeam3State() => $_clearField(8);
+  @$pb.TagNumber(8)
+  RefereeTeamState ensureBlueAllianceTeam3State() => $_ensure(7);
+
+  @$pb.TagNumber(9)
+  $1.RefereePanelState get partnerPanel => $_getN(8);
+  @$pb.TagNumber(9)
+  set partnerPanel($1.RefereePanelState value) => $_setField(9, value);
+  @$pb.TagNumber(9)
+  $core.bool hasPartnerPanel() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearPartnerPanel() => $_clearField(9);
+  @$pb.TagNumber(9)
+  $1.RefereePanelState ensurePartnerPanel() => $_ensure(8);
 }
 
 const $core.bool _omitFieldNames =

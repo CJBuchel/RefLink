@@ -33,6 +33,7 @@ fn main() -> Result<()> {
       proto_dir.join("db.proto").to_str().unwrap(),
       proto_dir.join("common.proto").to_str().unwrap(),
       proto_dir.join("api.proto").to_str().unwrap(),
+      proto_dir.join("fms.proto").to_str().unwrap(),
     ],
     &[proto_dir.to_str().unwrap()],
   )?;
