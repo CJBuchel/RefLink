@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ref_link/base/base_scaffold.dart';
+import 'package:ref_link/generated/api.pb.dart';
 import 'package:ref_link/models/panel_types.dart';
 import 'package:ref_link/router/app_routes.dart';
 import 'package:ref_link/router/deferred_widget.dart';
@@ -11,6 +12,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:ref_link/views/splash/splash_view.dart' deferred as splash;
 import 'package:ref_link/views/settings/settings_view.dart'
     deferred as settings;
+import 'package:ref_link/views/head_referee/head_referee_view.dart'
+    deferred as head_referee;
 import 'package:ref_link/views/referee/referee_view.dart' deferred as referee;
 
 part 'router.g.dart';
@@ -122,6 +125,22 @@ GoRouter router(Ref ref) {
             ),
           ),
 
+          // Head Referee
+          GoRoute(
+            name: AppRoute.headReferee.name,
+            path: AppRoute.headReferee.path,
+            pageBuilder: (context, state) => _buildTransitionPage(
+              key: state.pageKey,
+              child: DeferredWidget(
+                libraryKey: AppRoute.referee.path,
+                libraryLoader: head_referee.loadLibrary,
+                builder: (context) {
+                  return head_referee.HeadRefereeView();
+                },
+              ),
+            ),
+          ),
+
           // Referee
           GoRoute(
             name: AppRoute.referee.name,
@@ -132,20 +151,23 @@ GoRouter router(Ref ref) {
                 libraryKey: AppRoute.referee.path,
                 libraryLoader: referee.loadLibrary,
                 builder: (context) {
-                  try {
-                    return referee.RefereeView(
-                      panelType: getPanelFromString(state.pathParameters['id']),
-                    );
-                  } catch (e) {
+                  final panelType = getPanelFromString(
+                    state.pathParameters['id'],
+                  );
+                  if (panelType == PanelType.PANEL_TYPE_UNSPECIFIED) {
                     return Center(
                       child: Text(
-                        "Error: $e",
+                        "Invalid Panel",
                         style: TextStyle(
                           color: Colors.red,
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                    );
+                  } else {
+                    return referee.RefereeView(
+                      panelType: getPanelFromString(state.pathParameters['id']),
                     );
                   }
                 },

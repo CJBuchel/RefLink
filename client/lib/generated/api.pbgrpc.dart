@@ -147,3 +147,53 @@ abstract class RefereePanelServiceBase extends $grpc.Service {
   $async.Stream<$0.RefereeStreamResponse> refereeStream(
       $grpc.ServiceCall call, $async.Stream<$0.RefereeStreamRequest> request);
 }
+
+@$pb.GrpcServiceName('reflink.api.HeadRefereePanelService')
+class HeadRefereePanelServiceClient extends $grpc.Client {
+  /// The hostname for this service.
+  static const $core.String defaultHost = '';
+
+  /// OAuth scopes needed for the client.
+  static const $core.List<$core.String> oauthScopes = [
+    '',
+  ];
+
+  HeadRefereePanelServiceClient(super.channel,
+      {super.options, super.interceptors});
+
+  $grpc.ResponseStream<$0.HeadRefereeStreamResponse> headRefereeStream(
+    $async.Stream<$0.HeadRefereeStreamRequest> request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createStreamingCall(_$headRefereeStream, request, options: options);
+  }
+
+  // method descriptors
+
+  static final _$headRefereeStream = $grpc.ClientMethod<
+          $0.HeadRefereeStreamRequest, $0.HeadRefereeStreamResponse>(
+      '/reflink.api.HeadRefereePanelService/HeadRefereeStream',
+      ($0.HeadRefereeStreamRequest value) => value.writeToBuffer(),
+      $0.HeadRefereeStreamResponse.fromBuffer);
+}
+
+@$pb.GrpcServiceName('reflink.api.HeadRefereePanelService')
+abstract class HeadRefereePanelServiceBase extends $grpc.Service {
+  $core.String get $name => 'reflink.api.HeadRefereePanelService';
+
+  HeadRefereePanelServiceBase() {
+    $addMethod($grpc.ServiceMethod<$0.HeadRefereeStreamRequest,
+            $0.HeadRefereeStreamResponse>(
+        'HeadRefereeStream',
+        headRefereeStream,
+        true,
+        true,
+        ($core.List<$core.int> value) =>
+            $0.HeadRefereeStreamRequest.fromBuffer(value),
+        ($0.HeadRefereeStreamResponse value) => value.writeToBuffer()));
+  }
+
+  $async.Stream<$0.HeadRefereeStreamResponse> headRefereeStream(
+      $grpc.ServiceCall call,
+      $async.Stream<$0.HeadRefereeStreamRequest> request);
+}

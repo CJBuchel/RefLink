@@ -7,9 +7,14 @@ import public "common.proto";
 message MatchStateRecord {
   int32 match_id = 1;
   common.MatchPhase match_phase = 2;
-  common.RefereePanelState hr = 3;
+  common.HeadRefereePanelState hr = 3;
   common.RefereePanelState rn = 4;
   common.RefereePanelState rf = 5;
   common.RefereePanelState bn = 6;
   common.RefereePanelState bf = 7;
+  // Set once this match has reached PostMatch state in Cheesy Arena - distinguishes a match
+  // that was actually run to completion from one that was merely loaded/previewed. Chosen
+  // over Cheesy's `scorePosted` event because the field_monitor websocket we connect to
+  // doesn't subscribe to that notifier, only to arenaStatus/matchTime.
+  bool completed = 8;
 }

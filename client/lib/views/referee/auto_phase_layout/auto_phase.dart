@@ -59,28 +59,28 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
     final refereePanel = ref.watch(refereePanelProvider);
     bool isRed = isRedPanelFromString(ref.watch(panelIdProvider));
 
-    RefereeTeamState allianceStation1 = isRed
-        ? refereePanelServer.redAllianceTeam1State
-        : refereePanelServer.blueAllianceTeam1State;
+    MatchStationState allianceStation1 = isRed
+        ? refereePanelServer.redAllianceState.allianceTeam1State
+        : refereePanelServer.blueAllianceState.allianceTeam1State;
 
-    RefereeTeamState allianceStation2 = isRed
-        ? refereePanelServer.redAllianceTeam2State
-        : refereePanelServer.blueAllianceTeam2State;
+    MatchStationState allianceStation2 = isRed
+        ? refereePanelServer.redAllianceState.allianceTeam2State
+        : refereePanelServer.blueAllianceState.allianceTeam2State;
 
-    RefereeTeamState allianceStation3 = isRed
-        ? refereePanelServer.redAllianceTeam3State
-        : refereePanelServer.blueAllianceTeam3State;
+    MatchStationState allianceStation3 = isRed
+        ? refereePanelServer.redAllianceState.allianceTeam3State
+        : refereePanelServer.blueAllianceState.allianceTeam3State;
 
     final localPanel = refereePanel.state;
     final partnerPanel = refereePanelServer.partnerPanel;
 
     bool canSubmit =
-        localPanel.autoClimbAllianceStation1 ==
-            partnerPanel.autoClimbAllianceStation1 &&
-        localPanel.autoClimbAllianceStation2 ==
-            partnerPanel.autoClimbAllianceStation2 &&
-        localPanel.autoClimbAllianceStation3 ==
-            partnerPanel.autoClimbAllianceStation3;
+        localPanel.autoClimb.autoClimbAllianceStation1 ==
+            partnerPanel.autoClimb.autoClimbAllianceStation1 &&
+        localPanel.autoClimb.autoClimbAllianceStation2 ==
+            partnerPanel.autoClimb.autoClimbAllianceStation2 &&
+        localPanel.autoClimb.autoClimbAllianceStation3 ==
+            partnerPanel.autoClimb.autoClimbAllianceStation3;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -138,9 +138,9 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
                         teamNumber: allianceStation1.teamNumber,
                         teamBypassed: allianceStation1.bypassed,
                         isRed: isRed,
-                        climbState: localPanel.autoClimbAllianceStation1,
+                        climbState: localPanel.autoClimb.autoClimbAllianceStation1,
                         partnerClimbState:
-                            partnerPanel.autoClimbAllianceStation1,
+                            partnerPanel.autoClimb.autoClimbAllianceStation1,
                       ),
                       onChange: (update) => ref
                           .read(refereePanelProvider.notifier)
@@ -153,9 +153,9 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
                         teamNumber: allianceStation2.teamNumber,
                         teamBypassed: allianceStation2.bypassed,
                         isRed: isRed,
-                        climbState: localPanel.autoClimbAllianceStation2,
+                        climbState: localPanel.autoClimb.autoClimbAllianceStation2,
                         partnerClimbState:
-                            partnerPanel.autoClimbAllianceStation2,
+                            partnerPanel.autoClimb.autoClimbAllianceStation2,
                       ),
                       onChange: (update) => ref
                           .read(refereePanelProvider.notifier)
@@ -168,9 +168,9 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
                         teamNumber: allianceStation3.teamNumber,
                         teamBypassed: allianceStation3.bypassed,
                         isRed: isRed,
-                        climbState: localPanel.autoClimbAllianceStation3,
+                        climbState: localPanel.autoClimb.autoClimbAllianceStation3,
                         partnerClimbState:
-                            partnerPanel.autoClimbAllianceStation3,
+                            partnerPanel.autoClimb.autoClimbAllianceStation3,
                       ),
                       onChange: (update) => ref
                           .read(refereePanelProvider.notifier)

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ref_link/generated/db.pb.dart';
 import 'package:ref_link/models/panel_types.dart';
 import 'package:ref_link/providers/panel_id_provider.dart';
 import 'package:ref_link/router/app_routes.dart';
@@ -15,17 +16,25 @@ class SplashView extends HookConsumerWidget {
 
     void onLogin() {
       // verify panel type id
-      try {
-        getPanelFromString(controller.text);
+      final panel = getPanelFromString(controller.text);
+
+      if (panel != PanelType.PANEL_TYPE_UNSPECIFIED) {
         ref.read(panelIdProvider.notifier).setId(controller.text);
-        context.goNamed(
-          AppRoute.referee.name,
-          pathParameters: {'id': controller.text},
-        );
-      } catch (e) {
+
+        switch (panel) {
+          case PanelType.PANEL_TYPE_HEAD_REFEREE:
+            context.goNamed(AppRoute.headReferee.name);
+            break;
+          default:
+            context.goNamed(
+              AppRoute.referee.name,
+              pathParameters: {'id': controller.text},
+            );
+        }
+      } else {
         PopupDialog.error(
           title: "Invalid Panel",
-          message: Text(e.toString()),
+          message: Text("Panel type is invalid"),
         ).show(context);
       }
     }

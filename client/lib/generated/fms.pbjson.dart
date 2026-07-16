@@ -78,6 +78,13 @@ const FmsMatchInfo$json = {
       '6': '.reflink.fms.FmsTeamState',
       '10': 'teams'
     },
+    {
+      '1': 'next_match_estimated_at_unix_sec',
+      '3': 7,
+      '4': 1,
+      '5': 3,
+      '10': 'nextMatchEstimatedAtUnixSec'
+    },
   ],
 };
 
@@ -88,7 +95,8 @@ final $typed_data.Uint8List fmsMatchInfoDescriptor = $convert.base64Decode(
     'b24uTWF0Y2hUeXBlUgltYXRjaFR5cGUSOwoLbWF0Y2hfcGhhc2UYBCABKA4yGi5yZWZsaW5rLm'
     'NvbW1vbi5NYXRjaFBoYXNlUgptYXRjaFBoYXNlEiwKEnRpbWVfcmVtYWluaW5nX3NlYxgFIAEo'
     'BVIQdGltZVJlbWFpbmluZ1NlYxIvCgV0ZWFtcxgGIAMoCzIZLnJlZmxpbmsuZm1zLkZtc1RlYW'
-    '1TdGF0ZVIFdGVhbXM=');
+    '1TdGF0ZVIFdGVhbXMSRQogbmV4dF9tYXRjaF9lc3RpbWF0ZWRfYXRfdW5peF9zZWMYByABKANS'
+    'G25leHRNYXRjaEVzdGltYXRlZEF0VW5peFNlYw==');
 
 @$core.Deprecated('Use fmsConnectionStatusDescriptor instead')
 const FmsConnectionStatus$json = {

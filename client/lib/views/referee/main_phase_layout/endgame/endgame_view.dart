@@ -63,17 +63,17 @@ class RefereeEndgameView extends HookConsumerWidget {
     final refereePanel = ref.watch(refereePanelProvider);
     bool isRed = isRedPanelFromString(ref.watch(panelIdProvider));
 
-    RefereeTeamState allianceStation1 = isRed
-        ? refereePanelServer.redAllianceTeam1State
-        : refereePanelServer.blueAllianceTeam1State;
+    MatchStationState allianceStation1 = isRed
+        ? refereePanelServer.redAllianceState.allianceTeam1State
+        : refereePanelServer.blueAllianceState.allianceTeam1State;
 
-    RefereeTeamState allianceStation2 = isRed
-        ? refereePanelServer.redAllianceTeam2State
-        : refereePanelServer.blueAllianceTeam2State;
+    MatchStationState allianceStation2 = isRed
+        ? refereePanelServer.redAllianceState.allianceTeam2State
+        : refereePanelServer.blueAllianceState.allianceTeam2State;
 
-    RefereeTeamState allianceStation3 = isRed
-        ? refereePanelServer.redAllianceTeam3State
-        : refereePanelServer.blueAllianceTeam3State;
+    MatchStationState allianceStation3 = isRed
+        ? refereePanelServer.redAllianceState.allianceTeam3State
+        : refereePanelServer.blueAllianceState.allianceTeam3State;
 
     final localPanel = refereePanel.state;
     final partnerPanel = refereePanelServer.partnerPanel;
@@ -83,20 +83,20 @@ class RefereeEndgameView extends HookConsumerWidget {
       bool canSubmitStation2 = false;
       bool canSubmitStation3 = false;
 
-      if (localPanel.endgameClimbAllianceStation1 ==
-              partnerPanel.endgameClimbAllianceStation1 ||
+      if (localPanel.endgameClimb.endgameClimbAllianceStation1 ==
+              partnerPanel.endgameClimb.endgameClimbAllianceStation1 ||
           allianceStation1.bypassed) {
         canSubmitStation1 = true;
       }
 
-      if (localPanel.endgameClimbAllianceStation2 ==
-              partnerPanel.endgameClimbAllianceStation2 ||
+      if (localPanel.endgameClimb.endgameClimbAllianceStation2 ==
+              partnerPanel.endgameClimb.endgameClimbAllianceStation2 ||
           allianceStation2.bypassed) {
         canSubmitStation2 = true;
       }
 
-      if (localPanel.endgameClimbAllianceStation3 ==
-              partnerPanel.endgameClimbAllianceStation3 ||
+      if (localPanel.endgameClimb.endgameClimbAllianceStation3 ==
+              partnerPanel.endgameClimb.endgameClimbAllianceStation3 ||
           allianceStation3.bypassed) {
         canSubmitStation3 = true;
       }
@@ -185,9 +185,9 @@ class RefereeEndgameView extends HookConsumerWidget {
                         teamNumber: allianceStation1.teamNumber,
                         teamBypassed: allianceStation1.bypassed,
                         isRed: isRed,
-                        climbState: localPanel.endgameClimbAllianceStation1,
+                        climbState: localPanel.endgameClimb.endgameClimbAllianceStation1,
                         partnerClimbState:
-                            partnerPanel.endgameClimbAllianceStation1,
+                            partnerPanel.endgameClimb.endgameClimbAllianceStation1,
                       ),
                       onChange: (update) => ref
                           .read(refereePanelProvider.notifier)
@@ -200,9 +200,9 @@ class RefereeEndgameView extends HookConsumerWidget {
                         teamNumber: allianceStation2.teamNumber,
                         teamBypassed: allianceStation2.bypassed,
                         isRed: isRed,
-                        climbState: localPanel.endgameClimbAllianceStation2,
+                        climbState: localPanel.endgameClimb.endgameClimbAllianceStation2,
                         partnerClimbState:
-                            partnerPanel.endgameClimbAllianceStation2,
+                            partnerPanel.endgameClimb.endgameClimbAllianceStation2,
                       ),
                       onChange: (update) => ref
                           .read(refereePanelProvider.notifier)
@@ -215,9 +215,9 @@ class RefereeEndgameView extends HookConsumerWidget {
                         teamNumber: allianceStation3.teamNumber,
                         teamBypassed: allianceStation3.bypassed,
                         isRed: isRed,
-                        climbState: localPanel.endgameClimbAllianceStation3,
+                        climbState: localPanel.endgameClimb.endgameClimbAllianceStation3,
                         partnerClimbState:
-                            partnerPanel.endgameClimbAllianceStation3,
+                            partnerPanel.endgameClimb.endgameClimbAllianceStation3,
                       ),
                       onChange: (update) => ref
                           .read(refereePanelProvider.notifier)

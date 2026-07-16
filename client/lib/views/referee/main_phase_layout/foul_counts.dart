@@ -10,13 +10,13 @@ class RefereeFoulCounts extends HookConsumerWidget {
     required bool major,
     required WidgetRef ref,
   }) {
-    final panel = ref.read(refereePanelProvider).state;
+    final fouls = ref.read(refereePanelProvider).state.matchFouls;
     Color borderColor = red ? Colors.red : Colors.blue;
     int count = 0;
     if (red) {
-      count = major ? panel.redMajorFouls : panel.redMinorFouls;
+      count = major ? fouls.redMajorFouls : fouls.redMinorFouls;
     } else {
-      count = major ? panel.blueMajorFouls : panel.blueMinorFouls;
+      count = major ? fouls.blueMajorFouls : fouls.blueMinorFouls;
     }
 
     return Container(

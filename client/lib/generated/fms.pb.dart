@@ -12,6 +12,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'common.pbenum.dart' as $1;
@@ -132,6 +133,7 @@ class FmsMatchInfo extends $pb.GeneratedMessage {
     $1.MatchPhase? matchPhase,
     $core.int? timeRemainingSec,
     $core.Iterable<FmsTeamState>? teams,
+    $fixnum.Int64? nextMatchEstimatedAtUnixSec,
   }) {
     final result = create();
     if (matchId != null) result.matchId = matchId;
@@ -140,6 +142,8 @@ class FmsMatchInfo extends $pb.GeneratedMessage {
     if (matchPhase != null) result.matchPhase = matchPhase;
     if (timeRemainingSec != null) result.timeRemainingSec = timeRemainingSec;
     if (teams != null) result.teams.addAll(teams);
+    if (nextMatchEstimatedAtUnixSec != null)
+      result.nextMatchEstimatedAtUnixSec = nextMatchEstimatedAtUnixSec;
     return result;
   }
 
@@ -165,6 +169,7 @@ class FmsMatchInfo extends $pb.GeneratedMessage {
     ..aI(5, _omitFieldNames ? '' : 'timeRemainingSec')
     ..pPM<FmsTeamState>(6, _omitFieldNames ? '' : 'teams',
         subBuilder: FmsTeamState.create)
+    ..aInt64(7, _omitFieldNames ? '' : 'nextMatchEstimatedAtUnixSec')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -233,6 +238,18 @@ class FmsMatchInfo extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(6)
   $pb.PbList<FmsTeamState> get teams => $_getList(5);
+
+  /// Unix seconds at which the next match is estimated to start, derived from Cheesy Arena's
+  /// last cycle time (the gap between the previous two matches, used as a proxy for the
+  /// current gap). 0 when no estimate is available yet (e.g. before the event's first match).
+  @$pb.TagNumber(7)
+  $fixnum.Int64 get nextMatchEstimatedAtUnixSec => $_getI64(6);
+  @$pb.TagNumber(7)
+  set nextMatchEstimatedAtUnixSec($fixnum.Int64 value) => $_setInt64(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasNextMatchEstimatedAtUnixSec() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearNextMatchEstimatedAtUnixSec() => $_clearField(7);
 }
 
 class FmsConnectionStatus extends $pb.GeneratedMessage {

@@ -186,6 +186,32 @@ class EndgameClimbState extends $pb.ProtobufEnum {
   const EndgameClimbState._(super.value, super.name);
 }
 
+/// MATCH is the initial state before either signal has been given this match cycle (resets
+/// there only when a new match starts). Once past MATCH, the head referee can freely toggle
+/// between COUNT and RESET (each toggle relays the corresponding Cheesy Arena signal) to
+/// correct an accidental press.
+class FieldState extends $pb.ProtobufEnum {
+  static const FieldState FIELD_STATE_MATCH =
+      FieldState._(0, _omitEnumNames ? '' : 'FIELD_STATE_MATCH');
+  static const FieldState FIELD_STATE_COUNT =
+      FieldState._(1, _omitEnumNames ? '' : 'FIELD_STATE_COUNT');
+  static const FieldState FIELD_STATE_RESET =
+      FieldState._(2, _omitEnumNames ? '' : 'FIELD_STATE_RESET');
+
+  static const $core.List<FieldState> values = <FieldState>[
+    FIELD_STATE_MATCH,
+    FIELD_STATE_COUNT,
+    FIELD_STATE_RESET,
+  ];
+
+  static final $core.List<FieldState?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 2);
+  static FieldState? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const FieldState._(super.value, super.name);
+}
+
 class MatchPhase extends $pb.ProtobufEnum {
   static const MatchPhase MATCH_PHASE_IDLE_UNSPECIFIED =
       MatchPhase._(0, _omitEnumNames ? '' : 'MATCH_PHASE_IDLE_UNSPECIFIED');

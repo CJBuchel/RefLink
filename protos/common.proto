@@ -47,30 +47,72 @@ enum EndgameClimbState {
   ENDGAME_CLIMB_STATE_LEVEL_3 = 4;
 }
 
+message MatchFouls {
+  int32 red_minor_fouls = 1;
+  int32 red_major_fouls = 2;
+  int32 blue_minor_fouls = 3;
+  int32 blue_major_fouls = 4;
+}
+
+message MatchCards {
+  CardType red_alliance_station_1 = 1;
+  CardType red_alliance_station_2 = 2;
+  CardType red_alliance_station_3 = 3;
+  CardType blue_alliance_station_1 = 4;
+  CardType blue_alliance_station_2 = 5;
+  CardType blue_alliance_station_3 = 6;
+}
+
+message AllianceAutoClimb {
+  AutoClimbState auto_climb_alliance_station_1 = 1;
+  AutoClimbState auto_climb_alliance_station_2 = 2;
+  AutoClimbState auto_climb_alliance_station_3 = 3;
+}
+
+message AllianceEndgameClimb {
+  EndgameClimbState endgame_climb_alliance_station_1 = 1;
+  EndgameClimbState endgame_climb_alliance_station_2 = 2;
+  EndgameClimbState endgame_climb_alliance_station_3 = 3;
+}
+
 message RefereePanelState {
   RefereeVote referee_vote = 1;
-  AutoClimbState auto_climb_alliance_station_1 = 2;
-  AutoClimbState auto_climb_alliance_station_2 = 3;
-  AutoClimbState auto_climb_alliance_station_3 = 4;
-  bool auto_submitted = 5;
-  bool auto_issue = 6;
-  int32 red_minor_fouls = 7;
-  int32 red_major_fouls = 8;
-  int32 blue_minor_fouls = 9;
-  int32 blue_major_fouls = 10;
-  CardType red_alliance_station_1 = 11;
-  CardType red_alliance_station_2 = 12;
-  CardType red_alliance_station_3 = 13;
-  CardType blue_alliance_station_1 = 14;
-  CardType blue_alliance_station_2 = 15;
-  CardType blue_alliance_station_3 = 16;
-  bool rp_issue = 17;
-  bool discussion_needed = 18;
-  EndgameClimbState endgame_climb_alliance_station_1 = 19;
-  EndgameClimbState endgame_climb_alliance_station_2 = 20;
-  EndgameClimbState endgame_climb_alliance_station_3 = 21;
-  bool endgame_submitted = 22;
-  bool endgame_issue = 23;
+  AllianceAutoClimb auto_climb = 2;
+  bool auto_submitted = 3;
+  bool auto_issue = 4;
+  MatchFouls match_fouls = 5;
+  MatchCards match_cards = 6;
+  bool rp_issue = 7;
+  bool discussion_needed = 8;
+  AllianceEndgameClimb endgame_climb = 9;
+  bool endgame_submitted = 10;
+  bool endgame_issue = 11;
+}
+
+// MATCH is the initial state before either signal has been given this match cycle (resets
+// there only when a new match starts). Once past MATCH, the head referee can freely toggle
+// between COUNT and RESET (each toggle relays the corresponding Cheesy Arena signal) to
+// correct an accidental press.
+enum FieldState {
+  FIELD_STATE_MATCH = 0;
+  FIELD_STATE_COUNT = 1;
+  FIELD_STATE_RESET = 2;
+}
+
+message HeadRefereePanelState {
+  MatchFouls match_fouls = 1;
+  MatchCards match_cards = 2;
+  bool ref_review_required = 3;
+  FieldState field_state = 4;
+  // One-way per match cycle (never reverts to false except on a new match) - purely a local
+  // RefLink record that the warning has been given. Deliberately has no Cheesy Arena
+  // counterpart; see arena/repository.rs for why.
+  bool two_minute_warning_given = 5;
+  // Unix seconds when the 2-minute warning countdown ends - stamped server-side the instant
+  // two_minute_warning_given first becomes true (see arena/repository.rs), so every client
+  // renders the same countdown regardless of when it last heard from the server. 0 when not
+  // given yet.
+  int64 two_minute_warning_expires_at_unix_sec = 6;
 }
 
 enum MatchPhase {

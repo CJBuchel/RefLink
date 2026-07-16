@@ -139,37 +139,37 @@ class RefereePanel extends _$RefereePanel {
 
   void setStation1AutoClimbState(AutoClimbState climb) {
     _updateAndSendPanelState((panel) {
-      panel.autoClimbAllianceStation1 = climb;
+      panel.ensureAutoClimb().autoClimbAllianceStation1 = climb;
     });
   }
 
   void setStation2AutoClimbState(AutoClimbState climb) {
     _updateAndSendPanelState((panel) {
-      panel.autoClimbAllianceStation2 = climb;
+      panel.ensureAutoClimb().autoClimbAllianceStation2 = climb;
     });
   }
 
   void setStation3AutoClimbState(AutoClimbState climb) {
     _updateAndSendPanelState((panel) {
-      panel.autoClimbAllianceStation3 = climb;
+      panel.ensureAutoClimb().autoClimbAllianceStation3 = climb;
     });
   }
 
   void setStation1EndgameClimbState(EndgameClimbState climb) {
     _updateAndSendPanelState((panel) {
-      panel.endgameClimbAllianceStation1 = climb;
+      panel.ensureEndgameClimb().endgameClimbAllianceStation1 = climb;
     });
   }
 
   void setStation2EndgameClimbState(EndgameClimbState climb) {
     _updateAndSendPanelState((panel) {
-      panel.endgameClimbAllianceStation2 = climb;
+      panel.ensureEndgameClimb().endgameClimbAllianceStation2 = climb;
     });
   }
 
   void setStation3EndgameClimbState(EndgameClimbState climb) {
     _updateAndSendPanelState((panel) {
-      panel.endgameClimbAllianceStation3 = climb;
+      panel.ensureEndgameClimb().endgameClimbAllianceStation3 = climb;
     });
   }
 
@@ -211,24 +211,26 @@ class RefereePanel extends _$RefereePanel {
 
   void addFoul({required bool red, required bool major}) {
     _updateAndSendPanelState((panel) {
+      final fouls = panel.ensureMatchFouls();
       if (red) {
-        panel.redMajorFouls += major ? 1 : 0;
-        panel.redMinorFouls += major ? 0 : 1;
+        fouls.redMajorFouls += major ? 1 : 0;
+        fouls.redMinorFouls += major ? 0 : 1;
       } else {
-        panel.blueMajorFouls += major ? 1 : 0;
-        panel.blueMinorFouls += major ? 0 : 1;
+        fouls.blueMajorFouls += major ? 1 : 0;
+        fouls.blueMinorFouls += major ? 0 : 1;
       }
     });
   }
 
   void removeFoul({required bool red, required bool major}) {
     _updateAndSendPanelState((panel) {
+      final fouls = panel.ensureMatchFouls();
       if (red) {
-        panel.redMajorFouls -= major ? 1 : 0;
-        panel.redMinorFouls -= major ? 0 : 1;
+        fouls.redMajorFouls -= major ? 1 : 0;
+        fouls.redMinorFouls -= major ? 0 : 1;
       } else {
-        panel.blueMajorFouls -= major ? 1 : 0;
-        panel.blueMinorFouls -= major ? 0 : 1;
+        fouls.blueMajorFouls -= major ? 1 : 0;
+        fouls.blueMinorFouls -= major ? 0 : 1;
       }
     });
   }
@@ -240,32 +242,32 @@ class RefereePanel extends _$RefereePanel {
     switch (allianceStation) {
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_1:
         _updateAndSendPanelState((panel) {
-          panel.blueAllianceStation1 = cardType;
+          panel.ensureMatchCards().blueAllianceStation1 = cardType;
         });
         break;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_2:
         _updateAndSendPanelState((panel) {
-          panel.blueAllianceStation2 = cardType;
+          panel.ensureMatchCards().blueAllianceStation2 = cardType;
         });
         break;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_3:
         _updateAndSendPanelState((panel) {
-          panel.blueAllianceStation3 = cardType;
+          panel.ensureMatchCards().blueAllianceStation3 = cardType;
         });
         break;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_1:
         _updateAndSendPanelState((panel) {
-          panel.redAllianceStation1 = cardType;
+          panel.ensureMatchCards().redAllianceStation1 = cardType;
         });
         break;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_2:
         _updateAndSendPanelState((panel) {
-          panel.redAllianceStation2 = cardType;
+          panel.ensureMatchCards().redAllianceStation2 = cardType;
         });
         break;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_3:
         _updateAndSendPanelState((panel) {
-          panel.redAllianceStation3 = cardType;
+          panel.ensureMatchCards().redAllianceStation3 = cardType;
         });
         break;
       default:
@@ -274,20 +276,20 @@ class RefereePanel extends _$RefereePanel {
   }
 
   CardType getAllianceStationCard(TeamAllianceStationType allianceStation) {
-    final panel = state.state;
+    final cards = state.state.matchCards;
     switch (allianceStation) {
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_1:
-        return panel.blueAllianceStation1;
+        return cards.blueAllianceStation1;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_2:
-        return panel.blueAllianceStation2;
+        return cards.blueAllianceStation2;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_3:
-        return panel.blueAllianceStation3;
+        return cards.blueAllianceStation3;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_1:
-        return panel.redAllianceStation1;
+        return cards.redAllianceStation1;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_2:
-        return panel.redAllianceStation2;
+        return cards.redAllianceStation2;
       case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_3:
-        return panel.redAllianceStation3;
+        return cards.redAllianceStation3;
       default:
         return CardType.CARD_TYPE_UNSPECIFIED;
     }

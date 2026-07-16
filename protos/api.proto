@@ -12,6 +12,10 @@ service HealthService {
   rpc StreamHealth(GetHealthRequest) returns (stream GetHealthResponse);
 }
 
+// ==========================
+// Head/Referee Panel
+// ==========================
+
 // ----- Client -> Server -----
 
 message RefereeStreamRequest {
@@ -22,24 +26,66 @@ message RefereeStreamRequest {
 
 // ----- Server -> Client -----
 
-message RefereeTeamState {
+message MatchStationState {
   string team_number = 1;
   bool bypassed = 2;
  common.TeamAllianceStationType alliance_station = 3;
 }
 
+message MatchAllianceState {
+  MatchStationState alliance_team_1_state = 1;
+  MatchStationState alliance_team_2_state = 2;
+  MatchStationState alliance_team_3_state = 3;
+}
+
 message RefereeStreamResponse {
   int32 match_id = 1;
   common.MatchPhase match_phase = 2;
-  RefereeTeamState red_alliance_team_1_state = 3;
-  RefereeTeamState red_alliance_team_2_state = 4;
-  RefereeTeamState red_alliance_team_3_state = 5;
-  RefereeTeamState blue_alliance_team_1_state = 6;
-  RefereeTeamState blue_alliance_team_2_state = 7;
-  RefereeTeamState blue_alliance_team_3_state = 8;
-  common.RefereePanelState partner_panel = 9;
+  MatchAllianceState red_alliance_state = 3;
+  MatchAllianceState blue_alliance_state = 4;
+  common.RefereePanelState partner_panel = 5;
+  bool rotate = 6;
+  int32 rotate_in = 7;
+  bool ref_review_required = 8;
+}
+
+message HeadRefereeStreamRequest {
+  int32 match_id = 1;
+  common.HeadRefereePanelState state = 2;
+}
+
+// Whether each of the four regular referee panels currently has a live connection to the
+// server - internal to RefLink, unrelated to Cheesy Arena.
+message PanelPresence {
+  bool rn = 1;
+  bool rf = 2;
+  bool bn = 3;
+  bool bf = 4;
+}
+
+message HeadRefereeStreamResponse {
+  int32 match_id = 1;
+  common.MatchPhase match_phase = 2;
+  MatchAllianceState red_alliance_state = 3;
+  MatchAllianceState blue_alliance_state = 4;
+  common.RefereePanelState rn = 5;
+  common.RefereePanelState rf = 6;
+  common.RefereePanelState bn = 7;
+  common.RefereePanelState bf = 8;
+  bool rotate = 9;
+  int32 rotate_in = 10;
+  PanelPresence panel_presence = 11;
+  // Echoes back the server's authoritative (clamped) copy of the head referee's own
+  // submitted state - notably `field_state`, since the one-way MATCH->COUNT->RESET
+  // transition is enforced server-side, not by the submitting client.
+  common.HeadRefereePanelState hr = 12;
 }
 
 service RefereePanelService {
   rpc RefereeStream(stream RefereeStreamRequest) returns (stream RefereeStreamResponse);
+}
+
+
+service HeadRefereePanelService {
+  rpc HeadRefereeStream(stream HeadRefereeStreamRequest) returns (stream HeadRefereeStreamResponse);
 }

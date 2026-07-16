@@ -1,6 +1,7 @@
 use std::net::IpAddr;
 
 use clap::Parser;
+use once_cell::sync::OnceCell;
 
 #[derive(Parser, Debug, Clone)]
 #[command(version, about, long_about = None)]
@@ -47,4 +48,10 @@ impl ServerConfig {
   pub fn parse_from_cli() -> Self {
     Self::parse()
   }
+}
+
+pub static CONFIG: OnceCell<ServerConfig> = OnceCell::new();
+
+pub fn init_config(config: ServerConfig) {
+  let _ = CONFIG.set(config);
 }

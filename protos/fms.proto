@@ -19,6 +19,10 @@ message FmsMatchInfo {
   common.MatchPhase match_phase = 4;
   int32 time_remaining_sec = 5;
   repeated FmsTeamState teams = 6;
+  // Unix seconds at which the next match is estimated to start, derived from Cheesy Arena's
+  // last cycle time (the gap between the previous two matches, used as a proxy for the
+  // current gap). 0 when no estimate is available yet (e.g. before the event's first match).
+  int64 next_match_estimated_at_unix_sec = 7;
 }
 
 message FmsConnectionStatus {

@@ -33,7 +33,7 @@ const MatchStateRecord$json = {
       '3': 3,
       '4': 1,
       '5': 11,
-      '6': '.reflink.common.RefereePanelState',
+      '6': '.reflink.common.HeadRefereePanelState',
       '10': 'hr'
     },
     {
@@ -68,15 +68,17 @@ const MatchStateRecord$json = {
       '6': '.reflink.common.RefereePanelState',
       '10': 'bf'
     },
+    {'1': 'completed', '3': 8, '4': 1, '5': 8, '10': 'completed'},
   ],
 };
 
 /// Descriptor for `MatchStateRecord`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List matchStateRecordDescriptor = $convert.base64Decode(
     'ChBNYXRjaFN0YXRlUmVjb3JkEhkKCG1hdGNoX2lkGAEgASgFUgdtYXRjaElkEjsKC21hdGNoX3'
-    'BoYXNlGAIgASgOMhoucmVmbGluay5jb21tb24uTWF0Y2hQaGFzZVIKbWF0Y2hQaGFzZRIxCgJo'
-    'chgDIAEoCzIhLnJlZmxpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJochIxCgJybhgEIA'
-    'EoCzIhLnJlZmxpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJybhIxCgJyZhgFIAEoCzIh'
-    'LnJlZmxpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJyZhIxCgJibhgGIAEoCzIhLnJlZm'
-    'xpbmsuY29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJibhIxCgJiZhgHIAEoCzIhLnJlZmxpbmsu'
-    'Y29tbW9uLlJlZmVyZWVQYW5lbFN0YXRlUgJiZg==');
+    'BoYXNlGAIgASgOMhoucmVmbGluay5jb21tb24uTWF0Y2hQaGFzZVIKbWF0Y2hQaGFzZRI1CgJo'
+    'chgDIAEoCzIlLnJlZmxpbmsuY29tbW9uLkhlYWRSZWZlcmVlUGFuZWxTdGF0ZVICaHISMQoCcm'
+    '4YBCABKAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICcm4SMQoCcmYYBSAB'
+    'KAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICcmYSMQoCYm4YBiABKAsyIS'
+    '5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICYm4SMQoCYmYYByABKAsyIS5yZWZs'
+    'aW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICYmYSHAoJY29tcGxldGVkGAggASgIUgljb2'
+    '1wbGV0ZWQ=');

@@ -11,15 +11,16 @@ use crate::{
   },
   generated::{
     common::{MatchPhase, MatchType, TeamAllianceStationType},
+    db::MatchStateRecord,
     fms::{FmsConnectionStatus, FmsMatchInfo, FmsTeamState},
   },
-  modules::fms::repository::FmsStateRepository,
+  modules::{arena::MatchStateRepository, fms::repository::FmsStateRepository},
 };
 
 use super::messages::{
-  CheesyArenaStatus, CheesyMatchLoad, CheesyMatchTime, CheesyMatchTiming, MATCH_TYPE_PLAYOFF, MATCH_TYPE_PRACTICE,
-  MATCH_TYPE_QUALIFICATION, STATE_AUTO_PERIOD, STATE_PAUSE_PERIOD, STATE_POST_MATCH, STATE_POST_TIMEOUT,
-  STATE_TELEOP_PERIOD, STATE_TIMEOUT_ACTIVE,
+  CheesyArenaStatus, CheesyEventStatus, CheesyMatchLoad, CheesyMatchTime, CheesyMatchTiming, MATCH_TYPE_PLAYOFF,
+  MATCH_TYPE_PRACTICE, MATCH_TYPE_QUALIFICATION, STATE_AUTO_PERIOD, STATE_PAUSE_PERIOD, STATE_POST_MATCH,
+  STATE_POST_TIMEOUT, STATE_TELEOP_PERIOD, STATE_TIMEOUT_ACTIVE, parse_cycle_time_sec,
 };
 
 #[derive(Clone)]
@@ -61,6 +62,15 @@ struct Accumulator {
   match_time_sec: i32,
   timing: CheesyMatchTiming,
   stations: HashMap<String, StationState>,
+  // The last match_id we've already reported as completed, so reaching PostMatch only
+  // triggers a single completion signal per match rather than once per matchTime tick.
+  completed_match_id: Option<i32>,
+  // Cheesy Arena's last-known cycle time (gap between the previous two matches' starts),
+  // used as an estimate for the current gap. See CheesyEventStatus.
+  cycle_time_sec: Option<i64>,
+  // Unix seconds at which we estimate the next match will start, captured once when the
+  // current match reaches PostMatch and cleared once the next match actually starts.
+  next_match_estimated_at: Option<i64>,
 }
 
 const STATION_ORDER: [&str; 6] = ["R1", "R2", "R3", "B1", "B2", "B3"];
@@ -93,6 +103,32 @@ impl Accumulator {
     self.match_time_sec = s.match_time_sec;
   }
 
+  fn merge_event_status(&mut self, s: CheesyEventStatus) {
+    self.cycle_time_sec = parse_cycle_time_sec(&s.cycle_time);
+  }
+
+  // A match is considered "played" once it reaches PostMatch - unlike Cheesy's `scorePosted`
+  // event (which the field_monitor websocket doesn't subscribe to), this is derived from
+  // arenaStatus/matchTime, which we already receive on this connection. Also captures/clears
+  // the next-match estimate: the deadline is set the instant a match reaches PostMatch (using
+  // whatever cycle time is currently known), and cleared once the next match actually starts.
+  fn check_match_completed(&mut self) -> Option<i32> {
+    if self.match_state == STATE_AUTO_PERIOD {
+      self.next_match_estimated_at = None;
+    }
+
+    if self.match_id != 0 && self.match_state == STATE_POST_MATCH && self.completed_match_id != Some(self.match_id) {
+      self.completed_match_id = Some(self.match_id);
+      if let Some(cycle_time_sec) = self.cycle_time_sec {
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_secs() as i64;
+        self.next_match_estimated_at = Some(now + cycle_time_sec);
+      }
+      Some(self.match_id)
+    } else {
+      None
+    }
+  }
+
   fn to_fms_match_info(&self) -> FmsMatchInfo {
     let (match_phase, time_remaining_sec) = map_match_phase(self.match_state, self.match_time_sec, &self.timing);
 
@@ -118,6 +154,7 @@ impl Accumulator {
       match_phase: match_phase as i32,
       time_remaining_sec,
       teams,
+      next_match_estimated_at_unix_sec: self.next_match_estimated_at.unwrap_or(0),
     }
   }
 }
@@ -168,50 +205,74 @@ fn map_match_phase(state: i32, elapsed: i32, timing: &CheesyMatchTiming) -> (Mat
   }
 }
 
-fn process_field_message(raw: &str, acc: &mut Accumulator) -> bool {
-  let Ok(v) = serde_json::from_str::<serde_json::Value>(raw) else { return false };
-  let Some(msg_type) = v.get("type").and_then(|t| t.as_str()) else { return false };
-  let Some(data) = v.get("data") else { return false };
+#[derive(Default)]
+struct FieldMessageEffect {
+  info_changed: bool,
+  completed_match_id: Option<i32>,
+}
+
+fn info_changed() -> FieldMessageEffect {
+  FieldMessageEffect { info_changed: true, completed_match_id: None }
+}
+
+fn no_effect() -> FieldMessageEffect {
+  FieldMessageEffect::default()
+}
+
+fn process_field_message(raw: &str, acc: &mut Accumulator) -> FieldMessageEffect {
+  let Ok(v) = serde_json::from_str::<serde_json::Value>(raw) else { return no_effect() };
+  let Some(msg_type) = v.get("type").and_then(|t| t.as_str()) else { return no_effect() };
+  let Some(data) = v.get("data") else { return no_effect() };
 
   match msg_type {
     "arenaStatus" => match serde_json::from_value::<CheesyArenaStatus>(data.clone()) {
       Ok(s) => {
         acc.merge_arena_status(s);
-        true
+        FieldMessageEffect { info_changed: true, completed_match_id: acc.check_match_completed() }
       }
       Err(e) => {
         log::warn!("[FMS] Failed to parse arenaStatus: {e}");
-        false
+        no_effect()
       }
     },
     "matchLoad" => match CheesyMatchLoad::from_value(data) {
       Some(s) => {
         acc.merge_match_load(s);
-        true
+        info_changed()
       }
-      None => false,
+      None => no_effect(),
     },
     "matchTime" => match serde_json::from_value::<CheesyMatchTime>(data.clone()) {
       Ok(s) => {
         acc.merge_match_time(s);
-        true
+        FieldMessageEffect { info_changed: true, completed_match_id: acc.check_match_completed() }
       }
       Err(e) => {
         log::warn!("[FMS] Failed to parse matchTime: {e}");
-        false
+        no_effect()
       }
     },
     "matchTiming" => match serde_json::from_value::<CheesyMatchTiming>(data.clone()) {
       Ok(s) => {
         acc.timing = s;
-        false
+        no_effect()
       }
       Err(e) => {
         log::warn!("[FMS] Failed to parse matchTiming: {e}");
-        false
+        no_effect()
       }
     },
-    _ => false,
+    "eventStatus" => match serde_json::from_value::<CheesyEventStatus>(data.clone()) {
+      Ok(s) => {
+        acc.merge_event_status(s);
+        no_effect()
+      }
+      Err(e) => {
+        log::warn!("[FMS] Failed to parse eventStatus: {e}");
+        no_effect()
+      }
+    },
+    _ => no_effect(),
   }
 }
 
@@ -264,8 +325,14 @@ async fn run_field_monitor(
             msg = ws.next() => {
               match msg {
                 Some(Ok(Message::Text(text))) => {
-                  if process_field_message(text.as_str(), &mut acc) {
+                  let effect = process_field_message(text.as_str(), &mut acc);
+                  if effect.info_changed {
                     publish_match_info(acc.to_fms_match_info(), &match_info_tx).await;
+                  }
+                  if let Some(match_id) = effect.completed_match_id
+                    && let Err(e) = MatchStateRecord::mark_match_completed(match_id).await
+                  {
+                    log::warn!("[FMS] Failed to mark match {match_id} completed: {e}");
                   }
                 }
                 Some(Ok(Message::Close(_))) | None => break,

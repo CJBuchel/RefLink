@@ -63,9 +63,9 @@ final $typed_data.Uint8List refereeStreamRequestDescriptor = $convert.base64Deco
     'BhbmVsVHlwZVIFcGFuZWwSGQoIbWF0Y2hfaWQYAiABKAVSB21hdGNoSWQSNwoFc3RhdGUYAyAB'
     'KAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVIFc3RhdGU=');
 
-@$core.Deprecated('Use refereeTeamStateDescriptor instead')
-const RefereeTeamState$json = {
-  '1': 'RefereeTeamState',
+@$core.Deprecated('Use matchStationStateDescriptor instead')
+const MatchStationState$json = {
+  '1': 'MatchStationState',
   '2': [
     {'1': 'team_number', '3': 1, '4': 1, '5': 9, '10': 'teamNumber'},
     {'1': 'bypassed', '3': 2, '4': 1, '5': 8, '10': 'bypassed'},
@@ -80,11 +80,50 @@ const RefereeTeamState$json = {
   ],
 };
 
-/// Descriptor for `RefereeTeamState`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List refereeTeamStateDescriptor = $convert.base64Decode(
-    'ChBSZWZlcmVlVGVhbVN0YXRlEh8KC3RlYW1fbnVtYmVyGAEgASgJUgp0ZWFtTnVtYmVyEhoKCG'
-    'J5cGFzc2VkGAIgASgIUghieXBhc3NlZBJSChBhbGxpYW5jZV9zdGF0aW9uGAMgASgOMicucmVm'
-    'bGluay5jb21tb24uVGVhbUFsbGlhbmNlU3RhdGlvblR5cGVSD2FsbGlhbmNlU3RhdGlvbg==');
+/// Descriptor for `MatchStationState`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List matchStationStateDescriptor = $convert.base64Decode(
+    'ChFNYXRjaFN0YXRpb25TdGF0ZRIfCgt0ZWFtX251bWJlchgBIAEoCVIKdGVhbU51bWJlchIaCg'
+    'hieXBhc3NlZBgCIAEoCFIIYnlwYXNzZWQSUgoQYWxsaWFuY2Vfc3RhdGlvbhgDIAEoDjInLnJl'
+    'ZmxpbmsuY29tbW9uLlRlYW1BbGxpYW5jZVN0YXRpb25UeXBlUg9hbGxpYW5jZVN0YXRpb24=');
+
+@$core.Deprecated('Use matchAllianceStateDescriptor instead')
+const MatchAllianceState$json = {
+  '1': 'MatchAllianceState',
+  '2': [
+    {
+      '1': 'alliance_team_1_state',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.api.MatchStationState',
+      '10': 'allianceTeam1State'
+    },
+    {
+      '1': 'alliance_team_2_state',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.api.MatchStationState',
+      '10': 'allianceTeam2State'
+    },
+    {
+      '1': 'alliance_team_3_state',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.api.MatchStationState',
+      '10': 'allianceTeam3State'
+    },
+  ],
+};
+
+/// Descriptor for `MatchAllianceState`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List matchAllianceStateDescriptor = $convert.base64Decode(
+    'ChJNYXRjaEFsbGlhbmNlU3RhdGUSUQoVYWxsaWFuY2VfdGVhbV8xX3N0YXRlGAEgASgLMh4ucm'
+    'VmbGluay5hcGkuTWF0Y2hTdGF0aW9uU3RhdGVSEmFsbGlhbmNlVGVhbTFTdGF0ZRJRChVhbGxp'
+    'YW5jZV90ZWFtXzJfc3RhdGUYAiABKAsyHi5yZWZsaW5rLmFwaS5NYXRjaFN0YXRpb25TdGF0ZV'
+    'ISYWxsaWFuY2VUZWFtMlN0YXRlElEKFWFsbGlhbmNlX3RlYW1fM19zdGF0ZRgDIAEoCzIeLnJl'
+    'ZmxpbmsuYXBpLk1hdGNoU3RhdGlvblN0YXRlUhJhbGxpYW5jZVRlYW0zU3RhdGU=');
 
 @$core.Deprecated('Use refereeStreamResponseDescriptor instead')
 const RefereeStreamResponse$json = {
@@ -100,60 +139,37 @@ const RefereeStreamResponse$json = {
       '10': 'matchPhase'
     },
     {
-      '1': 'red_alliance_team_1_state',
+      '1': 'red_alliance_state',
       '3': 3,
       '4': 1,
       '5': 11,
-      '6': '.reflink.api.RefereeTeamState',
-      '10': 'redAllianceTeam1State'
+      '6': '.reflink.api.MatchAllianceState',
+      '10': 'redAllianceState'
     },
     {
-      '1': 'red_alliance_team_2_state',
+      '1': 'blue_alliance_state',
       '3': 4,
       '4': 1,
       '5': 11,
-      '6': '.reflink.api.RefereeTeamState',
-      '10': 'redAllianceTeam2State'
-    },
-    {
-      '1': 'red_alliance_team_3_state',
-      '3': 5,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.api.RefereeTeamState',
-      '10': 'redAllianceTeam3State'
-    },
-    {
-      '1': 'blue_alliance_team_1_state',
-      '3': 6,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.api.RefereeTeamState',
-      '10': 'blueAllianceTeam1State'
-    },
-    {
-      '1': 'blue_alliance_team_2_state',
-      '3': 7,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.api.RefereeTeamState',
-      '10': 'blueAllianceTeam2State'
-    },
-    {
-      '1': 'blue_alliance_team_3_state',
-      '3': 8,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.api.RefereeTeamState',
-      '10': 'blueAllianceTeam3State'
+      '6': '.reflink.api.MatchAllianceState',
+      '10': 'blueAllianceState'
     },
     {
       '1': 'partner_panel',
-      '3': 9,
+      '3': 5,
       '4': 1,
       '5': 11,
       '6': '.reflink.common.RefereePanelState',
       '10': 'partnerPanel'
+    },
+    {'1': 'rotate', '3': 6, '4': 1, '5': 8, '10': 'rotate'},
+    {'1': 'rotate_in', '3': 7, '4': 1, '5': 5, '10': 'rotateIn'},
+    {
+      '1': 'ref_review_required',
+      '3': 8,
+      '4': 1,
+      '5': 8,
+      '10': 'refReviewRequired'
     },
   ],
 };
@@ -162,15 +178,144 @@ const RefereeStreamResponse$json = {
 final $typed_data.Uint8List refereeStreamResponseDescriptor = $convert.base64Decode(
     'ChVSZWZlcmVlU3RyZWFtUmVzcG9uc2USGQoIbWF0Y2hfaWQYASABKAVSB21hdGNoSWQSOwoLbW'
     'F0Y2hfcGhhc2UYAiABKA4yGi5yZWZsaW5rLmNvbW1vbi5NYXRjaFBoYXNlUgptYXRjaFBoYXNl'
-    'ElcKGXJlZF9hbGxpYW5jZV90ZWFtXzFfc3RhdGUYAyABKAsyHS5yZWZsaW5rLmFwaS5SZWZlcm'
-    'VlVGVhbVN0YXRlUhVyZWRBbGxpYW5jZVRlYW0xU3RhdGUSVwoZcmVkX2FsbGlhbmNlX3RlYW1f'
-    'Ml9zdGF0ZRgEIAEoCzIdLnJlZmxpbmsuYXBpLlJlZmVyZWVUZWFtU3RhdGVSFXJlZEFsbGlhbm'
-    'NlVGVhbTJTdGF0ZRJXChlyZWRfYWxsaWFuY2VfdGVhbV8zX3N0YXRlGAUgASgLMh0ucmVmbGlu'
-    'ay5hcGkuUmVmZXJlZVRlYW1TdGF0ZVIVcmVkQWxsaWFuY2VUZWFtM1N0YXRlElkKGmJsdWVfYW'
-    'xsaWFuY2VfdGVhbV8xX3N0YXRlGAYgASgLMh0ucmVmbGluay5hcGkuUmVmZXJlZVRlYW1TdGF0'
-    'ZVIWYmx1ZUFsbGlhbmNlVGVhbTFTdGF0ZRJZChpibHVlX2FsbGlhbmNlX3RlYW1fMl9zdGF0ZR'
-    'gHIAEoCzIdLnJlZmxpbmsuYXBpLlJlZmVyZWVUZWFtU3RhdGVSFmJsdWVBbGxpYW5jZVRlYW0y'
-    'U3RhdGUSWQoaYmx1ZV9hbGxpYW5jZV90ZWFtXzNfc3RhdGUYCCABKAsyHS5yZWZsaW5rLmFwaS'
-    '5SZWZlcmVlVGVhbVN0YXRlUhZibHVlQWxsaWFuY2VUZWFtM1N0YXRlEkYKDXBhcnRuZXJfcGFu'
-    'ZWwYCSABKAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVIMcGFydG5lclBhbm'
-    'Vs');
+    'Ek0KEnJlZF9hbGxpYW5jZV9zdGF0ZRgDIAEoCzIfLnJlZmxpbmsuYXBpLk1hdGNoQWxsaWFuY2'
+    'VTdGF0ZVIQcmVkQWxsaWFuY2VTdGF0ZRJPChNibHVlX2FsbGlhbmNlX3N0YXRlGAQgASgLMh8u'
+    'cmVmbGluay5hcGkuTWF0Y2hBbGxpYW5jZVN0YXRlUhFibHVlQWxsaWFuY2VTdGF0ZRJGCg1wYX'
+    'J0bmVyX3BhbmVsGAUgASgLMiEucmVmbGluay5jb21tb24uUmVmZXJlZVBhbmVsU3RhdGVSDHBh'
+    'cnRuZXJQYW5lbBIWCgZyb3RhdGUYBiABKAhSBnJvdGF0ZRIbCglyb3RhdGVfaW4YByABKAVSCH'
+    'JvdGF0ZUluEi4KE3JlZl9yZXZpZXdfcmVxdWlyZWQYCCABKAhSEXJlZlJldmlld1JlcXVpcmVk');
+
+@$core.Deprecated('Use headRefereeStreamRequestDescriptor instead')
+const HeadRefereeStreamRequest$json = {
+  '1': 'HeadRefereeStreamRequest',
+  '2': [
+    {'1': 'match_id', '3': 1, '4': 1, '5': 5, '10': 'matchId'},
+    {
+      '1': 'state',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.HeadRefereePanelState',
+      '10': 'state'
+    },
+  ],
+};
+
+/// Descriptor for `HeadRefereeStreamRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List headRefereeStreamRequestDescriptor = $convert.base64Decode(
+    'ChhIZWFkUmVmZXJlZVN0cmVhbVJlcXVlc3QSGQoIbWF0Y2hfaWQYASABKAVSB21hdGNoSWQSOw'
+    'oFc3RhdGUYAiABKAsyJS5yZWZsaW5rLmNvbW1vbi5IZWFkUmVmZXJlZVBhbmVsU3RhdGVSBXN0'
+    'YXRl');
+
+@$core.Deprecated('Use panelPresenceDescriptor instead')
+const PanelPresence$json = {
+  '1': 'PanelPresence',
+  '2': [
+    {'1': 'rn', '3': 1, '4': 1, '5': 8, '10': 'rn'},
+    {'1': 'rf', '3': 2, '4': 1, '5': 8, '10': 'rf'},
+    {'1': 'bn', '3': 3, '4': 1, '5': 8, '10': 'bn'},
+    {'1': 'bf', '3': 4, '4': 1, '5': 8, '10': 'bf'},
+  ],
+};
+
+/// Descriptor for `PanelPresence`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List panelPresenceDescriptor = $convert.base64Decode(
+    'Cg1QYW5lbFByZXNlbmNlEg4KAnJuGAEgASgIUgJybhIOCgJyZhgCIAEoCFICcmYSDgoCYm4YAy'
+    'ABKAhSAmJuEg4KAmJmGAQgASgIUgJiZg==');
+
+@$core.Deprecated('Use headRefereeStreamResponseDescriptor instead')
+const HeadRefereeStreamResponse$json = {
+  '1': 'HeadRefereeStreamResponse',
+  '2': [
+    {'1': 'match_id', '3': 1, '4': 1, '5': 5, '10': 'matchId'},
+    {
+      '1': 'match_phase',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.MatchPhase',
+      '10': 'matchPhase'
+    },
+    {
+      '1': 'red_alliance_state',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.api.MatchAllianceState',
+      '10': 'redAllianceState'
+    },
+    {
+      '1': 'blue_alliance_state',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.api.MatchAllianceState',
+      '10': 'blueAllianceState'
+    },
+    {
+      '1': 'rn',
+      '3': 5,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.RefereePanelState',
+      '10': 'rn'
+    },
+    {
+      '1': 'rf',
+      '3': 6,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.RefereePanelState',
+      '10': 'rf'
+    },
+    {
+      '1': 'bn',
+      '3': 7,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.RefereePanelState',
+      '10': 'bn'
+    },
+    {
+      '1': 'bf',
+      '3': 8,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.RefereePanelState',
+      '10': 'bf'
+    },
+    {'1': 'rotate', '3': 9, '4': 1, '5': 8, '10': 'rotate'},
+    {'1': 'rotate_in', '3': 10, '4': 1, '5': 5, '10': 'rotateIn'},
+    {
+      '1': 'panel_presence',
+      '3': 11,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.api.PanelPresence',
+      '10': 'panelPresence'
+    },
+    {
+      '1': 'hr',
+      '3': 12,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.HeadRefereePanelState',
+      '10': 'hr'
+    },
+  ],
+};
+
+/// Descriptor for `HeadRefereeStreamResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List headRefereeStreamResponseDescriptor = $convert.base64Decode(
+    'ChlIZWFkUmVmZXJlZVN0cmVhbVJlc3BvbnNlEhkKCG1hdGNoX2lkGAEgASgFUgdtYXRjaElkEj'
+    'sKC21hdGNoX3BoYXNlGAIgASgOMhoucmVmbGluay5jb21tb24uTWF0Y2hQaGFzZVIKbWF0Y2hQ'
+    'aGFzZRJNChJyZWRfYWxsaWFuY2Vfc3RhdGUYAyABKAsyHy5yZWZsaW5rLmFwaS5NYXRjaEFsbG'
+    'lhbmNlU3RhdGVSEHJlZEFsbGlhbmNlU3RhdGUSTwoTYmx1ZV9hbGxpYW5jZV9zdGF0ZRgEIAEo'
+    'CzIfLnJlZmxpbmsuYXBpLk1hdGNoQWxsaWFuY2VTdGF0ZVIRYmx1ZUFsbGlhbmNlU3RhdGUSMQ'
+    'oCcm4YBSABKAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICcm4SMQoCcmYY'
+    'BiABKAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICcmYSMQoCYm4YByABKA'
+    'syIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICYm4SMQoCYmYYCCABKAsyIS5y'
+    'ZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICYmYSFgoGcm90YXRlGAkgASgIUgZyb3'
+    'RhdGUSGwoJcm90YXRlX2luGAogASgFUghyb3RhdGVJbhJBCg5wYW5lbF9wcmVzZW5jZRgLIAEo'
+    'CzIaLnJlZmxpbmsuYXBpLlBhbmVsUHJlc2VuY2VSDXBhbmVsUHJlc2VuY2USNQoCaHIYDCABKA'
+    'syJS5yZWZsaW5rLmNvbW1vbi5IZWFkUmVmZXJlZVBhbmVsU3RhdGVSAmhy');

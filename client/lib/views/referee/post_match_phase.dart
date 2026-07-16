@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ref_link/colors.dart';
 import 'package:ref_link/generated/api.pbgrpc.dart';
 import 'package:ref_link/providers/referee_panel_provider.dart';
+import 'package:ref_link/widgets/branding.dart';
 
 class RefereePostMatchPhase extends HookConsumerWidget {
   const RefereePostMatchPhase({super.key});
@@ -70,16 +71,7 @@ class RefereePostMatchPhase extends HookConsumerWidget {
           ),
         ),
 
-        Center(
-          child: Text(
-            "Ref-Link",
-            style: TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-              fontSize: 100,
-            ),
-          ),
-        ),
+        BrandingLogo(),
       ],
     );
   }

@@ -42,6 +42,8 @@ class RefereeView extends HookConsumerWidget {
       case MatchPhase.MATCH_PHASE_POST_MATCH:
         if (panelState.autoSubmitted && panelState.endgameSubmitted) {
           view = RefereePostMatchPhase();
+        } else if (!panelState.autoSubmitted) {
+          view = RefereeAutoMatchPhase();
         } else {
           view = RefereeMainPhase();
         }

@@ -77,6 +77,35 @@ pub struct CheesyMatch {
   pub type_order: i32,
 }
 
+// --- eventStatus ---
+//
+// `cycle_time` is the elapsed time between the start of the last two matches (computed by
+// Cheesy Arena when a match starts, not when it ends - see field/event_status.go), formatted
+// as "M:SS" or "H:MM:SS", optionally followed by " (M:SS faster/slower than scheduled)". Empty
+// when unknown (first match of the event, a big gap, or a test match).
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct CheesyEventStatus {
+  #[serde(default)]
+  pub cycle_time: String,
+}
+
+/// Parses a `cycle_time` string (see `CheesyEventStatus`) into a duration in seconds.
+pub fn parse_cycle_time_sec(raw: &str) -> Option<i64> {
+  let core = raw.split(" (").next().unwrap_or(raw).trim();
+  if core.is_empty() {
+    return None;
+  }
+
+  let parts: Vec<i64> = core.split(':').map(str::parse).collect::<Result<_, _>>().ok()?;
+  match parts.as_slice() {
+    [minutes, seconds] => Some(minutes * 60 + seconds),
+    [hours, minutes, seconds] => Some(hours * 3600 + minutes * 60 + seconds),
+    _ => None,
+  }
+}
+
 // --- matchTime ---
 
 #[derive(Debug, Deserialize)]

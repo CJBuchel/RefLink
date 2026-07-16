@@ -150,8 +150,10 @@ class RefereeCards extends HookConsumerWidget {
                       flex: 1,
                       child: _TeamCardCow(
                         isRed: false,
-                        teamNumber:
-                            panelServer.blueAllianceTeam1State.teamNumber,
+                        teamNumber: panelServer
+                            .blueAllianceState
+                            .allianceTeam1State
+                            .teamNumber,
                         allianceStation: TeamAllianceStationType
                             .TEAM_ALLIANCE_STATION_TYPE_BLUE_1,
                       ),
@@ -160,8 +162,10 @@ class RefereeCards extends HookConsumerWidget {
                       flex: 1,
                       child: _TeamCardCow(
                         isRed: false,
-                        teamNumber:
-                            panelServer.blueAllianceTeam2State.teamNumber,
+                        teamNumber: panelServer
+                            .blueAllianceState
+                            .allianceTeam2State
+                            .teamNumber,
                         allianceStation: TeamAllianceStationType
                             .TEAM_ALLIANCE_STATION_TYPE_BLUE_2,
                       ),
@@ -170,8 +174,10 @@ class RefereeCards extends HookConsumerWidget {
                       flex: 1,
                       child: _TeamCardCow(
                         isRed: false,
-                        teamNumber:
-                            panelServer.blueAllianceTeam3State.teamNumber,
+                        teamNumber: panelServer
+                            .blueAllianceState
+                            .allianceTeam3State
+                            .teamNumber,
                         allianceStation: TeamAllianceStationType
                             .TEAM_ALLIANCE_STATION_TYPE_BLUE_3,
                       ),
@@ -188,8 +194,10 @@ class RefereeCards extends HookConsumerWidget {
                       flex: 1,
                       child: _TeamCardCow(
                         isRed: true,
-                        teamNumber:
-                            panelServer.redAllianceTeam1State.teamNumber,
+                        teamNumber: panelServer
+                            .redAllianceState
+                            .allianceTeam1State
+                            .teamNumber,
                         allianceStation: TeamAllianceStationType
                             .TEAM_ALLIANCE_STATION_TYPE_RED_1,
                       ),
@@ -198,8 +206,10 @@ class RefereeCards extends HookConsumerWidget {
                       flex: 1,
                       child: _TeamCardCow(
                         isRed: true,
-                        teamNumber:
-                            panelServer.redAllianceTeam2State.teamNumber,
+                        teamNumber: panelServer
+                            .redAllianceState
+                            .allianceTeam2State
+                            .teamNumber,
                         allianceStation: TeamAllianceStationType
                             .TEAM_ALLIANCE_STATION_TYPE_RED_2,
                       ),
@@ -208,8 +218,10 @@ class RefereeCards extends HookConsumerWidget {
                       flex: 1,
                       child: _TeamCardCow(
                         isRed: true,
-                        teamNumber:
-                            panelServer.redAllianceTeam3State.teamNumber,
+                        teamNumber: panelServer
+                            .redAllianceState
+                            .allianceTeam3State
+                            .teamNumber,
                         allianceStation: TeamAllianceStationType
                             .TEAM_ALLIANCE_STATION_TYPE_RED_3,
                       ),

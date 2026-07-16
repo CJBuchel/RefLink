@@ -1,7 +1,7 @@
 use anyhow::Result;
 
 use crate::{
-  config::ServerConfig,
+  config::{ServerConfig, init_config},
   core::{api::Api, events::init_event_bus, scheduler::SchedulerPool},
   db::init_db,
   modules::fms,
@@ -26,6 +26,9 @@ impl Server {
     log::info!("Running server with config: {:?}", self.config);
 
     // let shutdown_notifier = ShutdownNotifier::get();
+
+    // Init config
+    init_config(self.config.clone());
 
     // Init event bus
     if let Err(e) = init_event_bus(1024) {

@@ -122,6 +122,21 @@ final $typed_data.Uint8List endgameClimbStateDescriptor = $convert.base64Decode(
     'RV9MRVZFTF8xEAISHwobRU5ER0FNRV9DTElNQl9TVEFURV9MRVZFTF8yEAMSHwobRU5ER0FNRV'
     '9DTElNQl9TVEFURV9MRVZFTF8zEAQ=');
 
+@$core.Deprecated('Use fieldStateDescriptor instead')
+const FieldState$json = {
+  '1': 'FieldState',
+  '2': [
+    {'1': 'FIELD_STATE_MATCH', '2': 0},
+    {'1': 'FIELD_STATE_COUNT', '2': 1},
+    {'1': 'FIELD_STATE_RESET', '2': 2},
+  ],
+};
+
+/// Descriptor for `FieldState`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List fieldStateDescriptor = $convert.base64Decode(
+    'CgpGaWVsZFN0YXRlEhUKEUZJRUxEX1NUQVRFX01BVENIEAASFQoRRklFTERfU1RBVEVfQ09VTl'
+    'QQARIVChFGSUVMRF9TVEFURV9SRVNFVBAC');
+
 @$core.Deprecated('Use matchPhaseDescriptor instead')
 const MatchPhase$json = {
   '1': 'MatchPhase',
@@ -159,6 +174,172 @@ final $typed_data.Uint8List matchTypeDescriptor = $convert.base64Decode(
     'JBQ1RJQ0UQARIcChhNQVRDSF9UWVBFX1FVQUxJRklDQVRJT04QAhIWChJNQVRDSF9UWVBFX1BM'
     'QVlPRkYQAw==');
 
+@$core.Deprecated('Use matchFoulsDescriptor instead')
+const MatchFouls$json = {
+  '1': 'MatchFouls',
+  '2': [
+    {'1': 'red_minor_fouls', '3': 1, '4': 1, '5': 5, '10': 'redMinorFouls'},
+    {'1': 'red_major_fouls', '3': 2, '4': 1, '5': 5, '10': 'redMajorFouls'},
+    {'1': 'blue_minor_fouls', '3': 3, '4': 1, '5': 5, '10': 'blueMinorFouls'},
+    {'1': 'blue_major_fouls', '3': 4, '4': 1, '5': 5, '10': 'blueMajorFouls'},
+  ],
+};
+
+/// Descriptor for `MatchFouls`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List matchFoulsDescriptor = $convert.base64Decode(
+    'CgpNYXRjaEZvdWxzEiYKD3JlZF9taW5vcl9mb3VscxgBIAEoBVINcmVkTWlub3JGb3VscxImCg'
+    '9yZWRfbWFqb3JfZm91bHMYAiABKAVSDXJlZE1ham9yRm91bHMSKAoQYmx1ZV9taW5vcl9mb3Vs'
+    'cxgDIAEoBVIOYmx1ZU1pbm9yRm91bHMSKAoQYmx1ZV9tYWpvcl9mb3VscxgEIAEoBVIOYmx1ZU'
+    '1ham9yRm91bHM=');
+
+@$core.Deprecated('Use matchCardsDescriptor instead')
+const MatchCards$json = {
+  '1': 'MatchCards',
+  '2': [
+    {
+      '1': 'red_alliance_station_1',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.CardType',
+      '10': 'redAllianceStation1'
+    },
+    {
+      '1': 'red_alliance_station_2',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.CardType',
+      '10': 'redAllianceStation2'
+    },
+    {
+      '1': 'red_alliance_station_3',
+      '3': 3,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.CardType',
+      '10': 'redAllianceStation3'
+    },
+    {
+      '1': 'blue_alliance_station_1',
+      '3': 4,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.CardType',
+      '10': 'blueAllianceStation1'
+    },
+    {
+      '1': 'blue_alliance_station_2',
+      '3': 5,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.CardType',
+      '10': 'blueAllianceStation2'
+    },
+    {
+      '1': 'blue_alliance_station_3',
+      '3': 6,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.CardType',
+      '10': 'blueAllianceStation3'
+    },
+  ],
+};
+
+/// Descriptor for `MatchCards`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List matchCardsDescriptor = $convert.base64Decode(
+    'CgpNYXRjaENhcmRzEk0KFnJlZF9hbGxpYW5jZV9zdGF0aW9uXzEYASABKA4yGC5yZWZsaW5rLm'
+    'NvbW1vbi5DYXJkVHlwZVITcmVkQWxsaWFuY2VTdGF0aW9uMRJNChZyZWRfYWxsaWFuY2Vfc3Rh'
+    'dGlvbl8yGAIgASgOMhgucmVmbGluay5jb21tb24uQ2FyZFR5cGVSE3JlZEFsbGlhbmNlU3RhdG'
+    'lvbjISTQoWcmVkX2FsbGlhbmNlX3N0YXRpb25fMxgDIAEoDjIYLnJlZmxpbmsuY29tbW9uLkNh'
+    'cmRUeXBlUhNyZWRBbGxpYW5jZVN0YXRpb24zEk8KF2JsdWVfYWxsaWFuY2Vfc3RhdGlvbl8xGA'
+    'QgASgOMhgucmVmbGluay5jb21tb24uQ2FyZFR5cGVSFGJsdWVBbGxpYW5jZVN0YXRpb24xEk8K'
+    'F2JsdWVfYWxsaWFuY2Vfc3RhdGlvbl8yGAUgASgOMhgucmVmbGluay5jb21tb24uQ2FyZFR5cG'
+    'VSFGJsdWVBbGxpYW5jZVN0YXRpb24yEk8KF2JsdWVfYWxsaWFuY2Vfc3RhdGlvbl8zGAYgASgO'
+    'MhgucmVmbGluay5jb21tb24uQ2FyZFR5cGVSFGJsdWVBbGxpYW5jZVN0YXRpb24z');
+
+@$core.Deprecated('Use allianceAutoClimbDescriptor instead')
+const AllianceAutoClimb$json = {
+  '1': 'AllianceAutoClimb',
+  '2': [
+    {
+      '1': 'auto_climb_alliance_station_1',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.AutoClimbState',
+      '10': 'autoClimbAllianceStation1'
+    },
+    {
+      '1': 'auto_climb_alliance_station_2',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.AutoClimbState',
+      '10': 'autoClimbAllianceStation2'
+    },
+    {
+      '1': 'auto_climb_alliance_station_3',
+      '3': 3,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.AutoClimbState',
+      '10': 'autoClimbAllianceStation3'
+    },
+  ],
+};
+
+/// Descriptor for `AllianceAutoClimb`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List allianceAutoClimbDescriptor = $convert.base64Decode(
+    'ChFBbGxpYW5jZUF1dG9DbGltYhJgCh1hdXRvX2NsaW1iX2FsbGlhbmNlX3N0YXRpb25fMRgBIA'
+    'EoDjIeLnJlZmxpbmsuY29tbW9uLkF1dG9DbGltYlN0YXRlUhlhdXRvQ2xpbWJBbGxpYW5jZVN0'
+    'YXRpb24xEmAKHWF1dG9fY2xpbWJfYWxsaWFuY2Vfc3RhdGlvbl8yGAIgASgOMh4ucmVmbGluay'
+    '5jb21tb24uQXV0b0NsaW1iU3RhdGVSGWF1dG9DbGltYkFsbGlhbmNlU3RhdGlvbjISYAodYXV0'
+    'b19jbGltYl9hbGxpYW5jZV9zdGF0aW9uXzMYAyABKA4yHi5yZWZsaW5rLmNvbW1vbi5BdXRvQ2'
+    'xpbWJTdGF0ZVIZYXV0b0NsaW1iQWxsaWFuY2VTdGF0aW9uMw==');
+
+@$core.Deprecated('Use allianceEndgameClimbDescriptor instead')
+const AllianceEndgameClimb$json = {
+  '1': 'AllianceEndgameClimb',
+  '2': [
+    {
+      '1': 'endgame_climb_alliance_station_1',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.EndgameClimbState',
+      '10': 'endgameClimbAllianceStation1'
+    },
+    {
+      '1': 'endgame_climb_alliance_station_2',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.EndgameClimbState',
+      '10': 'endgameClimbAllianceStation2'
+    },
+    {
+      '1': 'endgame_climb_alliance_station_3',
+      '3': 3,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.EndgameClimbState',
+      '10': 'endgameClimbAllianceStation3'
+    },
+  ],
+};
+
+/// Descriptor for `AllianceEndgameClimb`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List allianceEndgameClimbDescriptor = $convert.base64Decode(
+    'ChRBbGxpYW5jZUVuZGdhbWVDbGltYhJpCiBlbmRnYW1lX2NsaW1iX2FsbGlhbmNlX3N0YXRpb2'
+    '5fMRgBIAEoDjIhLnJlZmxpbmsuY29tbW9uLkVuZGdhbWVDbGltYlN0YXRlUhxlbmRnYW1lQ2xp'
+    'bWJBbGxpYW5jZVN0YXRpb24xEmkKIGVuZGdhbWVfY2xpbWJfYWxsaWFuY2Vfc3RhdGlvbl8yGA'
+    'IgASgOMiEucmVmbGluay5jb21tb24uRW5kZ2FtZUNsaW1iU3RhdGVSHGVuZGdhbWVDbGltYkFs'
+    'bGlhbmNlU3RhdGlvbjISaQogZW5kZ2FtZV9jbGltYl9hbGxpYW5jZV9zdGF0aW9uXzMYAyABKA'
+    '4yIS5yZWZsaW5rLmNvbW1vbi5FbmRnYW1lQ2xpbWJTdGF0ZVIcZW5kZ2FtZUNsaW1iQWxsaWFu'
+    'Y2VTdGF0aW9uMw==');
+
 @$core.Deprecated('Use refereePanelStateDescriptor instead')
 const RefereePanelState$json = {
   '1': 'RefereePanelState',
@@ -172,154 +353,131 @@ const RefereePanelState$json = {
       '10': 'refereeVote'
     },
     {
-      '1': 'auto_climb_alliance_station_1',
+      '1': 'auto_climb',
       '3': 2,
       '4': 1,
-      '5': 14,
-      '6': '.reflink.common.AutoClimbState',
-      '10': 'autoClimbAllianceStation1'
+      '5': 11,
+      '6': '.reflink.common.AllianceAutoClimb',
+      '10': 'autoClimb'
+    },
+    {'1': 'auto_submitted', '3': 3, '4': 1, '5': 8, '10': 'autoSubmitted'},
+    {'1': 'auto_issue', '3': 4, '4': 1, '5': 8, '10': 'autoIssue'},
+    {
+      '1': 'match_fouls',
+      '3': 5,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.MatchFouls',
+      '10': 'matchFouls'
     },
     {
-      '1': 'auto_climb_alliance_station_2',
-      '3': 3,
+      '1': 'match_cards',
+      '3': 6,
       '4': 1,
-      '5': 14,
-      '6': '.reflink.common.AutoClimbState',
-      '10': 'autoClimbAllianceStation2'
+      '5': 11,
+      '6': '.reflink.common.MatchCards',
+      '10': 'matchCards'
     },
-    {
-      '1': 'auto_climb_alliance_station_3',
-      '3': 4,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.AutoClimbState',
-      '10': 'autoClimbAllianceStation3'
-    },
-    {'1': 'auto_submitted', '3': 5, '4': 1, '5': 8, '10': 'autoSubmitted'},
-    {'1': 'auto_issue', '3': 6, '4': 1, '5': 8, '10': 'autoIssue'},
-    {'1': 'red_minor_fouls', '3': 7, '4': 1, '5': 5, '10': 'redMinorFouls'},
-    {'1': 'red_major_fouls', '3': 8, '4': 1, '5': 5, '10': 'redMajorFouls'},
-    {'1': 'blue_minor_fouls', '3': 9, '4': 1, '5': 5, '10': 'blueMinorFouls'},
-    {'1': 'blue_major_fouls', '3': 10, '4': 1, '5': 5, '10': 'blueMajorFouls'},
-    {
-      '1': 'red_alliance_station_1',
-      '3': 11,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.CardType',
-      '10': 'redAllianceStation1'
-    },
-    {
-      '1': 'red_alliance_station_2',
-      '3': 12,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.CardType',
-      '10': 'redAllianceStation2'
-    },
-    {
-      '1': 'red_alliance_station_3',
-      '3': 13,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.CardType',
-      '10': 'redAllianceStation3'
-    },
-    {
-      '1': 'blue_alliance_station_1',
-      '3': 14,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.CardType',
-      '10': 'blueAllianceStation1'
-    },
-    {
-      '1': 'blue_alliance_station_2',
-      '3': 15,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.CardType',
-      '10': 'blueAllianceStation2'
-    },
-    {
-      '1': 'blue_alliance_station_3',
-      '3': 16,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.CardType',
-      '10': 'blueAllianceStation3'
-    },
-    {'1': 'rp_issue', '3': 17, '4': 1, '5': 8, '10': 'rpIssue'},
+    {'1': 'rp_issue', '3': 7, '4': 1, '5': 8, '10': 'rpIssue'},
     {
       '1': 'discussion_needed',
-      '3': 18,
+      '3': 8,
       '4': 1,
       '5': 8,
       '10': 'discussionNeeded'
     },
     {
-      '1': 'endgame_climb_alliance_station_1',
-      '3': 19,
+      '1': 'endgame_climb',
+      '3': 9,
       '4': 1,
-      '5': 14,
-      '6': '.reflink.common.EndgameClimbState',
-      '10': 'endgameClimbAllianceStation1'
-    },
-    {
-      '1': 'endgame_climb_alliance_station_2',
-      '3': 20,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.EndgameClimbState',
-      '10': 'endgameClimbAllianceStation2'
-    },
-    {
-      '1': 'endgame_climb_alliance_station_3',
-      '3': 21,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.EndgameClimbState',
-      '10': 'endgameClimbAllianceStation3'
+      '5': 11,
+      '6': '.reflink.common.AllianceEndgameClimb',
+      '10': 'endgameClimb'
     },
     {
       '1': 'endgame_submitted',
-      '3': 22,
+      '3': 10,
       '4': 1,
       '5': 8,
       '10': 'endgameSubmitted'
     },
-    {'1': 'endgame_issue', '3': 23, '4': 1, '5': 8, '10': 'endgameIssue'},
+    {'1': 'endgame_issue', '3': 11, '4': 1, '5': 8, '10': 'endgameIssue'},
   ],
 };
 
 /// Descriptor for `RefereePanelState`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List refereePanelStateDescriptor = $convert.base64Decode(
     'ChFSZWZlcmVlUGFuZWxTdGF0ZRI+CgxyZWZlcmVlX3ZvdGUYASABKA4yGy5yZWZsaW5rLmNvbW'
-    '1vbi5SZWZlcmVlVm90ZVILcmVmZXJlZVZvdGUSYAodYXV0b19jbGltYl9hbGxpYW5jZV9zdGF0'
-    'aW9uXzEYAiABKA4yHi5yZWZsaW5rLmNvbW1vbi5BdXRvQ2xpbWJTdGF0ZVIZYXV0b0NsaW1iQW'
-    'xsaWFuY2VTdGF0aW9uMRJgCh1hdXRvX2NsaW1iX2FsbGlhbmNlX3N0YXRpb25fMhgDIAEoDjIe'
-    'LnJlZmxpbmsuY29tbW9uLkF1dG9DbGltYlN0YXRlUhlhdXRvQ2xpbWJBbGxpYW5jZVN0YXRpb2'
-    '4yEmAKHWF1dG9fY2xpbWJfYWxsaWFuY2Vfc3RhdGlvbl8zGAQgASgOMh4ucmVmbGluay5jb21t'
-    'b24uQXV0b0NsaW1iU3RhdGVSGWF1dG9DbGltYkFsbGlhbmNlU3RhdGlvbjMSJQoOYXV0b19zdW'
-    'JtaXR0ZWQYBSABKAhSDWF1dG9TdWJtaXR0ZWQSHQoKYXV0b19pc3N1ZRgGIAEoCFIJYXV0b0lz'
-    'c3VlEiYKD3JlZF9taW5vcl9mb3VscxgHIAEoBVINcmVkTWlub3JGb3VscxImCg9yZWRfbWFqb3'
-    'JfZm91bHMYCCABKAVSDXJlZE1ham9yRm91bHMSKAoQYmx1ZV9taW5vcl9mb3VscxgJIAEoBVIO'
-    'Ymx1ZU1pbm9yRm91bHMSKAoQYmx1ZV9tYWpvcl9mb3VscxgKIAEoBVIOYmx1ZU1ham9yRm91bH'
-    'MSTQoWcmVkX2FsbGlhbmNlX3N0YXRpb25fMRgLIAEoDjIYLnJlZmxpbmsuY29tbW9uLkNhcmRU'
-    'eXBlUhNyZWRBbGxpYW5jZVN0YXRpb24xEk0KFnJlZF9hbGxpYW5jZV9zdGF0aW9uXzIYDCABKA'
-    '4yGC5yZWZsaW5rLmNvbW1vbi5DYXJkVHlwZVITcmVkQWxsaWFuY2VTdGF0aW9uMhJNChZyZWRf'
-    'YWxsaWFuY2Vfc3RhdGlvbl8zGA0gASgOMhgucmVmbGluay5jb21tb24uQ2FyZFR5cGVSE3JlZE'
-    'FsbGlhbmNlU3RhdGlvbjMSTwoXYmx1ZV9hbGxpYW5jZV9zdGF0aW9uXzEYDiABKA4yGC5yZWZs'
-    'aW5rLmNvbW1vbi5DYXJkVHlwZVIUYmx1ZUFsbGlhbmNlU3RhdGlvbjESTwoXYmx1ZV9hbGxpYW'
-    '5jZV9zdGF0aW9uXzIYDyABKA4yGC5yZWZsaW5rLmNvbW1vbi5DYXJkVHlwZVIUYmx1ZUFsbGlh'
-    'bmNlU3RhdGlvbjISTwoXYmx1ZV9hbGxpYW5jZV9zdGF0aW9uXzMYECABKA4yGC5yZWZsaW5rLm'
-    'NvbW1vbi5DYXJkVHlwZVIUYmx1ZUFsbGlhbmNlU3RhdGlvbjMSGQoIcnBfaXNzdWUYESABKAhS'
-    'B3JwSXNzdWUSKwoRZGlzY3Vzc2lvbl9uZWVkZWQYEiABKAhSEGRpc2N1c3Npb25OZWVkZWQSaQ'
-    'ogZW5kZ2FtZV9jbGltYl9hbGxpYW5jZV9zdGF0aW9uXzEYEyABKA4yIS5yZWZsaW5rLmNvbW1v'
-    'bi5FbmRnYW1lQ2xpbWJTdGF0ZVIcZW5kZ2FtZUNsaW1iQWxsaWFuY2VTdGF0aW9uMRJpCiBlbm'
-    'RnYW1lX2NsaW1iX2FsbGlhbmNlX3N0YXRpb25fMhgUIAEoDjIhLnJlZmxpbmsuY29tbW9uLkVu'
-    'ZGdhbWVDbGltYlN0YXRlUhxlbmRnYW1lQ2xpbWJBbGxpYW5jZVN0YXRpb24yEmkKIGVuZGdhbW'
-    'VfY2xpbWJfYWxsaWFuY2Vfc3RhdGlvbl8zGBUgASgOMiEucmVmbGluay5jb21tb24uRW5kZ2Ft'
-    'ZUNsaW1iU3RhdGVSHGVuZGdhbWVDbGltYkFsbGlhbmNlU3RhdGlvbjMSKwoRZW5kZ2FtZV9zdW'
-    'JtaXR0ZWQYFiABKAhSEGVuZGdhbWVTdWJtaXR0ZWQSIwoNZW5kZ2FtZV9pc3N1ZRgXIAEoCFIM'
-    'ZW5kZ2FtZUlzc3Vl');
+    '1vbi5SZWZlcmVlVm90ZVILcmVmZXJlZVZvdGUSQAoKYXV0b19jbGltYhgCIAEoCzIhLnJlZmxp'
+    'bmsuY29tbW9uLkFsbGlhbmNlQXV0b0NsaW1iUglhdXRvQ2xpbWISJQoOYXV0b19zdWJtaXR0ZW'
+    'QYAyABKAhSDWF1dG9TdWJtaXR0ZWQSHQoKYXV0b19pc3N1ZRgEIAEoCFIJYXV0b0lzc3VlEjsK'
+    'C21hdGNoX2ZvdWxzGAUgASgLMhoucmVmbGluay5jb21tb24uTWF0Y2hGb3Vsc1IKbWF0Y2hGb3'
+    'VscxI7CgttYXRjaF9jYXJkcxgGIAEoCzIaLnJlZmxpbmsuY29tbW9uLk1hdGNoQ2FyZHNSCm1h'
+    'dGNoQ2FyZHMSGQoIcnBfaXNzdWUYByABKAhSB3JwSXNzdWUSKwoRZGlzY3Vzc2lvbl9uZWVkZW'
+    'QYCCABKAhSEGRpc2N1c3Npb25OZWVkZWQSSQoNZW5kZ2FtZV9jbGltYhgJIAEoCzIkLnJlZmxp'
+    'bmsuY29tbW9uLkFsbGlhbmNlRW5kZ2FtZUNsaW1iUgxlbmRnYW1lQ2xpbWISKwoRZW5kZ2FtZV'
+    '9zdWJtaXR0ZWQYCiABKAhSEGVuZGdhbWVTdWJtaXR0ZWQSIwoNZW5kZ2FtZV9pc3N1ZRgLIAEo'
+    'CFIMZW5kZ2FtZUlzc3Vl');
+
+@$core.Deprecated('Use headRefereePanelStateDescriptor instead')
+const HeadRefereePanelState$json = {
+  '1': 'HeadRefereePanelState',
+  '2': [
+    {
+      '1': 'match_fouls',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.MatchFouls',
+      '10': 'matchFouls'
+    },
+    {
+      '1': 'match_cards',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.reflink.common.MatchCards',
+      '10': 'matchCards'
+    },
+    {
+      '1': 'ref_review_required',
+      '3': 3,
+      '4': 1,
+      '5': 8,
+      '10': 'refReviewRequired'
+    },
+    {
+      '1': 'field_state',
+      '3': 4,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.FieldState',
+      '10': 'fieldState'
+    },
+    {
+      '1': 'two_minute_warning_given',
+      '3': 5,
+      '4': 1,
+      '5': 8,
+      '10': 'twoMinuteWarningGiven'
+    },
+    {
+      '1': 'two_minute_warning_expires_at_unix_sec',
+      '3': 6,
+      '4': 1,
+      '5': 3,
+      '10': 'twoMinuteWarningExpiresAtUnixSec'
+    },
+  ],
+};
+
+/// Descriptor for `HeadRefereePanelState`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List headRefereePanelStateDescriptor = $convert.base64Decode(
+    'ChVIZWFkUmVmZXJlZVBhbmVsU3RhdGUSOwoLbWF0Y2hfZm91bHMYASABKAsyGi5yZWZsaW5rLm'
+    'NvbW1vbi5NYXRjaEZvdWxzUgptYXRjaEZvdWxzEjsKC21hdGNoX2NhcmRzGAIgASgLMhoucmVm'
+    'bGluay5jb21tb24uTWF0Y2hDYXJkc1IKbWF0Y2hDYXJkcxIuChNyZWZfcmV2aWV3X3JlcXVpcm'
+    'VkGAMgASgIUhFyZWZSZXZpZXdSZXF1aXJlZBI7CgtmaWVsZF9zdGF0ZRgEIAEoDjIaLnJlZmxp'
+    'bmsuY29tbW9uLkZpZWxkU3RhdGVSCmZpZWxkU3RhdGUSNwoYdHdvX21pbnV0ZV93YXJuaW5nX2'
+    'dpdmVuGAUgASgIUhV0d29NaW51dGVXYXJuaW5nR2l2ZW4SUAomdHdvX21pbnV0ZV93YXJuaW5n'
+    'X2V4cGlyZXNfYXRfdW5peF9zZWMYBiABKANSIHR3b01pbnV0ZVdhcm5pbmdFeHBpcmVzQXRVbm'
+    'l4U2Vj');

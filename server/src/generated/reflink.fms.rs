@@ -26,6 +26,11 @@ pub struct FmsMatchInfo {
     pub time_remaining_sec: i32,
     #[prost(message, repeated, tag = "6")]
     pub teams: ::prost::alloc::vec::Vec<FmsTeamState>,
+    /// Unix seconds at which the next match is estimated to start, derived from Cheesy Arena's
+    /// last cycle time (the gap between the previous two matches, used as a proxy for the
+    /// current gap). 0 when no estimate is available yet (e.g. before the event's first match).
+    #[prost(int64, tag = "7")]
+    pub next_match_estimated_at_unix_sec: i64,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct FmsConnectionStatus {

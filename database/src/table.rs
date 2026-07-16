@@ -135,6 +135,12 @@ impl Table {
   async fn __get_records<T: Message + Default>(&mut self, ids: Vec<String>) -> Result<HashMap<String, T>> {
     let mut records: HashMap<String, T> = HashMap::new();
 
+    // Redis rejects MGET with zero keys ("wrong number of arguments"), which happens
+    // whenever a search index has no matches yet (e.g. no records committed yet).
+    if ids.is_empty() {
+      return Ok(records);
+    }
+
     let full_keys: Vec<String> = ids.iter().map(|id| format!("{}:{}:{}", self.name, DATA_PREFIX, id)).collect();
 
     // Get all values at once

@@ -6,7 +6,7 @@ pub struct MatchStateRecord {
     #[prost(enumeration = "super::common::MatchPhase", tag = "2")]
     pub match_phase: i32,
     #[prost(message, optional, tag = "3")]
-    pub hr: ::core::option::Option<super::common::RefereePanelState>,
+    pub hr: ::core::option::Option<super::common::HeadRefereePanelState>,
     #[prost(message, optional, tag = "4")]
     pub rn: ::core::option::Option<super::common::RefereePanelState>,
     #[prost(message, optional, tag = "5")]
@@ -15,4 +15,10 @@ pub struct MatchStateRecord {
     pub bn: ::core::option::Option<super::common::RefereePanelState>,
     #[prost(message, optional, tag = "7")]
     pub bf: ::core::option::Option<super::common::RefereePanelState>,
+    /// Set once this match has reached PostMatch state in Cheesy Arena - distinguishes a match
+    /// that was actually run to completion from one that was merely loaded/previewed. Chosen
+    /// over Cheesy's `scorePosted` event because the field_monitor websocket we connect to
+    /// doesn't subscribe to that notifier, only to arenaStatus/matchTime.
+    #[prost(bool, tag = "8")]
+    pub completed: bool,
 }

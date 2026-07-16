@@ -4,7 +4,7 @@ use tokio_tungstenite::tungstenite::Message;
 use crate::{
   core::events::{ChangeEvent, EVENT_BUS},
   generated::{
-    common::{CardType, TeamAllianceStationType},
+    common::{CardType, FieldState, MatchFouls, TeamAllianceStationType},
     db::MatchStateRecord,
     fms::FmsMatchInfo,
   },
@@ -40,31 +40,42 @@ struct CombinedRefereeState {
   blue_3: CardType,
 }
 
+fn merge_fouls(combined: &mut CombinedRefereeState, fouls: Option<&MatchFouls>) {
+  if let Some(f) = fouls {
+    combined.red_minor_fouls = combined.red_minor_fouls.max(f.red_minor_fouls);
+    combined.red_major_fouls = combined.red_major_fouls.max(f.red_major_fouls);
+    combined.blue_minor_fouls = combined.blue_minor_fouls.max(f.blue_minor_fouls);
+    combined.blue_major_fouls = combined.blue_major_fouls.max(f.blue_major_fouls);
+  }
+}
+
 // Fouls are combined across every panel (head referee included) by taking the highest
 // count any single panel has reported per field - near/far panels call fouls independently
 // and the head referee's own count is just one more input until they can review and adjust it.
 //
-// Cards are different: they're sourced *only* from the head referee's panel. The near/far
+// Cards are different: they're sourced *only* from the head referee's panel (a distinct
+// `HeadRefereePanelState`, not a `RefereePanelState` like the other four). The near/far
 // panels' card fields are for on-panel display/discussion during the match - only the head
 // referee actually decides and submits a card, typically once the match is over.
 fn combine_match_state(record: &MatchStateRecord) -> CombinedRefereeState {
-  let panels = [record.hr.as_ref(), record.rn.as_ref(), record.rf.as_ref(), record.bn.as_ref(), record.bf.as_ref()];
-
   let mut combined = CombinedRefereeState::default();
-  for panel in panels.into_iter().flatten() {
-    combined.red_minor_fouls = combined.red_minor_fouls.max(panel.red_minor_fouls);
-    combined.red_major_fouls = combined.red_major_fouls.max(panel.red_major_fouls);
-    combined.blue_minor_fouls = combined.blue_minor_fouls.max(panel.blue_minor_fouls);
-    combined.blue_major_fouls = combined.blue_major_fouls.max(panel.blue_major_fouls);
-  }
 
   if let Some(hr) = record.hr.as_ref() {
-    combined.red_1 = CardType::try_from(hr.red_alliance_station_1).unwrap_or_default();
-    combined.red_2 = CardType::try_from(hr.red_alliance_station_2).unwrap_or_default();
-    combined.red_3 = CardType::try_from(hr.red_alliance_station_3).unwrap_or_default();
-    combined.blue_1 = CardType::try_from(hr.blue_alliance_station_1).unwrap_or_default();
-    combined.blue_2 = CardType::try_from(hr.blue_alliance_station_2).unwrap_or_default();
-    combined.blue_3 = CardType::try_from(hr.blue_alliance_station_3).unwrap_or_default();
+    merge_fouls(&mut combined, hr.match_fouls.as_ref());
+  }
+
+  let panels = [record.rn.as_ref(), record.rf.as_ref(), record.bn.as_ref(), record.bf.as_ref()];
+  for panel in panels.into_iter().flatten() {
+    merge_fouls(&mut combined, panel.match_fouls.as_ref());
+  }
+
+  if let Some(cards) = record.hr.as_ref().and_then(|hr| hr.match_cards.as_ref()) {
+    combined.red_1 = CardType::try_from(cards.red_alliance_station_1).unwrap_or_default();
+    combined.red_2 = CardType::try_from(cards.red_alliance_station_2).unwrap_or_default();
+    combined.red_3 = CardType::try_from(cards.red_alliance_station_3).unwrap_or_default();
+    combined.blue_1 = CardType::try_from(cards.blue_alliance_station_1).unwrap_or_default();
+    combined.blue_2 = CardType::try_from(cards.blue_alliance_station_2).unwrap_or_default();
+    combined.blue_3 = CardType::try_from(cards.blue_alliance_station_3).unwrap_or_default();
   }
 
   combined
@@ -133,6 +144,16 @@ fn push_card_command(
   commands.push(encode("card", CardCommand { alliance, team_id: team.team_number, card }));
 }
 
+// field_state is one-way (MATCH -> COUNT -> RESET, enforced in arena::update_head_referee_state),
+// so each transition maps to exactly one Cheesy signal, sent once when it's first observed.
+fn field_state_command(state: FieldState) -> Option<Message> {
+  match state {
+    FieldState::Count => Some(encode("signalVolunteers", ())),
+    FieldState::Reset => Some(encode("signalReset", ())),
+    FieldState::Match => None,
+  }
+}
+
 fn diff_commands(
   previous: &CombinedRefereeState,
   current: &CombinedRefereeState,
@@ -179,6 +200,7 @@ pub async fn run(
   let mut last_sent = CombinedRefereeState::default();
   let mut ledger = FoulLedger::default();
   let mut current_match_id: Option<i32> = None;
+  let mut last_field_state = FieldState::Match;
 
   loop {
     tokio::select! {
@@ -196,28 +218,38 @@ pub async fn run(
         // Cheesy Arena resets its own foul list whenever it loads a new match, so our
         // notion of "previously sent" has to reset right along with it - otherwise the
         // first update of a new match would look like a huge decrease from the last match
-        // and spam deleteFoul commands into an already-empty list.
+        // and spam deleteFoul commands into an already-empty list. field_state resets to
+        // MATCH for the same reason (it's per-match-cycle, enforced in the repository layer).
         if current_match_id != Some(record.match_id) {
           current_match_id = Some(record.match_id);
           last_sent = CombinedRefereeState::default();
           ledger = FoulLedger::default();
+          last_field_state = FieldState::Match;
+        }
+
+        let field_state = record.hr.as_ref().and_then(|hr| FieldState::try_from(hr.field_state).ok()).unwrap_or_default();
+        if field_state != last_field_state {
+          if let Some(message) = field_state_command(field_state)
+            && cmd_tx.send(message).await.is_err()
+          {
+            log::warn!("[FMS/sync] Referee panel channel closed, dropping command");
+          }
+          last_field_state = field_state;
         }
 
         let combined = combine_match_state(&record);
-        if combined == last_sent {
-          continue;
-        }
-
-        let match_info = match_info_rx.borrow().clone();
-        let commands = diff_commands(&last_sent, &combined, match_info.as_ref(), &mut ledger);
-        for message in commands {
-          if cmd_tx.send(message).await.is_err() {
-            log::warn!("[FMS/sync] Referee panel channel closed, dropping command");
-            break;
+        if combined != last_sent {
+          let match_info = match_info_rx.borrow().clone();
+          let commands = diff_commands(&last_sent, &combined, match_info.as_ref(), &mut ledger);
+          for message in commands {
+            if cmd_tx.send(message).await.is_err() {
+              log::warn!("[FMS/sync] Referee panel channel closed, dropping command");
+              break;
+            }
           }
-        }
 
-        last_sent = combined;
+          last_sent = combined;
+        }
       }
       _ = shutdown_rx.recv() => return,
     }
