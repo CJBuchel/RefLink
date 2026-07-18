@@ -84,7 +84,7 @@ impl RefereePanelService for RefereePanelApi {
     let match_rotations = CONFIG.get().map(|c| c.match_rotations).unwrap_or_default();
     let mut fms_info = FmsMatchInfo::get_current().await.ok().flatten().unwrap_or_default();
     let mut match_state = MatchStateRecord::get_match_state(fms_info.match_id).await.ok();
-    let mut rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or((false, 0));
+    let mut rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or(0);
     let mut panel_type: Option<PanelType> = None;
 
     let stream = async_stream::stream! {
@@ -153,7 +153,7 @@ fn build_response(
   fms_info: &FmsMatchInfo,
   match_state: Option<&MatchStateRecord>,
   panel_type: Option<PanelType>,
-  rotation: (bool, i32),
+  rotate_in: i32,
 ) -> RefereeStreamResponse {
   let teams = map_teams(fms_info);
   let ref_review_required = match_state.and_then(|r| r.hr.as_ref()).map(|hr| hr.ref_review_required).unwrap_or(false);
@@ -172,8 +172,7 @@ fn build_response(
       alliance_team_3_state: teams.get(&(TeamAllianceStationType::Blue3 as i32)).cloned(),
     }),
     partner_panel: partner_panel_state(match_state, panel_type),
-    rotate: rotation.0,
-    rotate_in: rotation.1,
+    rotate_in,
     ref_review_required,
   }
 }

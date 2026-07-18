@@ -18,9 +18,39 @@ class RefereeAutoClimbColumn extends HookConsumerWidget {
     // Create internal state (initial value of initialState)
     final stationState = useState(initialState);
 
-    // Watch for initialState changes (in case parent updates)
+    // Tracks the last partner call we've actually reacted to, so we can tell a genuine new
+    // partner call apart from our own tap echoing back through `initialState` (see below).
+    // Seeded as UNSPECIFIED (not the real current value) so that if the partner already has a
+    // call in when this widget first mounts/reconnects, that still counts as "new" and gets
+    // adopted immediately.
+    final lastKnownPartnerClimb = useRef(AutoClimbState.AUTO_CLIMB_STATE_UNSPECIFIED);
+
+    // Watch for initialState changes (in case parent updates). Auto climb is a shared,
+    // continuously-synced call between the two panels (unlike endgame, which requires explicit
+    // agreement before submit) - so whenever the partner's call actually changes, including a
+    // correction after the fact, adopt it as our own too, not just the first time. Comparing
+    // against our own current call (rather than "am I still unspecified") is what makes later
+    // corrections propagate - previously this only ever fired once, while our own call was
+    // still blank, which is why syncing appeared to stop working once both sides had entered
+    // something (e.g. once the submit button showed up).
     useEffect(() {
       stationState.value = initialState;
+
+      final partnerChanged = initialState.partnerClimbState != lastKnownPartnerClimb.value;
+      lastKnownPartnerClimb.value = initialState.partnerClimbState;
+
+      if (partnerChanged &&
+          initialState.partnerClimbState != AutoClimbState.AUTO_CLIMB_STATE_UNSPECIFIED &&
+          initialState.partnerClimbState != initialState.climbState) {
+        final synced = initialState.copyWith(
+          climbState: initialState.partnerClimbState,
+        );
+        stationState.value = synced;
+        // onChange writes to a provider - deferred since useEffect callbacks run
+        // synchronously during build, and Riverpod forbids modifying providers then.
+        Future(() => onChange(synced));
+      }
+
       return null;
     }, [initialState]);
 
@@ -29,14 +59,6 @@ class RefereeAutoClimbColumn extends HookConsumerWidget {
     bool showTeamBorder =
         stationState.value.partnerClimbState ==
         AutoClimbState.AUTO_CLIMB_STATE_UNSPECIFIED;
-
-    bool showL1Border =
-        stationState.value.partnerClimbState ==
-        AutoClimbState.AUTO_CLIMB_STATE_LEVEL_1;
-
-    bool showNothingBorder =
-        stationState.value.partnerClimbState ==
-        AutoClimbState.AUTO_CLIMB_STATE_NOTHING;
 
     List<Widget> climbLevels() {
       if (stationState.value.teamBypassed) {
@@ -91,10 +113,7 @@ class RefereeAutoClimbColumn extends HookConsumerWidget {
                       ? Colors.green
                       : Colors.grey.shade800,
                   shadowColor: Colors.black,
-                  side: BorderSide(
-                    color: showL1Border ? Colors.yellow : Colors.black,
-                    width: 3,
-                  ),
+                  side: BorderSide(color: Colors.black, width: 3),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8), // square corners
                   ),
@@ -132,10 +151,7 @@ class RefereeAutoClimbColumn extends HookConsumerWidget {
                       ? Colors.red
                       : Colors.grey.shade800,
                   shadowColor: Colors.black,
-                  side: BorderSide(
-                    color: showNothingBorder ? Colors.yellow : Colors.black,
-                    width: 3,
-                  ),
+                  side: BorderSide(color: Colors.black, width: 3),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8), // square corners
                   ),

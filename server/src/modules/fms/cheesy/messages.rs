@@ -8,6 +8,7 @@
 //   field/arena_notifiers.go  — arenaStatus, matchLoad, matchTime, matchTiming
 //   model/match.go            — Match / MatchType
 //   web/referee_panel.go      — addFoul / card / commitAndPost / toggleBypass commands
+//   web/scoring_panel.go      — autoTower / endgame commands (game.TowerStatus)
 
 use std::collections::HashMap;
 
@@ -206,4 +207,25 @@ pub struct CardCommand {
   pub alliance: &'static str,
   pub team_id: i32,
   pub card: &'static str,
+}
+
+// --- Outgoing scoring panel commands (game.TowerStatus: None=0, Level1=1, Level2=2, Level3=3) ---
+
+pub const TOWER_STATUS_NONE: i32 = 0;
+pub const TOWER_STATUS_LEVEL_1: i32 = 1;
+pub const TOWER_STATUS_LEVEL_2: i32 = 2;
+pub const TOWER_STATUS_LEVEL_3: i32 = 3;
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct AutoTowerCommand {
+  pub team_position: i32,
+  pub auto_tower_status: i32,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct EndgameCommand {
+  pub team_position: i32,
+  pub endgame_tower_status: i32,
 }

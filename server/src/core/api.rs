@@ -37,10 +37,14 @@ impl Api {
       // Enable HTTP/1.1 for gRPC-Web (browsers)
       .accept_http1(true)
       // TCP Keep alive (detect broken connections at OS level)
-      .tcp_keepalive(Some(Duration::from_secs(60)))
-      // HTTP/2 keep alive (detect unresponsive clients)
-      .http2_keepalive_interval(Some(Duration::from_secs(30)))
-      .http2_keepalive_timeout(Some(Duration::from_secs(10)))
+      .tcp_keepalive(Some(Duration::from_secs(15)))
+      // HTTP/2 keep alive (detect unresponsive clients). Unlike the client - which finds out
+      // a connection died almost immediately, because the OS kills the socket the instant the
+      // network interface drops - the server has no such signal and can only find out by
+      // actively probing. Kept tight (worst case ~9s to notice) since presence indicators
+      // (e.g. the head referee's panel connection display) depend on this.
+      .http2_keepalive_interval(Some(Duration::from_secs(5)))
+      .http2_keepalive_timeout(Some(Duration::from_secs(4)))
       // Max concurrent streams per connection
       .initial_stream_window_size(Some(1024 * 1024)) // 1MB
       .initial_connection_window_size(Some(1024 * 1024 * 2)) // 2MB

@@ -42,8 +42,8 @@ pub struct RefereeStreamResponse {
     pub blue_alliance_state: ::core::option::Option<MatchAllianceState>,
     #[prost(message, optional, tag = "5")]
     pub partner_panel: ::core::option::Option<super::common::RefereePanelState>,
-    #[prost(bool, tag = "6")]
-    pub rotate: bool,
+    /// Matches remaining until rotation (0 = rotate now) - the client derives whether/when to
+    /// notify from this rather than a separate boolean.
     #[prost(int32, tag = "7")]
     pub rotate_in: i32,
     #[prost(bool, tag = "8")]
@@ -87,15 +87,10 @@ pub struct HeadRefereeStreamResponse {
     pub bn: ::core::option::Option<super::common::RefereePanelState>,
     #[prost(message, optional, tag = "8")]
     pub bf: ::core::option::Option<super::common::RefereePanelState>,
-    #[prost(bool, tag = "9")]
-    pub rotate: bool,
     #[prost(int32, tag = "10")]
     pub rotate_in: i32,
     #[prost(message, optional, tag = "11")]
     pub panel_presence: ::core::option::Option<PanelPresence>,
-    /// Echoes back the server's authoritative (clamped) copy of the head referee's own
-    /// submitted state - notably `field_state`, since the one-way MATCH->COUNT->RESET
-    /// transition is enforced server-side, not by the submitting client.
     #[prost(message, optional, tag = "12")]
     pub hr: ::core::option::Option<super::common::HeadRefereePanelState>,
 }

@@ -67,7 +67,7 @@ impl HeadRefereePanelService for HeadRefereeApi {
     let match_rotations = CONFIG.get().map(|c| c.match_rotations).unwrap_or_default();
     let mut fms_info = FmsMatchInfo::get_current().await.ok().flatten().unwrap_or_default();
     let mut match_state = MatchStateRecord::get_match_state(fms_info.match_id).await.ok();
-    let mut rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or((false, 0));
+    let mut rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or(0);
     let mut panel_presence = presence::snapshot();
 
     let stream = async_stream::stream! {
@@ -130,7 +130,7 @@ impl HeadRefereePanelService for HeadRefereeApi {
 fn build_response(
   fms_info: &FmsMatchInfo,
   match_state: Option<&MatchStateRecord>,
-  rotation: (bool, i32),
+  rotate_in: i32,
   panel_presence: PanelPresence,
 ) -> HeadRefereeStreamResponse {
   let teams = map_teams(fms_info);
@@ -153,8 +153,7 @@ fn build_response(
     bn: match_state.and_then(|r| r.bn),
     bf: match_state.and_then(|r| r.bf),
     hr: match_state.and_then(|r| r.hr),
-    rotate: rotation.0,
-    rotate_in: rotation.1,
+    rotate_in,
     panel_presence: Some(panel_presence),
   }
 }

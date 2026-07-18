@@ -96,7 +96,7 @@ class BaseAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final panelId = ref.watch(panelNameProvider);
     final isConnected = ref.watch(isConnectedProvider).value ?? false;
     final matchInfo = ref.watch(arenaMatchInfoProvider).value;
-    final (_, rotateIn) = ref.watch(rotationStatusProvider);
+    final rotateIn = ref.watch(rotationStatusProvider);
 
     final matchLabel = matchInfo == null || matchInfo.matchNumber == 0
         ? "No Match"

@@ -72,12 +72,20 @@ class RefereePanel extends _$RefereePanel {
   PanelType panelType = PanelType.PANEL_TYPE_UNSPECIFIED;
   int matchId = 0;
 
+  static bool _isAwaitingMatch(MatchPhase phase) =>
+      phase == MatchPhase.MATCH_PHASE_IDLE_UNSPECIFIED ||
+      phase == MatchPhase.MATCH_PHASE_PRE_MATCH;
+
   @override
   RefereeStreamRequest build() {
     panelType = getPanelFromString(ref.watch(panelIdProvider));
-    matchId = ref.read(refereePanelServerProvider).matchId; // get initial
+    final initialServerState = ref.read(refereePanelServerProvider);
+    matchId = initialServerState.matchId; // get initial
     ref.listen(refereePanelServerProvider, (previous, next) {
-      if (previous?.matchId != next.matchId) {
+      final matchChanged = previous?.matchId != next.matchId;
+      final enteredPreMatch =
+          previous?.matchPhase != next.matchPhase && _isAwaitingMatch(next.matchPhase);
+      if (matchChanged || enteredPreMatch) {
         logger.w("Panel reset (new match)");
         matchId = next.matchId;
         resetPanel();
@@ -85,12 +93,26 @@ class RefereePanel extends _$RefereePanel {
     });
     final saved = localStorage.getString(_key);
 
-    final buffer = saved != null
+    // Never trust submission flags persisted from a previous session while no match is
+    // actively running - the FMS match id doesn't change on a DB reset/restart, so a stale
+    // "autoSubmitted" would otherwise silently carry over and skip the auto phase view.
+    final buffer = saved != null && !_isAwaitingMatch(initialServerState.matchPhase)
         ? ProtobufHelper.decode(saved, RefereeStreamRequest.fromBuffer)
         : RefereeStreamRequest();
 
     buffer.panel = panelType;
     buffer.matchId = matchId;
+
+    // The server only knows this panel exists once it actually receives a message - sitting
+    // on the panel screen without touching a control previously never sent anything, so the
+    // head referee's presence display stayed stuck on "disconnected". Announce on every
+    // (re)connect, not just here on first build, since a later reconnect after a network drop
+    // doesn't re-run build().
+    connection.onConnected = () => connection.send(state);
+    if (connection.isConnected) {
+      connection.send(buffer);
+    }
+
     return buffer;
   }
 

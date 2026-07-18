@@ -8,20 +8,22 @@ part of 'rotation_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// (shouldRotate, matchesUntilRotation) - sourced from whichever server stream is relevant
-/// to the currently active panel, so callers don't need to know which one to watch.
+/// Matches remaining until rotation (0 = rotate now) - sourced from whichever server stream
+/// is relevant to the currently active panel, so callers don't need to know which one to
+/// watch. Callers derive whether/when to notify from this rather than a separate boolean.
 
 @ProviderFor(rotationStatus)
 final rotationStatusProvider = RotationStatusProvider._();
 
-/// (shouldRotate, matchesUntilRotation) - sourced from whichever server stream is relevant
-/// to the currently active panel, so callers don't need to know which one to watch.
+/// Matches remaining until rotation (0 = rotate now) - sourced from whichever server stream
+/// is relevant to the currently active panel, so callers don't need to know which one to
+/// watch. Callers derive whether/when to notify from this rather than a separate boolean.
 
-final class RotationStatusProvider
-    extends $FunctionalProvider<(bool, int), (bool, int), (bool, int)>
-    with $Provider<(bool, int)> {
-  /// (shouldRotate, matchesUntilRotation) - sourced from whichever server stream is relevant
-  /// to the currently active panel, so callers don't need to know which one to watch.
+final class RotationStatusProvider extends $FunctionalProvider<int, int, int>
+    with $Provider<int> {
+  /// Matches remaining until rotation (0 = rotate now) - sourced from whichever server stream
+  /// is relevant to the currently active panel, so callers don't need to know which one to
+  /// watch. Callers derive whether/when to notify from this rather than a separate boolean.
   RotationStatusProvider._()
     : super(
         from: null,
@@ -38,21 +40,21 @@ final class RotationStatusProvider
 
   @$internal
   @override
-  $ProviderElement<(bool, int)> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<int> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  (bool, int) create(Ref ref) {
+  int create(Ref ref) {
     return rotationStatus(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue((bool, int) value) {
+  Override overrideWithValue(int value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<(bool, int)>(value),
+      providerOverride: $SyncValueProvider<int>(value),
     );
   }
 }
 
-String _$rotationStatusHash() => r'2f2c0d8cbdd8beab3da99269a795241e54155c78';
+String _$rotationStatusHash() => r'4676adec8b289dc5dc969849e74ed0d8f75ac8b9';

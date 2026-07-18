@@ -162,7 +162,6 @@ const RefereeStreamResponse$json = {
       '6': '.reflink.common.RefereePanelState',
       '10': 'partnerPanel'
     },
-    {'1': 'rotate', '3': 6, '4': 1, '5': 8, '10': 'rotate'},
     {'1': 'rotate_in', '3': 7, '4': 1, '5': 5, '10': 'rotateIn'},
     {
       '1': 'ref_review_required',
@@ -182,8 +181,8 @@ final $typed_data.Uint8List refereeStreamResponseDescriptor = $convert.base64Dec
     'VTdGF0ZVIQcmVkQWxsaWFuY2VTdGF0ZRJPChNibHVlX2FsbGlhbmNlX3N0YXRlGAQgASgLMh8u'
     'cmVmbGluay5hcGkuTWF0Y2hBbGxpYW5jZVN0YXRlUhFibHVlQWxsaWFuY2VTdGF0ZRJGCg1wYX'
     'J0bmVyX3BhbmVsGAUgASgLMiEucmVmbGluay5jb21tb24uUmVmZXJlZVBhbmVsU3RhdGVSDHBh'
-    'cnRuZXJQYW5lbBIWCgZyb3RhdGUYBiABKAhSBnJvdGF0ZRIbCglyb3RhdGVfaW4YByABKAVSCH'
-    'JvdGF0ZUluEi4KE3JlZl9yZXZpZXdfcmVxdWlyZWQYCCABKAhSEXJlZlJldmlld1JlcXVpcmVk');
+    'cnRuZXJQYW5lbBIbCglyb3RhdGVfaW4YByABKAVSCHJvdGF0ZUluEi4KE3JlZl9yZXZpZXdfcm'
+    'VxdWlyZWQYCCABKAhSEXJlZlJldmlld1JlcXVpcmVk');
 
 @$core.Deprecated('Use headRefereeStreamRequestDescriptor instead')
 const HeadRefereeStreamRequest$json = {
@@ -284,7 +283,6 @@ const HeadRefereeStreamResponse$json = {
       '6': '.reflink.common.RefereePanelState',
       '10': 'bf'
     },
-    {'1': 'rotate', '3': 9, '4': 1, '5': 8, '10': 'rotate'},
     {'1': 'rotate_in', '3': 10, '4': 1, '5': 5, '10': 'rotateIn'},
     {
       '1': 'panel_presence',
@@ -315,7 +313,7 @@ final $typed_data.Uint8List headRefereeStreamResponseDescriptor = $convert.base6
     'oCcm4YBSABKAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICcm4SMQoCcmYY'
     'BiABKAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICcmYSMQoCYm4YByABKA'
     'syIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICYm4SMQoCYmYYCCABKAsyIS5y'
-    'ZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICYmYSFgoGcm90YXRlGAkgASgIUgZyb3'
-    'RhdGUSGwoJcm90YXRlX2luGAogASgFUghyb3RhdGVJbhJBCg5wYW5lbF9wcmVzZW5jZRgLIAEo'
-    'CzIaLnJlZmxpbmsuYXBpLlBhbmVsUHJlc2VuY2VSDXBhbmVsUHJlc2VuY2USNQoCaHIYDCABKA'
-    'syJS5yZWZsaW5rLmNvbW1vbi5IZWFkUmVmZXJlZVBhbmVsU3RhdGVSAmhy');
+    'ZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICYmYSGwoJcm90YXRlX2luGAogASgFUg'
+    'hyb3RhdGVJbhJBCg5wYW5lbF9wcmVzZW5jZRgLIAEoCzIaLnJlZmxpbmsuYXBpLlBhbmVsUHJl'
+    'c2VuY2VSDXBhbmVsUHJlc2VuY2USNQoCaHIYDCABKAsyJS5yZWZsaW5rLmNvbW1vbi5IZWFkUm'
+    'VmZXJlZVBhbmVsU3RhdGVSAmhy');

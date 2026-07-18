@@ -34,12 +34,16 @@ pub struct CheesyConfig {
 pub async fn run(config: CheesyConfig) {
   let shutdown = ShutdownNotifier::get();
   let (match_info_tx, match_info_rx) = watch::channel::<Option<FmsMatchInfo>>(None);
-  let (cmd_tx, cmd_rx) = mpsc::channel::<Message>(64);
+  let (referee_cmd_tx, referee_cmd_rx) = mpsc::channel::<Message>(64);
+  let (red_scoring_cmd_tx, red_scoring_cmd_rx) = mpsc::channel::<Message>(64);
+  let (blue_scoring_cmd_tx, blue_scoring_cmd_rx) = mpsc::channel::<Message>(64);
 
   tokio::join!(
     run_field_monitor(config.clone(), match_info_tx, shutdown.subscribe()),
-    run_referee_panel(config.clone(), cmd_rx, shutdown.subscribe()),
-    super::sync::run(match_info_rx, cmd_tx, shutdown.subscribe()),
+    run_referee_panel(config.clone(), referee_cmd_rx, shutdown.subscribe()),
+    run_scoring_panel(config.clone(), "red", red_scoring_cmd_rx, shutdown.subscribe()),
+    run_scoring_panel(config.clone(), "blue", blue_scoring_cmd_rx, shutdown.subscribe()),
+    super::sync::run(match_info_rx, referee_cmd_tx, red_scoring_cmd_tx, blue_scoring_cmd_tx, shutdown.subscribe()),
   );
 }
 
@@ -389,15 +393,46 @@ async fn login(config: &CheesyConfig) -> anyhow::Result<Option<String>> {
   }
 }
 
-async fn run_referee_panel(config: CheesyConfig, mut cmd_rx: mpsc::Receiver<Message>, mut shutdown_rx: broadcast::Receiver<()>) {
-  let url = format!("ws://{}:{}/panels/referee/websocket", config.host, config.port);
+async fn run_referee_panel(config: CheesyConfig, cmd_rx: mpsc::Receiver<Message>, shutdown_rx: broadcast::Receiver<()>) {
+  run_authenticated_panel(config, "/panels/referee/websocket".to_string(), "referee panel".to_string(), cmd_rx, shutdown_rx).await;
+}
+
+// Cheesy Arena's scoring interface is alliance-scoped - a separate websocket per alliance,
+// each only affecting that alliance's RealtimeScore (see web/scoring_panel.go). This is where
+// auto/endgame tower (climb) calls get pushed, since - unlike fouls/cards - the referee panel
+// websocket has no command for them.
+async fn run_scoring_panel(config: CheesyConfig, alliance: &'static str, cmd_rx: mpsc::Receiver<Message>, shutdown_rx: broadcast::Receiver<()>) {
+  run_authenticated_panel(
+    config,
+    format!("/panels/scoring/{alliance}/websocket"),
+    format!("{alliance} scoring panel"),
+    cmd_rx,
+    shutdown_rx,
+  )
+  .await;
+}
+
+// --- Referee/scoring panels (bidirectional, admin-gated) ---
+//
+// Both are the same shape: log in for a session cookie, open a websocket at some admin-gated
+// path, then just relay whatever `cmd_tx` sends until the connection drops, reconnecting with
+// backoff. The `read` half is only there to detect the server closing/erroring the connection.
+
+async fn run_authenticated_panel(
+  config: CheesyConfig,
+  path: String,
+  label: String,
+  mut cmd_rx: mpsc::Receiver<Message>,
+  mut shutdown_rx: broadcast::Receiver<()>,
+) {
+  let url = format!("ws://{}:{}{}", config.host, config.port, path);
   let mut delay = Duration::from_secs(1);
 
   loop {
     let cookie = match login(&config).await {
       Ok(c) => c,
       Err(e) => {
-        log::warn!("[FMS] Referee panel login failed: {e}");
+        log::warn!("[FMS] {label} login failed: {e}");
         None
       }
     };
@@ -405,7 +440,7 @@ async fn run_referee_panel(config: CheesyConfig, mut cmd_rx: mpsc::Receiver<Mess
     let mut request = match url.as_str().into_client_request() {
       Ok(r) => r,
       Err(e) => {
-        log::error!("[FMS] Invalid referee panel URL: {e}");
+        log::error!("[FMS] Invalid {label} URL: {e}");
         return;
       }
     };
@@ -415,7 +450,7 @@ async fn run_referee_panel(config: CheesyConfig, mut cmd_rx: mpsc::Receiver<Mess
       request.headers_mut().insert(http::header::COOKIE, value);
     }
 
-    log::info!("[FMS] Connecting to referee panel at {url}");
+    log::info!("[FMS] Connecting to {label} at {url}");
     let connect_result = tokio::select! {
       res = connect_async(request) => res,
       _ = shutdown_rx.recv() => return,
@@ -423,7 +458,7 @@ async fn run_referee_panel(config: CheesyConfig, mut cmd_rx: mpsc::Receiver<Mess
 
     match connect_result {
       Ok((ws, _)) => {
-        log::info!("[FMS] Referee panel connected");
+        log::info!("[FMS] {label} connected");
         delay = Duration::from_secs(1);
         let (mut write, mut read) = ws.split();
 
@@ -433,7 +468,7 @@ async fn run_referee_panel(config: CheesyConfig, mut cmd_rx: mpsc::Receiver<Mess
               match cmd {
                 Some(msg) => {
                   if let Err(e) = write.send(msg).await {
-                    log::warn!("[FMS] Failed to send referee panel command: {e}");
+                    log::warn!("[FMS] Failed to send {label} command: {e}");
                     break;
                   }
                 }
@@ -444,7 +479,7 @@ async fn run_referee_panel(config: CheesyConfig, mut cmd_rx: mpsc::Receiver<Mess
               match msg {
                 Some(Ok(Message::Close(_))) | None => break,
                 Some(Err(e)) => {
-                  log::warn!("[FMS] Referee panel error: {e}");
+                  log::warn!("[FMS] {label} error: {e}");
                   break;
                 }
                 _ => {}
@@ -454,9 +489,9 @@ async fn run_referee_panel(config: CheesyConfig, mut cmd_rx: mpsc::Receiver<Mess
           }
         }
 
-        log::warn!("[FMS] Referee panel disconnected");
+        log::warn!("[FMS] {label} disconnected");
       }
-      Err(e) => log::debug!("[FMS] Referee panel connect failed: {e}"),
+      Err(e) => log::debug!("[FMS] {label} connect failed: {e}"),
     }
 
     tokio::select! {

@@ -97,12 +97,12 @@ class TwoMinuteWarningButton extends HookWidget {
     }
 
     return Container(
-      alignment: Alignment.center,
       margin: const EdgeInsets.all(10),
       width: double.infinity,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: Colors.purpleAccent,
           shadowColor: Colors.black,
           side: const BorderSide(color: Colors.black, width: 3),

@@ -358,7 +358,6 @@ class RefereeStreamResponse extends $pb.GeneratedMessage {
     MatchAllianceState? redAllianceState,
     MatchAllianceState? blueAllianceState,
     $1.RefereePanelState? partnerPanel,
-    $core.bool? rotate,
     $core.int? rotateIn,
     $core.bool? refReviewRequired,
   }) {
@@ -368,7 +367,6 @@ class RefereeStreamResponse extends $pb.GeneratedMessage {
     if (redAllianceState != null) result.redAllianceState = redAllianceState;
     if (blueAllianceState != null) result.blueAllianceState = blueAllianceState;
     if (partnerPanel != null) result.partnerPanel = partnerPanel;
-    if (rotate != null) result.rotate = rotate;
     if (rotateIn != null) result.rotateIn = rotateIn;
     if (refReviewRequired != null) result.refReviewRequired = refReviewRequired;
     return result;
@@ -396,7 +394,6 @@ class RefereeStreamResponse extends $pb.GeneratedMessage {
         subBuilder: MatchAllianceState.create)
     ..aOM<$1.RefereePanelState>(5, _omitFieldNames ? '' : 'partnerPanel',
         subBuilder: $1.RefereePanelState.create)
-    ..aOB(6, _omitFieldNames ? '' : 'rotate')
     ..aI(7, _omitFieldNames ? '' : 'rotateIn')
     ..aOB(8, _omitFieldNames ? '' : 'refReviewRequired')
     ..hasRequiredFields = false;
@@ -472,30 +469,23 @@ class RefereeStreamResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   $1.RefereePanelState ensurePartnerPanel() => $_ensure(4);
 
-  @$pb.TagNumber(6)
-  $core.bool get rotate => $_getBF(5);
-  @$pb.TagNumber(6)
-  set rotate($core.bool value) => $_setBool(5, value);
-  @$pb.TagNumber(6)
-  $core.bool hasRotate() => $_has(5);
-  @$pb.TagNumber(6)
-  void clearRotate() => $_clearField(6);
-
+  /// Matches remaining until rotation (0 = rotate now) - the client derives whether/when to
+  /// notify from this rather than a separate boolean.
   @$pb.TagNumber(7)
-  $core.int get rotateIn => $_getIZ(6);
+  $core.int get rotateIn => $_getIZ(5);
   @$pb.TagNumber(7)
-  set rotateIn($core.int value) => $_setSignedInt32(6, value);
+  set rotateIn($core.int value) => $_setSignedInt32(5, value);
   @$pb.TagNumber(7)
-  $core.bool hasRotateIn() => $_has(6);
+  $core.bool hasRotateIn() => $_has(5);
   @$pb.TagNumber(7)
   void clearRotateIn() => $_clearField(7);
 
   @$pb.TagNumber(8)
-  $core.bool get refReviewRequired => $_getBF(7);
+  $core.bool get refReviewRequired => $_getBF(6);
   @$pb.TagNumber(8)
-  set refReviewRequired($core.bool value) => $_setBool(7, value);
+  set refReviewRequired($core.bool value) => $_setBool(6, value);
   @$pb.TagNumber(8)
-  $core.bool hasRefReviewRequired() => $_has(7);
+  $core.bool hasRefReviewRequired() => $_has(6);
   @$pb.TagNumber(8)
   void clearRefReviewRequired() => $_clearField(8);
 }
@@ -672,7 +662,6 @@ class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
     $1.RefereePanelState? rf,
     $1.RefereePanelState? bn,
     $1.RefereePanelState? bf,
-    $core.bool? rotate,
     $core.int? rotateIn,
     PanelPresence? panelPresence,
     $1.HeadRefereePanelState? hr,
@@ -686,7 +675,6 @@ class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
     if (rf != null) result.rf = rf;
     if (bn != null) result.bn = bn;
     if (bf != null) result.bf = bf;
-    if (rotate != null) result.rotate = rotate;
     if (rotateIn != null) result.rotateIn = rotateIn;
     if (panelPresence != null) result.panelPresence = panelPresence;
     if (hr != null) result.hr = hr;
@@ -721,7 +709,6 @@ class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
         subBuilder: $1.RefereePanelState.create)
     ..aOM<$1.RefereePanelState>(8, _omitFieldNames ? '' : 'bf',
         subBuilder: $1.RefereePanelState.create)
-    ..aOB(9, _omitFieldNames ? '' : 'rotate')
     ..aI(10, _omitFieldNames ? '' : 'rotateIn')
     ..aOM<PanelPresence>(11, _omitFieldNames ? '' : 'panelPresence',
         subBuilder: PanelPresence.create)
@@ -833,48 +820,39 @@ class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(8)
   $1.RefereePanelState ensureBf() => $_ensure(7);
 
-  @$pb.TagNumber(9)
-  $core.bool get rotate => $_getBF(8);
-  @$pb.TagNumber(9)
-  set rotate($core.bool value) => $_setBool(8, value);
-  @$pb.TagNumber(9)
-  $core.bool hasRotate() => $_has(8);
-  @$pb.TagNumber(9)
-  void clearRotate() => $_clearField(9);
-
   @$pb.TagNumber(10)
-  $core.int get rotateIn => $_getIZ(9);
+  $core.int get rotateIn => $_getIZ(8);
   @$pb.TagNumber(10)
-  set rotateIn($core.int value) => $_setSignedInt32(9, value);
+  set rotateIn($core.int value) => $_setSignedInt32(8, value);
   @$pb.TagNumber(10)
-  $core.bool hasRotateIn() => $_has(9);
+  $core.bool hasRotateIn() => $_has(8);
   @$pb.TagNumber(10)
   void clearRotateIn() => $_clearField(10);
 
   @$pb.TagNumber(11)
-  PanelPresence get panelPresence => $_getN(10);
+  PanelPresence get panelPresence => $_getN(9);
   @$pb.TagNumber(11)
   set panelPresence(PanelPresence value) => $_setField(11, value);
   @$pb.TagNumber(11)
-  $core.bool hasPanelPresence() => $_has(10);
+  $core.bool hasPanelPresence() => $_has(9);
   @$pb.TagNumber(11)
   void clearPanelPresence() => $_clearField(11);
   @$pb.TagNumber(11)
-  PanelPresence ensurePanelPresence() => $_ensure(10);
+  PanelPresence ensurePanelPresence() => $_ensure(9);
 
   /// Echoes back the server's authoritative (clamped) copy of the head referee's own
   /// submitted state - notably `field_state`, since the one-way MATCH->COUNT->RESET
   /// transition is enforced server-side, not by the submitting client.
   @$pb.TagNumber(12)
-  $1.HeadRefereePanelState get hr => $_getN(11);
+  $1.HeadRefereePanelState get hr => $_getN(10);
   @$pb.TagNumber(12)
   set hr($1.HeadRefereePanelState value) => $_setField(12, value);
   @$pb.TagNumber(12)
-  $core.bool hasHr() => $_has(11);
+  $core.bool hasHr() => $_has(10);
   @$pb.TagNumber(12)
   void clearHr() => $_clearField(12);
   @$pb.TagNumber(12)
-  $1.HeadRefereePanelState ensureHr() => $_ensure(11);
+  $1.HeadRefereePanelState ensureHr() => $_ensure(10);
 }
 
 const $core.bool _omitFieldNames =

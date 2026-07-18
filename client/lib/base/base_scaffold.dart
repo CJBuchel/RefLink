@@ -25,11 +25,12 @@ class BaseScaffold extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final panelType = getPanelFromString(ref.watch(panelIdProvider));
 
-    // Fires exactly once per rotation boundary (false -> true edge), so no separate
-    // "dismissed" tracking is needed - it won't reappear until the next boundary.
+    // Fires exactly once per rotation boundary (the edge where rotate_in reaches 0), so no
+    // separate "dismissed" tracking is needed - it won't reappear until the next boundary.
     ref.listen(rotationStatusProvider, (previous, next) {
-      final wasRotating = previous?.$1 ?? false;
-      if (!wasRotating && next.$1) {
+      final wasRotating = previous != null && previous <= 0;
+      final isRotating = next <= 0;
+      if (!wasRotating && isRotating) {
         PopupDialog.warn(
           title: "Referee Rotation",
           message: const Text("Time to rotate referee positions."),

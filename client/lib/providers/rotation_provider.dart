@@ -7,17 +7,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'rotation_provider.g.dart';
 
-/// (shouldRotate, matchesUntilRotation) - sourced from whichever server stream is relevant
-/// to the currently active panel, so callers don't need to know which one to watch.
+/// Matches remaining until rotation (0 = rotate now) - sourced from whichever server stream
+/// is relevant to the currently active panel, so callers don't need to know which one to
+/// watch. Callers derive whether/when to notify from this rather than a separate boolean.
 @riverpod
-(bool, int) rotationStatus(Ref ref) {
+int rotationStatus(Ref ref) {
   final panelType = getPanelFromString(ref.watch(panelIdProvider));
 
   if (panelType == PanelType.PANEL_TYPE_HEAD_REFEREE) {
-    final serverState = ref.watch(headRefereePanelServerProvider);
-    return (serverState.rotate, serverState.rotateIn);
+    return ref.watch(headRefereePanelServerProvider).rotateIn;
   }
 
-  final serverState = ref.watch(refereePanelServerProvider);
-  return (serverState.rotate, serverState.rotateIn);
+  return ref.watch(refereePanelServerProvider).rotateIn;
 }

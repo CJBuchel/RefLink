@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Networking (gRPC to the RefLink server). Debug/profile builds inherit this from
+         their own manifests, but release builds only get what's declared here. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="client"
         android:name="${applicationName}"

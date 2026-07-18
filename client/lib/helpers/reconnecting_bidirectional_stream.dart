@@ -27,11 +27,14 @@ class ReconnectingBidirectionalStream<ClientT, ServerT> {
   /// (outgoing) => client.refereeStream(outgoing)
   final Stream<ServerT> Function(Stream<ClientT> outgoing) _connect;
 
-  /// Called whenever a connection is successfully established.
-  final VoidCallback? onConnected;
+  /// Called whenever a connection is successfully established. Mutable (not just
+  /// constructor-supplied) so a provider that depends on this connection - and so can't be
+  /// passed in at construction time without a circular dependency - can still hook into
+  /// (re)connects, e.g. to re-announce its current state to the server every time.
+  VoidCallback? onConnected;
 
   /// Called whenever the connection is lost.
-  final VoidCallback? onDisconnected;
+  VoidCallback? onDisconnected;
 
   final Duration retryDelay;
   final Duration maxRetryDelay;

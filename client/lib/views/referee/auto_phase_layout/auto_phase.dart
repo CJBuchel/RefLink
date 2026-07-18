@@ -74,13 +74,18 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
     final localPanel = refereePanel.state;
     final partnerPanel = refereePanelServer.partnerPanel;
 
+    // Auto only requires every station to have a call made - unlike endgame, we don't
+    // require the calls to match the partner panel's.
     bool canSubmit =
-        localPanel.autoClimb.autoClimbAllianceStation1 ==
-            partnerPanel.autoClimb.autoClimbAllianceStation1 &&
-        localPanel.autoClimb.autoClimbAllianceStation2 ==
-            partnerPanel.autoClimb.autoClimbAllianceStation2 &&
-        localPanel.autoClimb.autoClimbAllianceStation3 ==
-            partnerPanel.autoClimb.autoClimbAllianceStation3;
+        (localPanel.autoClimb.autoClimbAllianceStation1 !=
+                AutoClimbState.AUTO_CLIMB_STATE_UNSPECIFIED ||
+            allianceStation1.bypassed) &&
+        (localPanel.autoClimb.autoClimbAllianceStation2 !=
+                AutoClimbState.AUTO_CLIMB_STATE_UNSPECIFIED ||
+            allianceStation2.bypassed) &&
+        (localPanel.autoClimb.autoClimbAllianceStation3 !=
+                AutoClimbState.AUTO_CLIMB_STATE_UNSPECIFIED ||
+            allianceStation3.bypassed);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -138,7 +143,8 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
                         teamNumber: allianceStation1.teamNumber,
                         teamBypassed: allianceStation1.bypassed,
                         isRed: isRed,
-                        climbState: localPanel.autoClimb.autoClimbAllianceStation1,
+                        climbState:
+                            localPanel.autoClimb.autoClimbAllianceStation1,
                         partnerClimbState:
                             partnerPanel.autoClimb.autoClimbAllianceStation1,
                       ),
@@ -153,7 +159,8 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
                         teamNumber: allianceStation2.teamNumber,
                         teamBypassed: allianceStation2.bypassed,
                         isRed: isRed,
-                        climbState: localPanel.autoClimb.autoClimbAllianceStation2,
+                        climbState:
+                            localPanel.autoClimb.autoClimbAllianceStation2,
                         partnerClimbState:
                             partnerPanel.autoClimb.autoClimbAllianceStation2,
                       ),
@@ -168,7 +175,8 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
                         teamNumber: allianceStation3.teamNumber,
                         teamBypassed: allianceStation3.bypassed,
                         isRed: isRed,
-                        climbState: localPanel.autoClimb.autoClimbAllianceStation3,
+                        climbState:
+                            localPanel.autoClimb.autoClimbAllianceStation3,
                         partnerClimbState:
                             partnerPanel.autoClimb.autoClimbAllianceStation3,
                       ),

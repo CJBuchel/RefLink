@@ -44,7 +44,8 @@ message RefereeStreamResponse {
   MatchAllianceState red_alliance_state = 3;
   MatchAllianceState blue_alliance_state = 4;
   common.RefereePanelState partner_panel = 5;
-  bool rotate = 6;
+  // Matches remaining until rotation (0 = rotate now) - the client derives whether/when to
+  // notify from this rather than a separate boolean.
   int32 rotate_in = 7;
   bool ref_review_required = 8;
 }
@@ -72,12 +73,8 @@ message HeadRefereeStreamResponse {
   common.RefereePanelState rf = 6;
   common.RefereePanelState bn = 7;
   common.RefereePanelState bf = 8;
-  bool rotate = 9;
   int32 rotate_in = 10;
   PanelPresence panel_presence = 11;
-  // Echoes back the server's authoritative (clamped) copy of the head referee's own
-  // submitted state - notably `field_state`, since the one-way MATCH->COUNT->RESET
-  // transition is enforced server-side, not by the submitting client.
   common.HeadRefereePanelState hr = 12;
 }
 

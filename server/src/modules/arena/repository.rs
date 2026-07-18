@@ -20,7 +20,7 @@ pub trait MatchStateRepository {
   async fn update_head_referee_state(match_id: i32, record: HeadRefereePanelState) -> Result<String>;
   async fn mark_match_completed(match_id: i32) -> Result<String>;
   async fn count_matches() -> Result<usize>;
-  async fn compute_rotation(match_rotations: u16) -> Result<(bool, i32)>;
+  async fn compute_rotation(match_rotations: u16) -> Result<i32>;
 }
 
 #[async_trait::async_trait]
@@ -125,9 +125,11 @@ impl MatchStateRepository for MatchStateRecord {
 
   // Derives "matches since last rotation" from how many completed matches have ever been
   // persisted, rather than keeping a separate counter - it survives restarts for free.
-  async fn compute_rotation(match_rotations: u16) -> Result<(bool, i32)> {
+  // Returns matches remaining until rotation (0 = rotate now) - the client decides whether to
+  // notify from this value alone.
+  async fn compute_rotation(match_rotations: u16) -> Result<i32> {
     if match_rotations == 0 {
-      return Ok((false, 0));
+      return Ok(0);
     }
 
     let match_rotations = i32::from(match_rotations);
@@ -135,9 +137,9 @@ impl MatchStateRepository for MatchStateRecord {
     let remainder = matches_passed % match_rotations;
 
     if matches_passed > 0 && remainder == 0 {
-      Ok((true, 0))
+      Ok(0)
     } else {
-      Ok((false, match_rotations - remainder))
+      Ok(match_rotations - remainder)
     }
   }
 }

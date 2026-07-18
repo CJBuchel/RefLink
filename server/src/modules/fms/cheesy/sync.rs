@@ -4,13 +4,16 @@ use tokio_tungstenite::tungstenite::Message;
 use crate::{
   core::events::{ChangeEvent, EVENT_BUS},
   generated::{
-    common::{CardType, FieldState, MatchFouls, TeamAllianceStationType},
+    common::{AutoClimbState, CardType, EndgameClimbState, FieldState, MatchFouls, RefereePanelState, TeamAllianceStationType},
     db::MatchStateRecord,
     fms::FmsMatchInfo,
   },
 };
 
-use super::messages::{AddFoulCommand, CardCommand, DeleteFoulCommand, OutgoingMessage};
+use super::messages::{
+  AddFoulCommand, AutoTowerCommand, CardCommand, DeleteFoulCommand, EndgameCommand, OutgoingMessage, TOWER_STATUS_LEVEL_1,
+  TOWER_STATUS_LEVEL_2, TOWER_STATUS_LEVEL_3, TOWER_STATUS_NONE,
+};
 use serde::Serialize;
 
 /// A local mirror of the order fouls were pushed to Cheesy Arena for one alliance, so a
@@ -83,6 +86,98 @@ fn combine_match_state(record: &MatchStateRecord) -> CombinedRefereeState {
 
 fn is_red_station(s: TeamAllianceStationType) -> bool {
   matches!(s, TeamAllianceStationType::Red1 | TeamAllianceStationType::Red2 | TeamAllianceStationType::Red3)
+}
+
+// Climb is an enum per station, not a count like fouls - two panels can't have their calls
+// "combined", they have to actually agree. Endgame already enforces that agreement client-side
+// before submission is even allowed; auto instead keeps both panels' calls in sync live as
+// they're entered (see client's auto_climb_column.dart), so there's nothing to reconcile here.
+// Rather than track a "combined" alliance state, each panel is diffed against its own previous
+// snapshot: whichever panel's (submitted, climb) pair just changed is the one that gets pushed,
+// using its own values - since panel updates are processed in the order they happened, this
+// means whoever submitted (or corrected) most recently always wins, which is the desired
+// "last submit wins" behaviour even in the rare case the two calls briefly disagree.
+#[derive(Clone, Default, PartialEq)]
+struct PanelClimbState {
+  auto_submitted: bool,
+  auto_climb: [i32; 3],
+  endgame_submitted: bool,
+  endgame_climb: [i32; 3],
+}
+
+fn panel_climb_state(panel: Option<&RefereePanelState>) -> PanelClimbState {
+  let Some(panel) = panel else { return PanelClimbState::default() };
+  let auto = panel.auto_climb.as_ref();
+  let endgame = panel.endgame_climb.as_ref();
+
+  PanelClimbState {
+    auto_submitted: panel.auto_submitted,
+    auto_climb: [
+      auto.map(|a| a.auto_climb_alliance_station_1).unwrap_or_default(),
+      auto.map(|a| a.auto_climb_alliance_station_2).unwrap_or_default(),
+      auto.map(|a| a.auto_climb_alliance_station_3).unwrap_or_default(),
+    ],
+    endgame_submitted: panel.endgame_submitted,
+    endgame_climb: [
+      endgame.map(|e| e.endgame_climb_alliance_station_1).unwrap_or_default(),
+      endgame.map(|e| e.endgame_climb_alliance_station_2).unwrap_or_default(),
+      endgame.map(|e| e.endgame_climb_alliance_station_3).unwrap_or_default(),
+    ],
+  }
+}
+
+// Auto climb only ever reaches "Nothing" or "Level1" (see AutoClimbState) - Unspecified means
+// no call was made (e.g. a bypassed station never gets one), so it's skipped rather than
+// guessed at.
+fn auto_climb_to_tower_status(raw: i32) -> Option<i32> {
+  match AutoClimbState::try_from(raw).unwrap_or_default() {
+    AutoClimbState::Nothing => Some(TOWER_STATUS_NONE),
+    AutoClimbState::Level1 => Some(TOWER_STATUS_LEVEL_1),
+    AutoClimbState::Unspecified => None,
+  }
+}
+
+fn endgame_climb_to_tower_status(raw: i32) -> Option<i32> {
+  match EndgameClimbState::try_from(raw).unwrap_or_default() {
+    EndgameClimbState::Nothing => Some(TOWER_STATUS_NONE),
+    EndgameClimbState::Level1 => Some(TOWER_STATUS_LEVEL_1),
+    EndgameClimbState::Level2 => Some(TOWER_STATUS_LEVEL_2),
+    EndgameClimbState::Level3 => Some(TOWER_STATUS_LEVEL_3),
+    EndgameClimbState::Unspecified => None,
+  }
+}
+
+fn push_auto_tower_commands(commands: &mut Vec<Message>, climb: &[i32; 3]) {
+  for (i, &raw) in climb.iter().enumerate() {
+    if let Some(status) = auto_climb_to_tower_status(raw) {
+      commands.push(encode("autoTower", AutoTowerCommand { team_position: i as i32 + 1, auto_tower_status: status }));
+    }
+  }
+}
+
+fn push_endgame_tower_commands(commands: &mut Vec<Message>, climb: &[i32; 3]) {
+  for (i, &raw) in climb.iter().enumerate() {
+    if let Some(status) = endgame_climb_to_tower_status(raw) {
+      commands.push(encode("endgame", EndgameCommand { team_position: i as i32 + 1, endgame_tower_status: status }));
+    }
+  }
+}
+
+/// Diffs one alliance's near/far panels against their previous snapshots and pushes climb
+/// commands for whichever panel(s) just became submitted or changed their submitted call.
+fn push_alliance_climb_commands(commands: &mut Vec<Message>, prev_near: &PanelClimbState, near: &PanelClimbState, prev_far: &PanelClimbState, far: &PanelClimbState) {
+  if near.auto_submitted && (near.auto_submitted, near.auto_climb) != (prev_near.auto_submitted, prev_near.auto_climb) {
+    push_auto_tower_commands(commands, &near.auto_climb);
+  }
+  if far.auto_submitted && (far.auto_submitted, far.auto_climb) != (prev_far.auto_submitted, prev_far.auto_climb) {
+    push_auto_tower_commands(commands, &far.auto_climb);
+  }
+  if near.endgame_submitted && (near.endgame_submitted, near.endgame_climb) != (prev_near.endgame_submitted, prev_near.endgame_climb) {
+    push_endgame_tower_commands(commands, &near.endgame_climb);
+  }
+  if far.endgame_submitted && (far.endgame_submitted, far.endgame_climb) != (prev_far.endgame_submitted, prev_far.endgame_climb) {
+    push_endgame_tower_commands(commands, &far.endgame_climb);
+  }
 }
 
 fn encode<T: Serialize>(msg_type: &'static str, data: T) -> Message {
@@ -177,12 +272,15 @@ fn diff_commands(
   commands
 }
 
-/// Subscribes to `MatchStateRecord` changes (published whenever a referee panel updates
-/// its state) and relays the combined foul/card counts to Cheesy Arena's referee panel
-/// websocket via `cmd_tx`.
+/// Subscribes to `MatchStateRecord` changes (published whenever a referee panel updates its
+/// state) and relays the combined foul/card counts to Cheesy Arena's referee panel websocket
+/// via `referee_cmd_tx`, and auto/endgame climb calls to the relevant alliance's scoring panel
+/// websocket via `red_scoring_cmd_tx`/`blue_scoring_cmd_tx`.
 pub async fn run(
   match_info_rx: watch::Receiver<Option<FmsMatchInfo>>,
-  cmd_tx: mpsc::Sender<Message>,
+  referee_cmd_tx: mpsc::Sender<Message>,
+  red_scoring_cmd_tx: mpsc::Sender<Message>,
+  blue_scoring_cmd_tx: mpsc::Sender<Message>,
   mut shutdown_rx: broadcast::Receiver<()>,
 ) {
   let Some(bus) = EVENT_BUS.get() else {
@@ -201,6 +299,10 @@ pub async fn run(
   let mut ledger = FoulLedger::default();
   let mut current_match_id: Option<i32> = None;
   let mut last_field_state = FieldState::Match;
+  let mut prev_rn = PanelClimbState::default();
+  let mut prev_rf = PanelClimbState::default();
+  let mut prev_bn = PanelClimbState::default();
+  let mut prev_bf = PanelClimbState::default();
 
   loop {
     tokio::select! {
@@ -215,22 +317,27 @@ pub async fn run(
           Err(broadcast::error::RecvError::Closed) => return,
         };
 
-        // Cheesy Arena resets its own foul list whenever it loads a new match, so our
-        // notion of "previously sent" has to reset right along with it - otherwise the
-        // first update of a new match would look like a huge decrease from the last match
-        // and spam deleteFoul commands into an already-empty list. field_state resets to
-        // MATCH for the same reason (it's per-match-cycle, enforced in the repository layer).
+        // Cheesy Arena resets its own foul list (and score) whenever it loads a new match, so
+        // our notion of "previously sent" has to reset right along with it - otherwise the
+        // first update of a new match would look like a huge decrease from the last match and
+        // spam deleteFoul commands into an already-empty list, or skip pushing a climb call
+        // that looks unchanged from the last match. field_state resets to MATCH for the same
+        // reason (it's per-match-cycle, enforced in the repository layer).
         if current_match_id != Some(record.match_id) {
           current_match_id = Some(record.match_id);
           last_sent = CombinedRefereeState::default();
           ledger = FoulLedger::default();
           last_field_state = FieldState::Match;
+          prev_rn = PanelClimbState::default();
+          prev_rf = PanelClimbState::default();
+          prev_bn = PanelClimbState::default();
+          prev_bf = PanelClimbState::default();
         }
 
         let field_state = record.hr.as_ref().and_then(|hr| FieldState::try_from(hr.field_state).ok()).unwrap_or_default();
         if field_state != last_field_state {
           if let Some(message) = field_state_command(field_state)
-            && cmd_tx.send(message).await.is_err()
+            && referee_cmd_tx.send(message).await.is_err()
           {
             log::warn!("[FMS/sync] Referee panel channel closed, dropping command");
           }
@@ -242,7 +349,7 @@ pub async fn run(
           let match_info = match_info_rx.borrow().clone();
           let commands = diff_commands(&last_sent, &combined, match_info.as_ref(), &mut ledger);
           for message in commands {
-            if cmd_tx.send(message).await.is_err() {
+            if referee_cmd_tx.send(message).await.is_err() {
               log::warn!("[FMS/sync] Referee panel channel closed, dropping command");
               break;
             }
@@ -250,6 +357,34 @@ pub async fn run(
 
           last_sent = combined;
         }
+
+        let rn = panel_climb_state(record.rn.as_ref());
+        let rf = panel_climb_state(record.rf.as_ref());
+        let bn = panel_climb_state(record.bn.as_ref());
+        let bf = panel_climb_state(record.bf.as_ref());
+
+        let mut red_climb_commands = Vec::new();
+        push_alliance_climb_commands(&mut red_climb_commands, &prev_rn, &rn, &prev_rf, &rf);
+        for message in red_climb_commands {
+          if red_scoring_cmd_tx.send(message).await.is_err() {
+            log::warn!("[FMS/sync] Red scoring panel channel closed, dropping command");
+            break;
+          }
+        }
+
+        let mut blue_climb_commands = Vec::new();
+        push_alliance_climb_commands(&mut blue_climb_commands, &prev_bn, &bn, &prev_bf, &bf);
+        for message in blue_climb_commands {
+          if blue_scoring_cmd_tx.send(message).await.is_err() {
+            log::warn!("[FMS/sync] Blue scoring panel channel closed, dropping command");
+            break;
+          }
+        }
+
+        prev_rn = rn;
+        prev_rf = rf;
+        prev_bn = bn;
+        prev_bf = bf;
       }
       _ = shutdown_rx.recv() => return,
     }
