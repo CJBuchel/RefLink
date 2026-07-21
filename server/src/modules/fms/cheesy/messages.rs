@@ -168,9 +168,10 @@ impl CheesyMatchTiming {
 }
 
 // --- Match state constants (mirrors cheesy-arena's field.MatchState iota) ---
-// PreMatch (0) and StartMatch (1) aren't referenced directly; they fall through to the
-// default PreMatch mapping in `client.rs::map_match_phase`.
+// StartMatch (1) isn't referenced directly; it falls through to the default PreMatch mapping
+// in `client.rs::map_match_phase`.
 
+pub const STATE_PRE_MATCH: i32 = 0;
 pub const STATE_AUTO_PERIOD: i32 = 2;
 pub const STATE_PAUSE_PERIOD: i32 = 3;
 pub const STATE_TELEOP_PERIOD: i32 = 4;

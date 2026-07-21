@@ -97,6 +97,28 @@ pub struct HeadRefereeStreamResponse {
     #[prost(message, optional, tag = "12")]
     pub hr: ::core::option::Option<super::common::HeadRefereePanelState>,
 }
+/// Fire-once, "ask Cheesy Arena to flip this station's bypass" - deliberately not part of
+/// HeadRefereeStreamRequest's persisted state. Cheesy Arena is the sole owner of whether a
+/// station is actually bypassed (already reflected back via MatchStationState.bypassed); we
+/// never store our own copy of "should this be bypassed" to reconcile against, since Cheesy's
+/// own `toggleBypass` is a plain toggle and anything else (the scorekeeper's own UI, a field
+/// reset) is just as entitled to flip it.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ToggleBypassRequest {
+    #[prost(enumeration = "super::common::TeamAllianceStationType", tag = "1")]
+    pub station: i32,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ToggleBypassResponse {}
+/// Fire-once, "ask Cheesy Arena to commit the fouls/cards and post the score, then load the
+/// next match" - the same `commitAndPost` command Cheesy Arena's own referee panel and
+/// scorekeeper match play page send (see web/referee_panel.go). Only meaningful once the match
+/// has actually reached PostMatch; Cheesy Arena itself silently ignores it otherwise, so
+/// there's nothing extra to check client- or server-side.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CommitAndPostRequest {}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CommitAndPostResponse {}
 /// Generated client implementations.
 pub mod health_service_client {
     #![allow(
@@ -916,6 +938,64 @@ pub mod head_referee_panel_service_client {
                 );
             self.inner.streaming(req, path, codec).await
         }
+        pub async fn toggle_bypass(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ToggleBypassRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::ToggleBypassResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/reflink.api.HeadRefereePanelService/ToggleBypass",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "reflink.api.HeadRefereePanelService",
+                        "ToggleBypass",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn commit_and_post(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CommitAndPostRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::CommitAndPostResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/reflink.api.HeadRefereePanelService/CommitAndPost",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new(
+                        "reflink.api.HeadRefereePanelService",
+                        "CommitAndPost",
+                    ),
+                );
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -945,6 +1025,20 @@ pub mod head_referee_panel_service_server {
             request: tonic::Request<tonic::Streaming<super::HeadRefereeStreamRequest>>,
         ) -> std::result::Result<
             tonic::Response<Self::HeadRefereeStreamStream>,
+            tonic::Status,
+        >;
+        async fn toggle_bypass(
+            &self,
+            request: tonic::Request<super::ToggleBypassRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::ToggleBypassResponse>,
+            tonic::Status,
+        >;
+        async fn commit_and_post(
+            &self,
+            request: tonic::Request<super::CommitAndPostRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::CommitAndPostResponse>,
             tonic::Status,
         >;
     }
@@ -1073,6 +1167,104 @@ pub mod head_referee_panel_service_server {
                                 max_encoding_message_size,
                             );
                         let res = grpc.streaming(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/reflink.api.HeadRefereePanelService/ToggleBypass" => {
+                    #[allow(non_camel_case_types)]
+                    struct ToggleBypassSvc<T: HeadRefereePanelService>(pub Arc<T>);
+                    impl<
+                        T: HeadRefereePanelService,
+                    > tonic::server::UnaryService<super::ToggleBypassRequest>
+                    for ToggleBypassSvc<T> {
+                        type Response = super::ToggleBypassResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::ToggleBypassRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as HeadRefereePanelService>::toggle_bypass(
+                                        &inner,
+                                        request,
+                                    )
+                                    .await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = ToggleBypassSvc(inner);
+                        let codec = tonic_prost::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/reflink.api.HeadRefereePanelService/CommitAndPost" => {
+                    #[allow(non_camel_case_types)]
+                    struct CommitAndPostSvc<T: HeadRefereePanelService>(pub Arc<T>);
+                    impl<
+                        T: HeadRefereePanelService,
+                    > tonic::server::UnaryService<super::CommitAndPostRequest>
+                    for CommitAndPostSvc<T> {
+                        type Response = super::CommitAndPostResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::CommitAndPostRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as HeadRefereePanelService>::commit_and_post(
+                                        &inner,
+                                        request,
+                                    )
+                                    .await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = CommitAndPostSvc(inner);
+                        let codec = tonic_prost::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)

@@ -69,15 +69,6 @@ pub struct RefereePanelState {
     pub endgame_issue: bool,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct AllianceBypass {
-    #[prost(bool, tag = "1")]
-    pub station_1: bool,
-    #[prost(bool, tag = "2")]
-    pub station_2: bool,
-    #[prost(bool, tag = "3")]
-    pub station_3: bool,
-}
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct HeadRefereePanelState {
     #[prost(message, optional, tag = "1")]
     pub match_fouls: ::core::option::Option<MatchFouls>,
@@ -91,10 +82,6 @@ pub struct HeadRefereePanelState {
     pub two_minute_warning_given: bool,
     #[prost(int64, tag = "6")]
     pub two_minute_warning_expires_at_unix_sec: i64,
-    #[prost(message, optional, tag = "7")]
-    pub red_bypass: ::core::option::Option<AllianceBypass>,
-    #[prost(message, optional, tag = "8")]
-    pub blue_bypass: ::core::option::Option<AllianceBypass>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]

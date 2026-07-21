@@ -317,3 +317,50 @@ final $typed_data.Uint8List headRefereeStreamResponseDescriptor = $convert.base6
     'hyb3RhdGVJbhJBCg5wYW5lbF9wcmVzZW5jZRgLIAEoCzIaLnJlZmxpbmsuYXBpLlBhbmVsUHJl'
     'c2VuY2VSDXBhbmVsUHJlc2VuY2USNQoCaHIYDCABKAsyJS5yZWZsaW5rLmNvbW1vbi5IZWFkUm'
     'VmZXJlZVBhbmVsU3RhdGVSAmhy');
+
+@$core.Deprecated('Use toggleBypassRequestDescriptor instead')
+const ToggleBypassRequest$json = {
+  '1': 'ToggleBypassRequest',
+  '2': [
+    {
+      '1': 'station',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.reflink.common.TeamAllianceStationType',
+      '10': 'station'
+    },
+  ],
+};
+
+/// Descriptor for `ToggleBypassRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List toggleBypassRequestDescriptor = $convert.base64Decode(
+    'ChNUb2dnbGVCeXBhc3NSZXF1ZXN0EkEKB3N0YXRpb24YASABKA4yJy5yZWZsaW5rLmNvbW1vbi'
+    '5UZWFtQWxsaWFuY2VTdGF0aW9uVHlwZVIHc3RhdGlvbg==');
+
+@$core.Deprecated('Use toggleBypassResponseDescriptor instead')
+const ToggleBypassResponse$json = {
+  '1': 'ToggleBypassResponse',
+};
+
+/// Descriptor for `ToggleBypassResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List toggleBypassResponseDescriptor =
+    $convert.base64Decode('ChRUb2dnbGVCeXBhc3NSZXNwb25zZQ==');
+
+@$core.Deprecated('Use commitAndPostRequestDescriptor instead')
+const CommitAndPostRequest$json = {
+  '1': 'CommitAndPostRequest',
+};
+
+/// Descriptor for `CommitAndPostRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List commitAndPostRequestDescriptor =
+    $convert.base64Decode('ChRDb21taXRBbmRQb3N0UmVxdWVzdA==');
+
+@$core.Deprecated('Use commitAndPostResponseDescriptor instead')
+const CommitAndPostResponse$json = {
+  '1': 'CommitAndPostResponse',
+};
+
+/// Descriptor for `CommitAndPostResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List commitAndPostResponseDescriptor =
+    $convert.base64Decode('ChVDb21taXRBbmRQb3N0UmVzcG9uc2U=');

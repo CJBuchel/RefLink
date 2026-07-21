@@ -855,6 +855,187 @@ class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
   $1.HeadRefereePanelState ensureHr() => $_ensure(10);
 }
 
+/// Fire-once, "ask Cheesy Arena to flip this station's bypass" - deliberately not part of
+/// HeadRefereeStreamRequest's persisted state. Cheesy Arena is the sole owner of whether a
+/// station is actually bypassed (already reflected back via MatchStationState.bypassed); we
+/// never store our own copy of "should this be bypassed" to reconcile against, since Cheesy's
+/// own `toggleBypass` is a plain toggle and anything else (the scorekeeper's own UI, a field
+/// reset) is just as entitled to flip it.
+class ToggleBypassRequest extends $pb.GeneratedMessage {
+  factory ToggleBypassRequest({
+    $1.TeamAllianceStationType? station,
+  }) {
+    final result = create();
+    if (station != null) result.station = station;
+    return result;
+  }
+
+  ToggleBypassRequest._();
+
+  factory ToggleBypassRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ToggleBypassRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ToggleBypassRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
+      createEmptyInstance: create)
+    ..aE<$1.TeamAllianceStationType>(1, _omitFieldNames ? '' : 'station',
+        enumValues: $1.TeamAllianceStationType.values)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ToggleBypassRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ToggleBypassRequest copyWith(void Function(ToggleBypassRequest) updates) =>
+      super.copyWith((message) => updates(message as ToggleBypassRequest))
+          as ToggleBypassRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ToggleBypassRequest create() => ToggleBypassRequest._();
+  @$core.override
+  ToggleBypassRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ToggleBypassRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ToggleBypassRequest>(create);
+  static ToggleBypassRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $1.TeamAllianceStationType get station => $_getN(0);
+  @$pb.TagNumber(1)
+  set station($1.TeamAllianceStationType value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasStation() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStation() => $_clearField(1);
+}
+
+class ToggleBypassResponse extends $pb.GeneratedMessage {
+  factory ToggleBypassResponse() => create();
+
+  ToggleBypassResponse._();
+
+  factory ToggleBypassResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ToggleBypassResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ToggleBypassResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
+      createEmptyInstance: create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ToggleBypassResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ToggleBypassResponse copyWith(void Function(ToggleBypassResponse) updates) =>
+      super.copyWith((message) => updates(message as ToggleBypassResponse))
+          as ToggleBypassResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ToggleBypassResponse create() => ToggleBypassResponse._();
+  @$core.override
+  ToggleBypassResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ToggleBypassResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ToggleBypassResponse>(create);
+  static ToggleBypassResponse? _defaultInstance;
+}
+
+/// Fire-once, "ask Cheesy Arena to commit the fouls/cards and post the score, then load the
+/// next match" - the same `commitAndPost` command Cheesy Arena's own referee panel and
+/// scorekeeper match play page send (see web/referee_panel.go). Only meaningful once the match
+/// has actually reached PostMatch; Cheesy Arena itself silently ignores it otherwise, so
+/// there's nothing extra to check client- or server-side.
+class CommitAndPostRequest extends $pb.GeneratedMessage {
+  factory CommitAndPostRequest() => create();
+
+  CommitAndPostRequest._();
+
+  factory CommitAndPostRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory CommitAndPostRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'CommitAndPostRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
+      createEmptyInstance: create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CommitAndPostRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CommitAndPostRequest copyWith(void Function(CommitAndPostRequest) updates) =>
+      super.copyWith((message) => updates(message as CommitAndPostRequest))
+          as CommitAndPostRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CommitAndPostRequest create() => CommitAndPostRequest._();
+  @$core.override
+  CommitAndPostRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static CommitAndPostRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<CommitAndPostRequest>(create);
+  static CommitAndPostRequest? _defaultInstance;
+}
+
+class CommitAndPostResponse extends $pb.GeneratedMessage {
+  factory CommitAndPostResponse() => create();
+
+  CommitAndPostResponse._();
+
+  factory CommitAndPostResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory CommitAndPostResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'CommitAndPostResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
+      createEmptyInstance: create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CommitAndPostResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CommitAndPostResponse copyWith(
+          void Function(CommitAndPostResponse) updates) =>
+      super.copyWith((message) => updates(message as CommitAndPostResponse))
+          as CommitAndPostResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CommitAndPostResponse create() => CommitAndPostResponse._();
+  @$core.override
+  CommitAndPostResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static CommitAndPostResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<CommitAndPostResponse>(create);
+  static CommitAndPostResponse? _defaultInstance;
+}
+
 const $core.bool _omitFieldNames =
     $core.bool.fromEnvironment('protobuf.omit_field_names');
 const $core.bool _omitMessageNames =

@@ -7,9 +7,9 @@ import 'package:ref_link/generated/common.pbenum.dart';
 import 'package:ref_link/generated/fms.pbgrpc.dart';
 import 'package:ref_link/providers/fms_provider.dart';
 import 'package:ref_link/providers/head_referee_panel_provider.dart';
-import 'package:ref_link/views/head_referee/pre_match_layout/field_action_button.dart';
 import 'package:ref_link/views/head_referee/pre_match_layout/relevant_info_panel.dart';
 import 'package:ref_link/views/head_referee/pre_match_layout/two_minute_warning_button.dart';
+import 'package:ref_link/widgets/field_action_button.dart';
 
 class HeadRefereePreMatchIO extends HookConsumerWidget {
   const HeadRefereePreMatchIO({super.key});

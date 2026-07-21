@@ -86,6 +86,27 @@ service RefereePanelService {
 }
 
 
+// Fire-once, "ask Cheesy Arena to flip this station's bypass" - deliberately not part of
+// HeadRefereeStreamRequest's persisted state. Cheesy Arena is the sole owner of whether a
+// station is actually bypassed (already reflected back via MatchStationState.bypassed); we
+// never store our own copy of "should this be bypassed" to reconcile against, since Cheesy's
+// own `toggleBypass` is a plain toggle and anything else (the scorekeeper's own UI, a field
+// reset) is just as entitled to flip it.
+message ToggleBypassRequest {
+  common.TeamAllianceStationType station = 1;
+}
+message ToggleBypassResponse {}
+
+// Fire-once, "ask Cheesy Arena to commit the fouls/cards and post the score, then load the
+// next match" - the same `commitAndPost` command Cheesy Arena's own referee panel and
+// scorekeeper match play page send (see web/referee_panel.go). Only meaningful once the match
+// has actually reached PostMatch; Cheesy Arena itself silently ignores it otherwise, so
+// there's nothing extra to check client- or server-side.
+message CommitAndPostRequest {}
+message CommitAndPostResponse {}
+
 service HeadRefereePanelService {
   rpc HeadRefereeStream(stream HeadRefereeStreamRequest) returns (stream HeadRefereeStreamResponse);
+  rpc ToggleBypass(ToggleBypassRequest) returns (ToggleBypassResponse);
+  rpc CommitAndPost(CommitAndPostRequest) returns (CommitAndPostResponse);
 }

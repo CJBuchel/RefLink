@@ -19,6 +19,8 @@ class FieldActionButton extends ConsumerWidget {
       }
     }
 
+    final accentColor = isCountStage ? Colors.green : Colors.purpleAccent;
+
     return Container(
       margin: const EdgeInsets.all(10),
       width: double.infinity,
@@ -26,9 +28,9 @@ class FieldActionButton extends ConsumerWidget {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: isCountStage ? Colors.green : Colors.purpleAccent,
+          backgroundColor: Colors.grey.shade900,
           shadowColor: Colors.black,
-          side: BorderSide(color: Colors.black, width: 3),
+          side: BorderSide(color: accentColor, width: 3),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: Text(

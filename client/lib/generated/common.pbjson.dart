@@ -419,21 +419,6 @@ final $typed_data.Uint8List refereePanelStateDescriptor = $convert.base64Decode(
     '9zdWJtaXR0ZWQYCiABKAhSEGVuZGdhbWVTdWJtaXR0ZWQSIwoNZW5kZ2FtZV9pc3N1ZRgLIAEo'
     'CFIMZW5kZ2FtZUlzc3Vl');
 
-@$core.Deprecated('Use allianceBypassDescriptor instead')
-const AllianceBypass$json = {
-  '1': 'AllianceBypass',
-  '2': [
-    {'1': 'station_1', '3': 1, '4': 1, '5': 8, '10': 'station1'},
-    {'1': 'station_2', '3': 2, '4': 1, '5': 8, '10': 'station2'},
-    {'1': 'station_3', '3': 3, '4': 1, '5': 8, '10': 'station3'},
-  ],
-};
-
-/// Descriptor for `AllianceBypass`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List allianceBypassDescriptor = $convert.base64Decode(
-    'Cg5BbGxpYW5jZUJ5cGFzcxIbCglzdGF0aW9uXzEYASABKAhSCHN0YXRpb24xEhsKCXN0YXRpb2'
-    '5fMhgCIAEoCFIIc3RhdGlvbjISGwoJc3RhdGlvbl8zGAMgASgIUghzdGF0aW9uMw==');
-
 @$core.Deprecated('Use headRefereePanelStateDescriptor instead')
 const HeadRefereePanelState$json = {
   '1': 'HeadRefereePanelState',
@@ -483,22 +468,6 @@ const HeadRefereePanelState$json = {
       '5': 3,
       '10': 'twoMinuteWarningExpiresAtUnixSec'
     },
-    {
-      '1': 'red_bypass',
-      '3': 7,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.common.AllianceBypass',
-      '10': 'redBypass'
-    },
-    {
-      '1': 'blue_bypass',
-      '3': 8,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.common.AllianceBypass',
-      '10': 'blueBypass'
-    },
   ],
 };
 
@@ -511,6 +480,4 @@ final $typed_data.Uint8List headRefereePanelStateDescriptor = $convert.base64Dec
     'bmsuY29tbW9uLkZpZWxkU3RhdGVSCmZpZWxkU3RhdGUSNwoYdHdvX21pbnV0ZV93YXJuaW5nX2'
     'dpdmVuGAUgASgIUhV0d29NaW51dGVXYXJuaW5nR2l2ZW4SUAomdHdvX21pbnV0ZV93YXJuaW5n'
     'X2V4cGlyZXNfYXRfdW5peF9zZWMYBiABKANSIHR3b01pbnV0ZVdhcm5pbmdFeHBpcmVzQXRVbm'
-    'l4U2VjEj0KCnJlZF9ieXBhc3MYByABKAsyHi5yZWZsaW5rLmNvbW1vbi5BbGxpYW5jZUJ5cGFz'
-    'c1IJcmVkQnlwYXNzEj8KC2JsdWVfYnlwYXNzGAggASgLMh4ucmVmbGluay5jb21tb24uQWxsaW'
-    'FuY2VCeXBhc3NSCmJsdWVCeXBhc3M=');
+    'l4U2Vj');

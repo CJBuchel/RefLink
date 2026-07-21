@@ -168,6 +168,20 @@ class HeadRefereePanelServiceClient extends $grpc.Client {
     return $createStreamingCall(_$headRefereeStream, request, options: options);
   }
 
+  $grpc.ResponseFuture<$0.ToggleBypassResponse> toggleBypass(
+    $0.ToggleBypassRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$toggleBypass, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.CommitAndPostResponse> commitAndPost(
+    $0.CommitAndPostRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$commitAndPost, request, options: options);
+  }
+
   // method descriptors
 
   static final _$headRefereeStream = $grpc.ClientMethod<
@@ -175,6 +189,16 @@ class HeadRefereePanelServiceClient extends $grpc.Client {
       '/reflink.api.HeadRefereePanelService/HeadRefereeStream',
       ($0.HeadRefereeStreamRequest value) => value.writeToBuffer(),
       $0.HeadRefereeStreamResponse.fromBuffer);
+  static final _$toggleBypass =
+      $grpc.ClientMethod<$0.ToggleBypassRequest, $0.ToggleBypassResponse>(
+          '/reflink.api.HeadRefereePanelService/ToggleBypass',
+          ($0.ToggleBypassRequest value) => value.writeToBuffer(),
+          $0.ToggleBypassResponse.fromBuffer);
+  static final _$commitAndPost =
+      $grpc.ClientMethod<$0.CommitAndPostRequest, $0.CommitAndPostResponse>(
+          '/reflink.api.HeadRefereePanelService/CommitAndPost',
+          ($0.CommitAndPostRequest value) => value.writeToBuffer(),
+          $0.CommitAndPostResponse.fromBuffer);
 }
 
 @$pb.GrpcServiceName('reflink.api.HeadRefereePanelService')
@@ -191,9 +215,45 @@ abstract class HeadRefereePanelServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.HeadRefereeStreamRequest.fromBuffer(value),
         ($0.HeadRefereeStreamResponse value) => value.writeToBuffer()));
+    $addMethod(
+        $grpc.ServiceMethod<$0.ToggleBypassRequest, $0.ToggleBypassResponse>(
+            'ToggleBypass',
+            toggleBypass_Pre,
+            false,
+            false,
+            ($core.List<$core.int> value) =>
+                $0.ToggleBypassRequest.fromBuffer(value),
+            ($0.ToggleBypassResponse value) => value.writeToBuffer()));
+    $addMethod(
+        $grpc.ServiceMethod<$0.CommitAndPostRequest, $0.CommitAndPostResponse>(
+            'CommitAndPost',
+            commitAndPost_Pre,
+            false,
+            false,
+            ($core.List<$core.int> value) =>
+                $0.CommitAndPostRequest.fromBuffer(value),
+            ($0.CommitAndPostResponse value) => value.writeToBuffer()));
   }
 
   $async.Stream<$0.HeadRefereeStreamResponse> headRefereeStream(
       $grpc.ServiceCall call,
       $async.Stream<$0.HeadRefereeStreamRequest> request);
+
+  $async.Future<$0.ToggleBypassResponse> toggleBypass_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.ToggleBypassRequest> $request) async {
+    return toggleBypass($call, await $request);
+  }
+
+  $async.Future<$0.ToggleBypassResponse> toggleBypass(
+      $grpc.ServiceCall call, $0.ToggleBypassRequest request);
+
+  $async.Future<$0.CommitAndPostResponse> commitAndPost_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.CommitAndPostRequest> $request) async {
+    return commitAndPost($call, await $request);
+  }
+
+  $async.Future<$0.CommitAndPostResponse> commitAndPost(
+      $grpc.ServiceCall call, $0.CommitAndPostRequest request);
 }

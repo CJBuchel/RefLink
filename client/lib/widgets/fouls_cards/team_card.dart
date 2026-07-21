@@ -7,12 +7,19 @@ class FoulsCardsTeamCard extends StatelessWidget {
   final CardType cardState;
   final VoidCallback onCycleCard;
 
+  /// Smaller when this is squeezed alongside other content (e.g. the finalize-match screen's
+  /// corner suggestion panels) rather than filling the whole screen on its own.
+  final double fontSize;
+  final EdgeInsets margin;
+
   const FoulsCardsTeamCard({
     super.key,
     required this.isRed,
     required this.teamNumber,
     required this.cardState,
     required this.onCycleCard,
+    this.fontSize = 50,
+    this.margin = const EdgeInsets.all(10),
   });
 
   @override
@@ -26,16 +33,24 @@ class FoulsCardsTeamCard extends StatelessWidget {
     Widget team = Expanded(
       flex: 1,
       child: Container(
-        margin: EdgeInsets.all(10),
+        margin: margin,
         width: double.infinity,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: 5),
-          color: isRed ? Colors.red : Colors.blue,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.black, width: 4),
+          color: isRed ? Colors.red.shade600 : Colors.blue.shade600,
+          boxShadow: const [
+            BoxShadow(color: Colors.black45, blurRadius: 6, offset: Offset(0, 3)),
+          ],
         ),
         child: Center(
           child: Text(
             teamNumber,
-            style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
@@ -44,15 +59,16 @@ class FoulsCardsTeamCard extends StatelessWidget {
     Widget card = Expanded(
       flex: 1,
       child: Container(
-        margin: EdgeInsets.all(10),
+        margin: margin,
         width: double.infinity,
         child: OutlinedButton(
           style: OutlinedButton.styleFrom(
             backgroundColor: cardColor,
             shadowColor: Colors.black,
-            side: BorderSide(color: Colors.black, width: 3),
+            elevation: 4,
+            side: BorderSide(color: Colors.black, width: 4),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(0), // square corners
+              borderRadius: BorderRadius.circular(14),
             ),
           ),
           onPressed: onCycleCard,
@@ -61,7 +77,7 @@ class FoulsCardsTeamCard extends StatelessWidget {
                 ? Text(
                     "CARD",
                     style: TextStyle(
-                      fontSize: 50,
+                      fontSize: fontSize,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),

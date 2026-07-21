@@ -1,8 +1,10 @@
 import 'package:ref_link/generated/api.pbgrpc.dart';
+import 'package:ref_link/helpers/grpc_call_wrapper.dart';
 import 'package:ref_link/helpers/local_storage.dart';
 import 'package:ref_link/helpers/protobuf_helper.dart';
 import 'package:ref_link/helpers/reconnecting_bidirectional_stream.dart';
 import 'package:ref_link/providers/grpc_channel_provider.dart';
+import 'package:ref_link/utils/grpc_result.dart';
 import 'package:ref_link/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -139,28 +141,25 @@ class HeadRefereePanel extends _$HeadRefereePanel {
     });
   }
 
-  // Toggling flips whatever Cheesy Arena's actual bypass state currently is (see
-  // fms/cheesy/sync.rs), so callers should pass the opposite of the alliance station's current
-  // reported `bypassed` value rather than tracking their own notion of "desired" state.
-  void setTeamBypass(TeamAllianceStationType station, bool bypassed) {
-    _updateAndSendPanelState((panel) {
-      switch (station) {
-        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_1:
-          panel.ensureRedBypass().station1 = bypassed;
-        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_2:
-          panel.ensureRedBypass().station2 = bypassed;
-        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_3:
-          panel.ensureRedBypass().station3 = bypassed;
-        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_1:
-          panel.ensureBlueBypass().station1 = bypassed;
-        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_2:
-          panel.ensureBlueBypass().station2 = bypassed;
-        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_3:
-          panel.ensureBlueBypass().station3 = bypassed;
-        default:
-          break;
-      }
-    });
+  // Fire-once relay, not part of the persisted panel state - Cheesy Arena is the sole owner
+  // of whether a station is actually bypassed (already reflected live via
+  // MatchStationState.bypassed), so there's nothing of our own to store or reconcile. This is
+  // the same "just ask" toggle Cheesy Arena's own head referee panel and scorekeeper UI use.
+  Future<void> setTeamBypass(TeamAllianceStationType station) async {
+    await callGrpcEndpoint(
+      () => ref
+          .read(headRefereePanelServiceProvider)
+          .toggleBypass(ToggleBypassRequest(station: station)),
+    );
+  }
+
+  // Fire-once relay, same as setTeamBypass - the same "commitAndPost" Cheesy Arena's own
+  // referee panel and scorekeeper match play page send. Cheesy Arena ignores it unless the
+  // match is actually in PostMatch, so there's nothing to check on our side first.
+  Future<GrpcResult<CommitAndPostResponse>> commitAndPost() {
+    return callGrpcEndpoint(
+      () => ref.read(headRefereePanelServiceProvider).commitAndPost(CommitAndPostRequest()),
+    );
   }
 
   void addFoul({required bool red, required bool major}) {

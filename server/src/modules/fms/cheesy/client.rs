@@ -20,7 +20,7 @@ use crate::{
 use super::messages::{
   CheesyArenaStatus, CheesyEventStatus, CheesyMatchLoad, CheesyMatchTime, CheesyMatchTiming, MATCH_TYPE_PLAYOFF,
   MATCH_TYPE_PRACTICE, MATCH_TYPE_QUALIFICATION, STATE_AUTO_PERIOD, STATE_PAUSE_PERIOD, STATE_POST_MATCH,
-  STATE_POST_TIMEOUT, STATE_TELEOP_PERIOD, STATE_TIMEOUT_ACTIVE, parse_cycle_time_sec,
+  STATE_POST_TIMEOUT, STATE_PRE_MATCH, STATE_TELEOP_PERIOD, STATE_TIMEOUT_ACTIVE, parse_cycle_time_sec,
 };
 
 #[derive(Clone)]
@@ -70,6 +70,9 @@ struct Accumulator {
   // The last match_id we've already reported as completed, so reaching PostMatch only
   // triggers a single completion signal per match rather than once per matchTime tick.
   completed_match_id: Option<i32>,
+  // The match_id currently "armed" to fire a reset the next time it's seen back in
+  // PreMatch - see `check_match_reset`.
+  reset_pending_for: Option<i32>,
   // Cheesy Arena's last-known cycle time (gap between the previous two matches' starts),
   // used as an estimate for the current gap. See CheesyEventStatus.
   cycle_time_sec: Option<i64>,
@@ -125,9 +128,38 @@ impl Accumulator {
     if self.match_id != 0 && self.match_state == STATE_POST_MATCH && self.completed_match_id != Some(self.match_id) {
       self.completed_match_id = Some(self.match_id);
       if let Some(cycle_time_sec) = self.cycle_time_sec {
-        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_secs() as i64;
+        let now =
+          std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_secs() as i64;
         self.next_match_estimated_at = Some(now + cycle_time_sec);
       }
+      Some(self.match_id)
+    } else {
+      None
+    }
+  }
+
+  // Aborting and redoing the same scheduled match doesn't get a new match_id in Cheesy Arena
+  // (it's the same DB row, just replayed) - our own match_id-keyed state never resets on its
+  // own for that case, which otherwise leaves stale fouls/cards/climb calls sitting around
+  // for the redo. Cheesy's own `discardResults`/`ResetMatch` handler (bound to the
+  // scorekeeper's "Discard Results" button) *does* reset its own bypass array for exactly
+  // this reason (see field/arena.go) - mirror that by wiping our copy too, keyed off the
+  // same PostMatch -> PreMatch transition. This is tracked here (armed on PostMatch, fired on
+  // PreMatch) rather than downstream via the FmsMatchInfo watch channel, since a watch
+  // channel only ever holds its latest value - if PostMatch and PreMatch are published in
+  // quick succession (abort immediately followed by discard results), a downstream watcher
+  // can miss the intermediate PostMatch value entirely and never notice the transition. This
+  // accumulator processes every field message in order, so it can't miss it.
+  fn check_match_reset(&mut self) -> Option<i32> {
+    if self.match_id == 0 {
+      return None;
+    }
+
+    if self.match_state == STATE_POST_MATCH {
+      self.reset_pending_for = Some(self.match_id);
+      None
+    } else if self.match_state == STATE_PRE_MATCH && self.reset_pending_for == Some(self.match_id) {
+      self.reset_pending_for = None;
       Some(self.match_id)
     } else {
       None
@@ -214,10 +246,11 @@ fn map_match_phase(state: i32, elapsed: i32, timing: &CheesyMatchTiming) -> (Mat
 struct FieldMessageEffect {
   info_changed: bool,
   completed_match_id: Option<i32>,
+  reset_match_id: Option<i32>,
 }
 
 fn info_changed() -> FieldMessageEffect {
-  FieldMessageEffect { info_changed: true, completed_match_id: None }
+  FieldMessageEffect { info_changed: true, completed_match_id: None, reset_match_id: None }
 }
 
 fn no_effect() -> FieldMessageEffect {
@@ -233,7 +266,11 @@ fn process_field_message(raw: &str, acc: &mut Accumulator) -> FieldMessageEffect
     "arenaStatus" => match serde_json::from_value::<CheesyArenaStatus>(data.clone()) {
       Ok(s) => {
         acc.merge_arena_status(s);
-        FieldMessageEffect { info_changed: true, completed_match_id: acc.check_match_completed() }
+        FieldMessageEffect {
+          info_changed: true,
+          completed_match_id: acc.check_match_completed(),
+          reset_match_id: acc.check_match_reset(),
+        }
       }
       Err(e) => {
         log::warn!("[FMS] Failed to parse arenaStatus: {e}");
@@ -250,7 +287,11 @@ fn process_field_message(raw: &str, acc: &mut Accumulator) -> FieldMessageEffect
     "matchTime" => match serde_json::from_value::<CheesyMatchTime>(data.clone()) {
       Ok(s) => {
         acc.merge_match_time(s);
-        FieldMessageEffect { info_changed: true, completed_match_id: acc.check_match_completed() }
+        FieldMessageEffect {
+          info_changed: true,
+          completed_match_id: acc.check_match_completed(),
+          reset_match_id: acc.check_match_reset(),
+        }
       }
       Err(e) => {
         log::warn!("[FMS] Failed to parse matchTime: {e}");
@@ -308,7 +349,8 @@ async fn run_field_monitor(
   match_info_tx: watch::Sender<Option<FmsMatchInfo>>,
   mut shutdown_rx: broadcast::Receiver<()>,
 ) {
-  let url = format!("ws://{}:{}/displays/field_monitor/websocket?displayId={}", config.host, config.port, config.display_id);
+  let url =
+    format!("ws://{}:{}/displays/field_monitor/websocket?displayId={}", config.host, config.port, config.display_id);
   let mut acc = Accumulator::default();
   let mut delay = Duration::from_secs(1);
 
@@ -338,6 +380,16 @@ async fn run_field_monitor(
                     && let Err(e) = MatchStateRecord::mark_match_completed(match_id).await
                   {
                     log::warn!("[FMS] Failed to mark match {match_id} completed: {e}");
+                  }
+                  if let Some(match_id) = effect.reset_match_id {
+                    log::info!(
+                      "[FMS] Match {match_id} returned to PreMatch after PostMatch with no id change - treating as a redo and resetting stored state"
+                    );
+                    if let Err(e) =
+                      MatchStateRecord::update_match_state(match_id, MatchStateRecord { match_id, ..Default::default() }).await
+                    {
+                      log::warn!("[FMS] Failed to reset match state for redo of match {match_id}: {e}");
+                    }
                   }
                 }
                 Some(Ok(Message::Close(_))) | None => break,
@@ -398,7 +450,10 @@ async fn run_field_status_monitor(
   mut match_info_rx: watch::Receiver<Option<FmsMatchInfo>>,
   mut shutdown_rx: broadcast::Receiver<()>,
 ) {
-  let url = format!("ws://{}:{}/displays/alliance_station/websocket?displayId={}-status", config.host, config.port, config.display_id);
+  let url = format!(
+    "ws://{}:{}/displays/alliance_station/websocket?displayId={}-status",
+    config.host, config.port, config.display_id
+  );
   let mut delay = Duration::from_secs(1);
 
   loop {
@@ -496,15 +551,31 @@ async fn login(config: &CheesyConfig) -> anyhow::Result<Option<String>> {
   }
 }
 
-async fn run_referee_panel(config: CheesyConfig, cmd_rx: mpsc::Receiver<Message>, shutdown_rx: broadcast::Receiver<()>) {
-  run_authenticated_panel(config, "/panels/referee/websocket".to_string(), "referee panel".to_string(), cmd_rx, shutdown_rx).await;
+async fn run_referee_panel(
+  config: CheesyConfig,
+  cmd_rx: mpsc::Receiver<Message>,
+  shutdown_rx: broadcast::Receiver<()>,
+) {
+  run_authenticated_panel(
+    config,
+    "/panels/referee/websocket".to_string(),
+    "referee panel".to_string(),
+    cmd_rx,
+    shutdown_rx,
+  )
+  .await;
 }
 
 // Cheesy Arena's scoring interface is alliance-scoped - a separate websocket per alliance,
 // each only affecting that alliance's RealtimeScore (see web/scoring_panel.go). This is where
 // auto/endgame tower (climb) calls get pushed, since - unlike fouls/cards - the referee panel
 // websocket has no command for them.
-async fn run_scoring_panel(config: CheesyConfig, alliance: &'static str, cmd_rx: mpsc::Receiver<Message>, shutdown_rx: broadcast::Receiver<()>) {
+async fn run_scoring_panel(
+  config: CheesyConfig,
+  alliance: &'static str,
+  cmd_rx: mpsc::Receiver<Message>,
+  shutdown_rx: broadcast::Receiver<()>,
+) {
   run_authenticated_panel(
     config,
     format!("/panels/scoring/{alliance}/websocket"),

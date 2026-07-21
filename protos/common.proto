@@ -99,12 +99,6 @@ enum FieldState {
   FIELD_STATE_RESET = 2;
 }
 
-message AllianceBypass {
-  bool station_1 = 1;
-  bool station_2 = 2;
-  bool station_3 = 3;
-}
-
 message HeadRefereePanelState {
   MatchFouls match_fouls = 1;
   MatchCards match_cards = 2;
@@ -112,8 +106,6 @@ message HeadRefereePanelState {
   FieldState field_state = 4;
   bool two_minute_warning_given = 5;
   int64 two_minute_warning_expires_at_unix_sec = 6;
-  AllianceBypass red_bypass = 7;
-  AllianceBypass blue_bypass = 8;
 }
 
 enum MatchPhase {

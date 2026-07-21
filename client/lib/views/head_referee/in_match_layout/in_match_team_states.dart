@@ -102,6 +102,43 @@ class HeadRefereeInMatchTeamStates extends HookConsumerWidget {
     );
   }
 
+  static const _disableRules = [
+    ("G406", "Don't abuse SCORING ELEMENTS"),
+    ("G409", "ROBOTS must be safe"),
+    ("G411", "Don't damage the FIELD"),
+    ("G412", "Watch your FIELD Interaction"),
+  ];
+
+  Widget _ruleBullet(String code, String description) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: RichText(
+        text: TextSpan(
+          style: const TextStyle(fontSize: 16, height: 1.3),
+          children: [
+            const TextSpan(text: "•  "),
+            TextSpan(
+              text: "$code  ",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 17,
+              ),
+            ),
+            TextSpan(
+              text: description,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.green.shade400,
+                fontSize: 17,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showDisableDialog(
     BuildContext context,
     WidgetRef ref,
@@ -109,22 +146,35 @@ class HeadRefereeInMatchTeamStates extends HookConsumerWidget {
     MatchStationState teamState,
   ) {
     PopupDialog.error(
-      title: "Disable Team",
+      title: "Disable Team: ${teamState.teamNumber}",
       message: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            "Disable team ${teamState.teamNumber} for the rest of this match?",
+          Center(
+            child: Text(
+              teamState.teamNumber,
+              style: TextStyle(
+                fontSize: 50,
+                fontWeight: FontWeight.bold,
+                color: Colors.orange,
+              ),
+            ),
           ),
+          const SizedBox(height: 12),
+          const Text(
+            "A team may only be disabled if it meets one of the following criteria:",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          for (final (code, description) in _disableRules)
+            _ruleBullet(code, description),
           const SizedBox(height: 16),
           SizedBox(
             height: 60,
             child: OutlinedButton(
               onPressed: () {
-                ref
-                    .read(headRefereePanelProvider.notifier)
-                    .setTeamBypass(station, true);
+                ref.read(headRefereePanelProvider.notifier).setTeamBypass(station);
                 context.pop();
               },
               style: OutlinedButton.styleFrom(
@@ -151,7 +201,7 @@ class HeadRefereeInMatchTeamStates extends HookConsumerWidget {
       actions: [
         TextButton(
           onPressed: () => context.pop(),
-          child: const Text("Cancel"),
+          child: const Text("Cancel", style: TextStyle(color: Colors.orange)),
         ),
       ],
     ).show(context);

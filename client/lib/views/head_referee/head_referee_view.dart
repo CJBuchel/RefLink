@@ -15,17 +15,17 @@ class HeadRefereeView extends HookConsumerWidget {
 
     Widget view = HeadRefereePreMatchPhase();
 
-    // TEMP remove this
-    view = HeadRefereeInMatchPhase(phase: phase);
+    // // TEMP remove this
+    // view = HeadRefereeInMatchPhase(phase: phase);
 
-    // switch (phase) {
-    //   case MatchPhase.MATCH_PHASE_PRE_MATCH ||
-    //       MatchPhase.MATCH_PHASE_IDLE_UNSPECIFIED:
-    //     view = HeadRefereePreMatchPhase();
-    //     break;
-    //   default:
-    //     view = HeadRefereeInMatchPhase(phase: phase);
-    // }
+    switch (phase) {
+      case MatchPhase.MATCH_PHASE_PRE_MATCH ||
+          MatchPhase.MATCH_PHASE_IDLE_UNSPECIFIED:
+        view = HeadRefereePreMatchPhase();
+        break;
+      default:
+        view = HeadRefereeInMatchPhase(phase: phase);
+    }
 
     return view;
   }

@@ -5,17 +5,18 @@ use crate::{
   core::events::{ChangeEvent, EVENT_BUS},
   generated::{
     common::{
-      AutoClimbState, CardType, EndgameClimbState, FieldState, HeadRefereePanelState, MatchFouls, RefereePanelState,
-      TeamAllianceStationType,
+      AutoClimbState, CardType, EndgameClimbState, FieldState, MatchFouls, RefereePanelState, TeamAllianceStationType,
     },
     db::MatchStateRecord,
     fms::FmsMatchInfo,
   },
 };
 
+use super::{BypassToggleRequest, CommitAndPostSignal};
+
 use super::messages::{
-  AddFoulCommand, AutoTowerCommand, CardCommand, DeleteFoulCommand, EndgameCommand, OutgoingMessage, TOWER_STATUS_LEVEL_1,
-  TOWER_STATUS_LEVEL_2, TOWER_STATUS_LEVEL_3, TOWER_STATUS_NONE,
+  AddFoulCommand, AutoTowerCommand, CardCommand, DeleteFoulCommand, EndgameCommand, OutgoingMessage,
+  TOWER_STATUS_LEVEL_1, TOWER_STATUS_LEVEL_2, TOWER_STATUS_LEVEL_3, TOWER_STATUS_NONE,
 };
 use serde::Serialize;
 
@@ -168,17 +169,27 @@ fn push_endgame_tower_commands(commands: &mut Vec<Message>, climb: &[i32; 3]) {
 
 /// Diffs one alliance's near/far panels against their previous snapshots and pushes climb
 /// commands for whichever panel(s) just became submitted or changed their submitted call.
-fn push_alliance_climb_commands(commands: &mut Vec<Message>, prev_near: &PanelClimbState, near: &PanelClimbState, prev_far: &PanelClimbState, far: &PanelClimbState) {
+fn push_alliance_climb_commands(
+  commands: &mut Vec<Message>,
+  prev_near: &PanelClimbState,
+  near: &PanelClimbState,
+  prev_far: &PanelClimbState,
+  far: &PanelClimbState,
+) {
   if near.auto_submitted && (near.auto_submitted, near.auto_climb) != (prev_near.auto_submitted, prev_near.auto_climb) {
     push_auto_tower_commands(commands, &near.auto_climb);
   }
   if far.auto_submitted && (far.auto_submitted, far.auto_climb) != (prev_far.auto_submitted, prev_far.auto_climb) {
     push_auto_tower_commands(commands, &far.auto_climb);
   }
-  if near.endgame_submitted && (near.endgame_submitted, near.endgame_climb) != (prev_near.endgame_submitted, prev_near.endgame_climb) {
+  if near.endgame_submitted
+    && (near.endgame_submitted, near.endgame_climb) != (prev_near.endgame_submitted, prev_near.endgame_climb)
+  {
     push_endgame_tower_commands(commands, &near.endgame_climb);
   }
-  if far.endgame_submitted && (far.endgame_submitted, far.endgame_climb) != (prev_far.endgame_submitted, prev_far.endgame_climb) {
+  if far.endgame_submitted
+    && (far.endgame_submitted, far.endgame_climb) != (prev_far.endgame_submitted, prev_far.endgame_climb)
+  {
     push_endgame_tower_commands(commands, &far.endgame_climb);
   }
 }
@@ -188,7 +199,14 @@ fn encode<T: Serialize>(msg_type: &'static str, data: T) -> Message {
   Message::Text(serde_json::to_string(&payload).unwrap_or_default().into())
 }
 
-fn push_foul_deltas(commands: &mut Vec<Message>, ledger: &mut Vec<bool>, alliance: &'static str, is_major: bool, previous: i32, current: i32) {
+fn push_foul_deltas(
+  commands: &mut Vec<Message>,
+  ledger: &mut Vec<bool>,
+  alliance: &'static str,
+  is_major: bool,
+  previous: i32,
+  current: i32,
+) {
   if current > previous {
     for _ in 0..(current - previous) {
       ledger.push(is_major);
@@ -264,54 +282,22 @@ fn cheesy_station_key(station: TeamAllianceStationType) -> Option<&'static str> 
   }
 }
 
-#[derive(Clone, Copy, Default, PartialEq)]
-struct BypassState {
-  red: [bool; 3],
-  blue: [bool; 3],
-}
-
-fn bypass_state(hr: Option<&HeadRefereePanelState>) -> BypassState {
-  let Some(hr) = hr else { return BypassState::default() };
-  let red = hr.red_bypass.as_ref();
-  let blue = hr.blue_bypass.as_ref();
-  BypassState {
-    red: [
-      red.is_some_and(|b| b.station_1),
-      red.is_some_and(|b| b.station_2),
-      red.is_some_and(|b| b.station_3),
-    ],
-    blue: [
-      blue.is_some_and(|b| b.station_1),
-      blue.is_some_and(|b| b.station_2),
-      blue.is_some_and(|b| b.station_3),
-    ],
-  }
-}
-
-// The head referee's bypass flag is treated the same way as field_state: whichever way a
-// station's flag flips, Cheesy Arena's own `toggleBypass` is a toggle rather than a "set to
-// X" - so this only stays correct as long as nothing else (Cheesy's native UI, a field
-// restart) flips the actual bypass state out from under us in between.
-fn push_bypass_commands(commands: &mut Vec<Message>, previous: &BypassState, current: &BypassState) {
-  const RED_STATIONS: [TeamAllianceStationType; 3] =
-    [TeamAllianceStationType::Red1, TeamAllianceStationType::Red2, TeamAllianceStationType::Red3];
-  const BLUE_STATIONS: [TeamAllianceStationType; 3] =
-    [TeamAllianceStationType::Blue1, TeamAllianceStationType::Blue2, TeamAllianceStationType::Blue3];
-
-  for (i, station) in RED_STATIONS.into_iter().enumerate() {
-    if previous.red[i] != current.red[i]
-      && let Some(key) = cheesy_station_key(station)
-    {
-      commands.push(encode("toggleBypass", key));
-    }
-  }
-  for (i, station) in BLUE_STATIONS.into_iter().enumerate() {
-    if previous.blue[i] != current.blue[i]
-      && let Some(key) = cheesy_station_key(station)
-    {
-      commands.push(encode("toggleBypass", key));
-    }
-  }
+fn reset_trackers(
+  last_sent: &mut CombinedRefereeState,
+  ledger: &mut FoulLedger,
+  last_field_state: &mut FieldState,
+  prev_rn: &mut PanelClimbState,
+  prev_rf: &mut PanelClimbState,
+  prev_bn: &mut PanelClimbState,
+  prev_bf: &mut PanelClimbState,
+) {
+  *last_sent = CombinedRefereeState::default();
+  *ledger = FoulLedger::default();
+  *last_field_state = FieldState::Match;
+  *prev_rn = PanelClimbState::default();
+  *prev_rf = PanelClimbState::default();
+  *prev_bn = PanelClimbState::default();
+  *prev_bf = PanelClimbState::default();
 }
 
 fn diff_commands(
@@ -360,11 +346,26 @@ pub async fn run(
     }
   };
 
+  let mut bypass_rx = match bus.subscribe::<BypassToggleRequest>() {
+    Ok(rx) => rx,
+    Err(e) => {
+      log::error!("[FMS/sync] Failed to subscribe to bypass toggle requests: {e}");
+      return;
+    }
+  };
+
+  let mut commit_rx = match bus.subscribe::<CommitAndPostSignal>() {
+    Ok(rx) => rx,
+    Err(e) => {
+      log::error!("[FMS/sync] Failed to subscribe to commit-and-post requests: {e}");
+      return;
+    }
+  };
+
   let mut last_sent = CombinedRefereeState::default();
   let mut ledger = FoulLedger::default();
   let mut current_match_id: Option<i32> = None;
   let mut last_field_state = FieldState::Match;
-  let mut last_bypass = BypassState::default();
   let mut prev_rn = PanelClimbState::default();
   let mut prev_rf = PanelClimbState::default();
   let mut prev_bn = PanelClimbState::default();
@@ -372,6 +373,39 @@ pub async fn run(
 
   loop {
     tokio::select! {
+      // Fire-once relay, no state of our own involved - see BypassToggleRequest.
+      event = bypass_rx.recv() => {
+        let station = match event {
+          Ok(ChangeEvent::Message { data, .. }) => data.station,
+          Ok(_) => continue,
+          Err(broadcast::error::RecvError::Lagged(n)) => {
+            log::warn!("[FMS/sync] Lagged behind by {n} bypass toggle requests");
+            continue;
+          }
+          Err(broadcast::error::RecvError::Closed) => return,
+        };
+        if let Some(key) = cheesy_station_key(station)
+          && referee_cmd_tx.send(encode("toggleBypass", key)).await.is_err()
+        {
+          log::warn!("[FMS/sync] Referee panel channel closed, dropping toggleBypass command");
+        }
+      }
+      // Fire-once relay, same as bypass - see CommitAndPostSignal.
+      event = commit_rx.recv() => {
+        match event {
+          Ok(ChangeEvent::Message { .. }) => {
+            if referee_cmd_tx.send(encode("commitAndPost", ())).await.is_err() {
+              log::warn!("[FMS/sync] Referee panel channel closed, dropping commitAndPost command");
+            }
+          }
+          Ok(_) => continue,
+          Err(broadcast::error::RecvError::Lagged(n)) => {
+            log::warn!("[FMS/sync] Lagged behind by {n} commit-and-post requests");
+            continue;
+          }
+          Err(broadcast::error::RecvError::Closed) => return,
+        }
+      }
       event = state_rx.recv() => {
         let record = match event {
           Ok(ChangeEvent::Record { data: Some(record), .. }) => record,
@@ -391,14 +425,7 @@ pub async fn run(
         // reason (it's per-match-cycle, enforced in the repository layer).
         if current_match_id != Some(record.match_id) {
           current_match_id = Some(record.match_id);
-          last_sent = CombinedRefereeState::default();
-          ledger = FoulLedger::default();
-          last_field_state = FieldState::Match;
-          last_bypass = BypassState::default();
-          prev_rn = PanelClimbState::default();
-          prev_rf = PanelClimbState::default();
-          prev_bn = PanelClimbState::default();
-          prev_bf = PanelClimbState::default();
+          reset_trackers(&mut last_sent, &mut ledger, &mut last_field_state, &mut prev_rn, &mut prev_rf, &mut prev_bn, &mut prev_bf);
         }
 
         let field_state = record.hr.as_ref().and_then(|hr| FieldState::try_from(hr.field_state).ok()).unwrap_or_default();
@@ -409,19 +436,6 @@ pub async fn run(
             log::warn!("[FMS/sync] Referee panel channel closed, dropping command");
           }
           last_field_state = field_state;
-        }
-
-        let bypass = bypass_state(record.hr.as_ref());
-        if bypass != last_bypass {
-          let mut bypass_commands = Vec::new();
-          push_bypass_commands(&mut bypass_commands, &last_bypass, &bypass);
-          for message in bypass_commands {
-            if referee_cmd_tx.send(message).await.is_err() {
-              log::warn!("[FMS/sync] Referee panel channel closed, dropping command");
-              break;
-            }
-          }
-          last_bypass = bypass;
         }
 
         let combined = combine_match_state(&record);

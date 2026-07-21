@@ -11,7 +11,10 @@ use crate::{
     shutdown::with_shutdown,
   },
   generated::{
-    api::{MatchAllianceState, RefereeStreamRequest, RefereeStreamResponse, referee_panel_service_server::RefereePanelService},
+    api::{
+      MatchAllianceState, RefereeStreamRequest, RefereeStreamResponse,
+      referee_panel_service_server::RefereePanelService,
+    },
     common::{PanelType, RefereePanelState, TeamAllianceStationType},
     db::MatchStateRecord,
     fms::FmsMatchInfo,
@@ -138,7 +141,10 @@ impl RefereePanelService for RefereePanelApi {
 // Near/far panels pair up across the field and see each other's calls; the head referee
 // (and any not-yet-identified panel) doesn't have a single partner - it'll see every panel
 // at once once that UI exists.
-fn partner_panel_state(match_state: Option<&MatchStateRecord>, panel_type: Option<PanelType>) -> Option<RefereePanelState> {
+fn partner_panel_state(
+  match_state: Option<&MatchStateRecord>,
+  panel_type: Option<PanelType>,
+) -> Option<RefereePanelState> {
   let record = match_state?;
   match panel_type? {
     PanelType::RedNear => record.rf,

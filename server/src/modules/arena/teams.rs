@@ -16,7 +16,11 @@ pub fn map_teams(fms_info: &FmsMatchInfo) -> HashMap<i32, MatchStationState> {
     .map(|t| {
       (
         t.alliance_station,
-        MatchStationState { team_number: team_number_string(t.team_number), bypassed: t.bypassed, alliance_station: t.alliance_station },
+        MatchStationState {
+          team_number: team_number_string(t.team_number),
+          bypassed: t.bypassed,
+          alliance_station: t.alliance_station,
+        },
       )
     })
     .collect()
