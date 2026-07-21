@@ -390,12 +390,24 @@ pub async fn run(
           log::warn!("[FMS/sync] Referee panel channel closed, dropping toggleBypass command");
         }
       }
-      // Fire-once relay, same as bypass - see CommitAndPostSignal.
+      // Fire-once relay, same as bypass - see CommitAndPostSignal. Also relays a `commitMatch`
+      // to each alliance's scoring panel websocket alongside the referee panel's
+      // `commitAndPost` - Cheesy Arena tracks scoring-panel readiness separately (see
+      // web/scoring_panel.go's ScoringPanelRegistry), keyed off that alliance-scoped command,
+      // and never infers it from the referee panel committing. Without this, the match play
+      // UI's "Red X/Y" and "Blue X/Y" scoring badges stay red indefinitely even though the
+      // match was actually committed and posted successfully.
       event = commit_rx.recv() => {
         match event {
           Ok(ChangeEvent::Message { .. }) => {
             if referee_cmd_tx.send(encode("commitAndPost", ())).await.is_err() {
               log::warn!("[FMS/sync] Referee panel channel closed, dropping commitAndPost command");
+            }
+            if red_scoring_cmd_tx.send(encode("commitMatch", ())).await.is_err() {
+              log::warn!("[FMS/sync] Red scoring panel channel closed, dropping commitMatch command");
+            }
+            if blue_scoring_cmd_tx.send(encode("commitMatch", ())).await.is_err() {
+              log::warn!("[FMS/sync] Blue scoring panel channel closed, dropping commitMatch command");
             }
           }
           Ok(_) => continue,
