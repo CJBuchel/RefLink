@@ -602,6 +602,84 @@ class RefereePanelState extends $pb.GeneratedMessage {
   void clearEndgameIssue() => $_clearField(11);
 }
 
+class AllianceBypass extends $pb.GeneratedMessage {
+  factory AllianceBypass({
+    $core.bool? station1,
+    $core.bool? station2,
+    $core.bool? station3,
+  }) {
+    final result = create();
+    if (station1 != null) result.station1 = station1;
+    if (station2 != null) result.station2 = station2;
+    if (station3 != null) result.station3 = station3;
+    return result;
+  }
+
+  AllianceBypass._();
+
+  factory AllianceBypass.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory AllianceBypass.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'AllianceBypass',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.common'),
+      createEmptyInstance: create)
+    ..aOB(1, _omitFieldNames ? '' : 'station1', protoName: 'station_1')
+    ..aOB(2, _omitFieldNames ? '' : 'station2', protoName: 'station_2')
+    ..aOB(3, _omitFieldNames ? '' : 'station3', protoName: 'station_3')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  AllianceBypass clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  AllianceBypass copyWith(void Function(AllianceBypass) updates) =>
+      super.copyWith((message) => updates(message as AllianceBypass))
+          as AllianceBypass;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AllianceBypass create() => AllianceBypass._();
+  @$core.override
+  AllianceBypass createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static AllianceBypass getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<AllianceBypass>(create);
+  static AllianceBypass? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get station1 => $_getBF(0);
+  @$pb.TagNumber(1)
+  set station1($core.bool value) => $_setBool(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasStation1() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStation1() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get station2 => $_getBF(1);
+  @$pb.TagNumber(2)
+  set station2($core.bool value) => $_setBool(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasStation2() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearStation2() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get station3 => $_getBF(2);
+  @$pb.TagNumber(3)
+  set station3($core.bool value) => $_setBool(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasStation3() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearStation3() => $_clearField(3);
+}
+
 class HeadRefereePanelState extends $pb.GeneratedMessage {
   factory HeadRefereePanelState({
     MatchFouls? matchFouls,
@@ -610,6 +688,8 @@ class HeadRefereePanelState extends $pb.GeneratedMessage {
     FieldState? fieldState,
     $core.bool? twoMinuteWarningGiven,
     $fixnum.Int64? twoMinuteWarningExpiresAtUnixSec,
+    AllianceBypass? redBypass,
+    AllianceBypass? blueBypass,
   }) {
     final result = create();
     if (matchFouls != null) result.matchFouls = matchFouls;
@@ -621,6 +701,8 @@ class HeadRefereePanelState extends $pb.GeneratedMessage {
     if (twoMinuteWarningExpiresAtUnixSec != null)
       result.twoMinuteWarningExpiresAtUnixSec =
           twoMinuteWarningExpiresAtUnixSec;
+    if (redBypass != null) result.redBypass = redBypass;
+    if (blueBypass != null) result.blueBypass = blueBypass;
     return result;
   }
 
@@ -646,6 +728,10 @@ class HeadRefereePanelState extends $pb.GeneratedMessage {
         enumValues: FieldState.values)
     ..aOB(5, _omitFieldNames ? '' : 'twoMinuteWarningGiven')
     ..aInt64(6, _omitFieldNames ? '' : 'twoMinuteWarningExpiresAtUnixSec')
+    ..aOM<AllianceBypass>(7, _omitFieldNames ? '' : 'redBypass',
+        subBuilder: AllianceBypass.create)
+    ..aOM<AllianceBypass>(8, _omitFieldNames ? '' : 'blueBypass',
+        subBuilder: AllianceBypass.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -708,9 +794,6 @@ class HeadRefereePanelState extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   void clearFieldState() => $_clearField(4);
 
-  /// One-way per match cycle (never reverts to false except on a new match) - purely a local
-  /// RefLink record that the warning has been given. Deliberately has no Cheesy Arena
-  /// counterpart; see arena/repository.rs for why.
   @$pb.TagNumber(5)
   $core.bool get twoMinuteWarningGiven => $_getBF(4);
   @$pb.TagNumber(5)
@@ -720,10 +803,6 @@ class HeadRefereePanelState extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   void clearTwoMinuteWarningGiven() => $_clearField(5);
 
-  /// Unix seconds when the 2-minute warning countdown ends - stamped server-side the instant
-  /// two_minute_warning_given first becomes true (see arena/repository.rs), so every client
-  /// renders the same countdown regardless of when it last heard from the server. 0 when not
-  /// given yet.
   @$pb.TagNumber(6)
   $fixnum.Int64 get twoMinuteWarningExpiresAtUnixSec => $_getI64(5);
   @$pb.TagNumber(6)
@@ -733,6 +812,28 @@ class HeadRefereePanelState extends $pb.GeneratedMessage {
   $core.bool hasTwoMinuteWarningExpiresAtUnixSec() => $_has(5);
   @$pb.TagNumber(6)
   void clearTwoMinuteWarningExpiresAtUnixSec() => $_clearField(6);
+
+  @$pb.TagNumber(7)
+  AllianceBypass get redBypass => $_getN(6);
+  @$pb.TagNumber(7)
+  set redBypass(AllianceBypass value) => $_setField(7, value);
+  @$pb.TagNumber(7)
+  $core.bool hasRedBypass() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearRedBypass() => $_clearField(7);
+  @$pb.TagNumber(7)
+  AllianceBypass ensureRedBypass() => $_ensure(6);
+
+  @$pb.TagNumber(8)
+  AllianceBypass get blueBypass => $_getN(7);
+  @$pb.TagNumber(8)
+  set blueBypass(AllianceBypass value) => $_setField(8, value);
+  @$pb.TagNumber(8)
+  $core.bool hasBlueBypass() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearBlueBypass() => $_clearField(8);
+  @$pb.TagNumber(8)
+  AllianceBypass ensureBlueBypass() => $_ensure(7);
 }
 
 const $core.bool _omitFieldNames =

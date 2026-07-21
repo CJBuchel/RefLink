@@ -99,20 +99,21 @@ enum FieldState {
   FIELD_STATE_RESET = 2;
 }
 
+message AllianceBypass {
+  bool station_1 = 1;
+  bool station_2 = 2;
+  bool station_3 = 3;
+}
+
 message HeadRefereePanelState {
   MatchFouls match_fouls = 1;
   MatchCards match_cards = 2;
   bool ref_review_required = 3;
   FieldState field_state = 4;
-  // One-way per match cycle (never reverts to false except on a new match) - purely a local
-  // RefLink record that the warning has been given. Deliberately has no Cheesy Arena
-  // counterpart; see arena/repository.rs for why.
   bool two_minute_warning_given = 5;
-  // Unix seconds when the 2-minute warning countdown ends - stamped server-side the instant
-  // two_minute_warning_given first becomes true (see arena/repository.rs), so every client
-  // renders the same countdown regardless of when it last heard from the server. 0 when not
-  // given yet.
   int64 two_minute_warning_expires_at_unix_sec = 6;
+  AllianceBypass red_bypass = 7;
+  AllianceBypass blue_bypass = 8;
 }
 
 enum MatchPhase {

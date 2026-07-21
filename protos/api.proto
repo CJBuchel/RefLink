@@ -75,6 +75,9 @@ message HeadRefereeStreamResponse {
   common.RefereePanelState bf = 8;
   int32 rotate_in = 10;
   PanelPresence panel_presence = 11;
+  // Echoes back the server's authoritative (clamped) copy of the head referee's own
+  // submitted state - notably `field_state`, since the one-way MATCH->COUNT->RESET
+  // transition is enforced server-side, not by the submitting client.
   common.HeadRefereePanelState hr = 12;
 }
 

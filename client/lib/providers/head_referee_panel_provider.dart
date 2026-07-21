@@ -139,6 +139,30 @@ class HeadRefereePanel extends _$HeadRefereePanel {
     });
   }
 
+  // Toggling flips whatever Cheesy Arena's actual bypass state currently is (see
+  // fms/cheesy/sync.rs), so callers should pass the opposite of the alliance station's current
+  // reported `bypassed` value rather than tracking their own notion of "desired" state.
+  void setTeamBypass(TeamAllianceStationType station, bool bypassed) {
+    _updateAndSendPanelState((panel) {
+      switch (station) {
+        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_1:
+          panel.ensureRedBypass().station1 = bypassed;
+        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_2:
+          panel.ensureRedBypass().station2 = bypassed;
+        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_RED_3:
+          panel.ensureRedBypass().station3 = bypassed;
+        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_1:
+          panel.ensureBlueBypass().station1 = bypassed;
+        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_2:
+          panel.ensureBlueBypass().station2 = bypassed;
+        case TeamAllianceStationType.TEAM_ALLIANCE_STATION_TYPE_BLUE_3:
+          panel.ensureBlueBypass().station3 = bypassed;
+        default:
+          break;
+      }
+    });
+  }
+
   void addFoul({required bool red, required bool major}) {
     _updateAndSendPanelState((panel) {
       final fouls = panel.ensureMatchFouls();

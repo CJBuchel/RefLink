@@ -10,7 +10,7 @@ use crate::{
     shutdown::ShutdownNotifier,
   },
   generated::{
-    common::{MatchPhase, MatchType, TeamAllianceStationType},
+    common::{FieldState, MatchPhase, MatchType, TeamAllianceStationType},
     db::MatchStateRecord,
     fms::{FmsConnectionStatus, FmsMatchInfo, FmsTeamState},
   },
@@ -40,6 +40,7 @@ pub async fn run(config: CheesyConfig) {
 
   tokio::join!(
     run_field_monitor(config.clone(), match_info_tx, shutdown.subscribe()),
+    run_field_status_monitor(config.clone(), match_info_rx.clone(), shutdown.subscribe()),
     run_referee_panel(config.clone(), referee_cmd_rx, shutdown.subscribe()),
     run_scoring_panel(config.clone(), "red", red_scoring_cmd_rx, shutdown.subscribe()),
     run_scoring_panel(config.clone(), "blue", blue_scoring_cmd_rx, shutdown.subscribe()),
@@ -358,6 +359,108 @@ async fn run_field_monitor(
         log::debug!("[FMS] Field monitor connect failed: {e}");
         publish_connection_status(false, &config, Some(e.to_string()));
       }
+    }
+
+    tokio::select! {
+      _ = tokio::time::sleep(delay) => {}
+      _ = shutdown_rx.recv() => return,
+    }
+    delay = (delay * 2).min(Duration::from_secs(10));
+  }
+}
+
+// --- Field status monitor (read-only, unauthenticated) ---
+//
+// Cheesy Arena's actual field volunteer/reset signal - the real source of truth for
+// field_state, settable either via our own referee panel commands (see fms/cheesy/sync.rs) or
+// directly from Cheesy's native scorekeeper interface - is only broadcast to the alliance
+// station display and match play websockets (`allianceStationDisplayMode`), not to the field
+// monitor one. This is a separate connection purely to observe it, so RefLink's field_state
+// reflects Cheesy's actual state regardless of who changed it.
+fn map_alliance_station_display_mode(mode: &str) -> FieldState {
+  match mode {
+    "signalCount" => FieldState::Count,
+    "fieldReset" => FieldState::Reset,
+    _ => FieldState::Match,
+  }
+}
+
+fn parse_field_status_message(raw: &str) -> Option<FieldState> {
+  let v: serde_json::Value = serde_json::from_str(raw).ok()?;
+  if v.get("type").and_then(|t| t.as_str()) != Some("allianceStationDisplayMode") {
+    return None;
+  }
+  Some(map_alliance_station_display_mode(v.get("data")?.as_str()?))
+}
+
+async fn run_field_status_monitor(
+  config: CheesyConfig,
+  mut match_info_rx: watch::Receiver<Option<FmsMatchInfo>>,
+  mut shutdown_rx: broadcast::Receiver<()>,
+) {
+  let url = format!("ws://{}:{}/displays/alliance_station/websocket?displayId={}-status", config.host, config.port, config.display_id);
+  let mut delay = Duration::from_secs(1);
+
+  loop {
+    log::info!("[FMS] Connecting to field status monitor at {url}");
+    let connect_result = tokio::select! {
+      res = connect_async(&url) => res,
+      _ = shutdown_rx.recv() => return,
+    };
+
+    match connect_result {
+      Ok((mut ws, _)) => {
+        log::info!("[FMS] Field status monitor connected");
+        delay = Duration::from_secs(1);
+
+        // Cheesy Arena actually does bootstrap this notifier's current value immediately on
+        // connect (see websocket.HandleNotifiers), not just on the next change - but this
+        // connection races independently against run_field_monitor, so that bootstrap message
+        // can arrive before match_info_rx knows the current match_id yet, and would otherwise
+        // be silently dropped. Cache the last value we've seen and (re)apply it once/whenever
+        // match_info_rx has a match_id, rather than only reacting to actual state changes.
+        let mut last_known_field_state: Option<FieldState> = None;
+
+        loop {
+          tokio::select! {
+            msg = ws.next() => {
+              match msg {
+                Some(Ok(Message::Text(text))) => {
+                  let Some(field_state) = parse_field_status_message(text.as_str()) else { continue };
+                  last_known_field_state = Some(field_state);
+                  let Some(match_id) = match_info_rx.borrow().as_ref().map(|i| i.match_id) else { continue };
+                  // match_id 0 means no match is loaded (idle) - there's no record to attach
+                  // field_state to, and Cheesy re-broadcasts this notifier continuously, so
+                  // without this guard every idle tick would spam a create-on-miss DB write.
+                  if match_id != 0 && let Err(e) = MatchStateRecord::update_field_state_from_fms(match_id, field_state).await {
+                    log::warn!("[FMS] Failed to update field state: {e}");
+                  }
+                }
+                Some(Ok(Message::Close(_))) | None => break,
+                Some(Err(e)) => {
+                  log::warn!("[FMS] Field status monitor error: {e}");
+                  break;
+                }
+                _ => {}
+              }
+            }
+            result = match_info_rx.changed() => {
+              if result.is_err() {
+                continue;
+              }
+              let Some(field_state) = last_known_field_state else { continue };
+              let Some(match_id) = match_info_rx.borrow().as_ref().map(|i| i.match_id) else { continue };
+              if match_id != 0 && let Err(e) = MatchStateRecord::update_field_state_from_fms(match_id, field_state).await {
+                log::warn!("[FMS] Failed to update field state: {e}");
+              }
+            }
+            _ = shutdown_rx.recv() => return,
+          }
+        }
+
+        log::warn!("[FMS] Field status monitor disconnected");
+      }
+      Err(e) => log::debug!("[FMS] Field status monitor connect failed: {e}"),
     }
 
     tokio::select! {

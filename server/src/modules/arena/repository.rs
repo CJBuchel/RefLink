@@ -4,7 +4,7 @@ use crate::{
   core::events::{ChangeEvent, ChangeOperation, EVENT_BUS},
   db,
   generated::{
-    common::{HeadRefereePanelState, PanelType, RefereePanelState},
+    common::{FieldState, HeadRefereePanelState, PanelType, RefereePanelState},
     db::MatchStateRecord,
   },
 };
@@ -18,6 +18,7 @@ pub trait MatchStateRepository {
   async fn get_match_state(match_id: i32) -> Result<MatchStateRecord>;
   async fn update_panel_state(match_id: i32, panel_type: PanelType, record: RefereePanelState) -> Result<String>;
   async fn update_head_referee_state(match_id: i32, record: HeadRefereePanelState) -> Result<String>;
+  async fn update_field_state_from_fms(match_id: i32, field_state: FieldState) -> Result<String>;
   async fn mark_match_completed(match_id: i32) -> Result<String>;
   async fn count_matches() -> Result<usize>;
   async fn compute_rotation(match_rotations: u16) -> Result<i32>;
@@ -31,17 +32,15 @@ impl MatchStateRepository for MatchStateRecord {
     // played matches without a full table scan. A match is never un-completed, so this
     // never needs to be retracted.
     let search_indexes = if record.completed { vec![COMPLETED_INDEX.to_string()] } else { vec![] };
-    let id = match db.get_table(MATCH_STATE_TABLE).insert(Some(match_id.to_string()), &record, search_indexes, None).await {
-      Ok(id) => id,
-      Err(e) => return Err(anyhow::anyhow!(e)),
-    };
+    let id =
+      match db.get_table(MATCH_STATE_TABLE).insert(Some(match_id.to_string()), &record, search_indexes, None).await {
+        Ok(id) => id,
+        Err(e) => return Err(anyhow::anyhow!(e)),
+      };
 
     if let Some(bus) = EVENT_BUS.get() {
-      let _ = bus.publish(ChangeEvent::Record {
-        operation: ChangeOperation::Update,
-        id: id.clone(),
-        data: Some(record),
-      });
+      let _ =
+        bus.publish(ChangeEvent::Record { operation: ChangeOperation::Update, id: id.clone(), data: Some(record) });
     }
 
     Ok(id)
@@ -49,7 +48,6 @@ impl MatchStateRepository for MatchStateRecord {
 
   async fn get_match_state(match_id: i32) -> Result<MatchStateRecord> {
     let db = db::DB.get().ok_or_else(|| anyhow::anyhow!("Database not initialized"))?;
-    log::info!("Getting record");
     match db.get_table(MATCH_STATE_TABLE).get(match_id.to_string()).await {
       Ok(Some(record)) => Ok(record),
       Ok(None) => {
@@ -106,6 +104,20 @@ impl MatchStateRepository for MatchStateRecord {
     Self::update_match_state(match_id, match_state).await
   }
 
+  // Cheesy Arena's field volunteer/reset signal is the actual source of truth for
+  // field_state - it can be triggered from our own referee panel commands (see
+  // fms/cheesy/sync.rs) or directly from Cheesy's native scorekeeper interface, and either
+  // way Cheesy broadcasts the result (see fms/cheesy/client.rs::run_field_status_monitor).
+  // Only field_state is touched here - unlike update_head_referee_state, this isn't a client
+  // replacing its whole local record, so everything else on `hr` is left as-is.
+  async fn update_field_state_from_fms(match_id: i32, field_state: FieldState) -> Result<String> {
+    let mut match_state = Self::get_match_state(match_id).await?;
+    let mut hr = match_state.hr.unwrap_or_default();
+    hr.field_state = field_state as i32;
+    match_state.hr = Some(hr);
+    Self::update_match_state(match_id, match_state).await
+  }
+
   async fn mark_match_completed(match_id: i32) -> Result<String> {
     let mut match_state = Self::get_match_state(match_id).await?;
     match_state.completed = true;
@@ -136,10 +148,6 @@ impl MatchStateRepository for MatchStateRecord {
     let matches_passed = Self::count_matches().await? as i32;
     let remainder = matches_passed % match_rotations;
 
-    if matches_passed > 0 && remainder == 0 {
-      Ok(0)
-    } else {
-      Ok(match_rotations - remainder)
-    }
+    if matches_passed > 0 && remainder == 0 { Ok(0) } else { Ok(match_rotations - remainder) }
   }
 }

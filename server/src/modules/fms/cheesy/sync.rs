@@ -4,7 +4,10 @@ use tokio_tungstenite::tungstenite::Message;
 use crate::{
   core::events::{ChangeEvent, EVENT_BUS},
   generated::{
-    common::{AutoClimbState, CardType, EndgameClimbState, FieldState, MatchFouls, RefereePanelState, TeamAllianceStationType},
+    common::{
+      AutoClimbState, CardType, EndgameClimbState, FieldState, HeadRefereePanelState, MatchFouls, RefereePanelState,
+      TeamAllianceStationType,
+    },
     db::MatchStateRecord,
     fms::FmsMatchInfo,
   },
@@ -249,6 +252,68 @@ fn field_state_command(state: FieldState) -> Option<Message> {
   }
 }
 
+fn cheesy_station_key(station: TeamAllianceStationType) -> Option<&'static str> {
+  match station {
+    TeamAllianceStationType::Red1 => Some("R1"),
+    TeamAllianceStationType::Red2 => Some("R2"),
+    TeamAllianceStationType::Red3 => Some("R3"),
+    TeamAllianceStationType::Blue1 => Some("B1"),
+    TeamAllianceStationType::Blue2 => Some("B2"),
+    TeamAllianceStationType::Blue3 => Some("B3"),
+    TeamAllianceStationType::Unspecified => None,
+  }
+}
+
+#[derive(Clone, Copy, Default, PartialEq)]
+struct BypassState {
+  red: [bool; 3],
+  blue: [bool; 3],
+}
+
+fn bypass_state(hr: Option<&HeadRefereePanelState>) -> BypassState {
+  let Some(hr) = hr else { return BypassState::default() };
+  let red = hr.red_bypass.as_ref();
+  let blue = hr.blue_bypass.as_ref();
+  BypassState {
+    red: [
+      red.is_some_and(|b| b.station_1),
+      red.is_some_and(|b| b.station_2),
+      red.is_some_and(|b| b.station_3),
+    ],
+    blue: [
+      blue.is_some_and(|b| b.station_1),
+      blue.is_some_and(|b| b.station_2),
+      blue.is_some_and(|b| b.station_3),
+    ],
+  }
+}
+
+// The head referee's bypass flag is treated the same way as field_state: whichever way a
+// station's flag flips, Cheesy Arena's own `toggleBypass` is a toggle rather than a "set to
+// X" - so this only stays correct as long as nothing else (Cheesy's native UI, a field
+// restart) flips the actual bypass state out from under us in between.
+fn push_bypass_commands(commands: &mut Vec<Message>, previous: &BypassState, current: &BypassState) {
+  const RED_STATIONS: [TeamAllianceStationType; 3] =
+    [TeamAllianceStationType::Red1, TeamAllianceStationType::Red2, TeamAllianceStationType::Red3];
+  const BLUE_STATIONS: [TeamAllianceStationType; 3] =
+    [TeamAllianceStationType::Blue1, TeamAllianceStationType::Blue2, TeamAllianceStationType::Blue3];
+
+  for (i, station) in RED_STATIONS.into_iter().enumerate() {
+    if previous.red[i] != current.red[i]
+      && let Some(key) = cheesy_station_key(station)
+    {
+      commands.push(encode("toggleBypass", key));
+    }
+  }
+  for (i, station) in BLUE_STATIONS.into_iter().enumerate() {
+    if previous.blue[i] != current.blue[i]
+      && let Some(key) = cheesy_station_key(station)
+    {
+      commands.push(encode("toggleBypass", key));
+    }
+  }
+}
+
 fn diff_commands(
   previous: &CombinedRefereeState,
   current: &CombinedRefereeState,
@@ -299,6 +364,7 @@ pub async fn run(
   let mut ledger = FoulLedger::default();
   let mut current_match_id: Option<i32> = None;
   let mut last_field_state = FieldState::Match;
+  let mut last_bypass = BypassState::default();
   let mut prev_rn = PanelClimbState::default();
   let mut prev_rf = PanelClimbState::default();
   let mut prev_bn = PanelClimbState::default();
@@ -328,6 +394,7 @@ pub async fn run(
           last_sent = CombinedRefereeState::default();
           ledger = FoulLedger::default();
           last_field_state = FieldState::Match;
+          last_bypass = BypassState::default();
           prev_rn = PanelClimbState::default();
           prev_rf = PanelClimbState::default();
           prev_bn = PanelClimbState::default();
@@ -342,6 +409,19 @@ pub async fn run(
             log::warn!("[FMS/sync] Referee panel channel closed, dropping command");
           }
           last_field_state = field_state;
+        }
+
+        let bypass = bypass_state(record.hr.as_ref());
+        if bypass != last_bypass {
+          let mut bypass_commands = Vec::new();
+          push_bypass_commands(&mut bypass_commands, &last_bypass, &bypass);
+          for message in bypass_commands {
+            if referee_cmd_tx.send(message).await.is_err() {
+              log::warn!("[FMS/sync] Referee panel channel closed, dropping command");
+              break;
+            }
+          }
+          last_bypass = bypass;
         }
 
         let combined = combine_match_state(&record);

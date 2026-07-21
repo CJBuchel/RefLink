@@ -91,6 +91,9 @@ pub struct HeadRefereeStreamResponse {
     pub rotate_in: i32,
     #[prost(message, optional, tag = "11")]
     pub panel_presence: ::core::option::Option<PanelPresence>,
+    /// Echoes back the server's authoritative (clamped) copy of the head referee's own
+    /// submitted state - notably `field_state`, since the one-way MATCH->COUNT->RESET
+    /// transition is enforced server-side, not by the submitting client.
     #[prost(message, optional, tag = "12")]
     pub hr: ::core::option::Option<super::common::HeadRefereePanelState>,
 }

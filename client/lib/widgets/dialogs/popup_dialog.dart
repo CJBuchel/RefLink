@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ref_link/colors.dart';
 import 'package:ref_link/utils/grpc_result.dart';
 import 'package:ref_link/widgets/dialogs/base_dialog.dart';
@@ -175,7 +176,7 @@ class PopupDialog extends BaseDialog {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
+                            onPressed: () => context.pop(),
                             child: const Text('OK'),
                           ),
                         ],

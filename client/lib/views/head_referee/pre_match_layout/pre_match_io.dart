@@ -39,23 +39,17 @@ class HeadRefereePreMatchIO extends HookConsumerWidget {
       if (remainingSec < 0) remainingSec = 0;
     }
     // Reading fieldState back from serverState (rather than the locally-submitted state)
-    // keeps the button correct across reconnects and resets it to MATCH automatically once a
-    // new match's record loads. Freely toggles between Count and Reset either direction, so
-    // an accidental press can be corrected.
+    // keeps this correct across reconnects and resets it to MATCH automatically once a new
+    // match's record loads. FieldActionButton itself watches this same server state for its
+    // own display/toggle logic - this copy is only needed here for RelevantInfoPanel and the
+    // warning gate below.
     final fieldState = serverState.hr.fieldState;
-    void onFieldActionPressed() {
-      if (fieldState == FieldState.FIELD_STATE_COUNT) {
-        ref.read(headRefereePanelProvider.notifier).signalFieldReset();
-      } else {
-        ref.read(headRefereePanelProvider.notifier).signalFieldCount();
-      }
-    }
 
-    // Gated on field readiness, not the countdown: in practice a head referee can't call
-    // teams onto a field that isn't reset yet, and cycle time is only a pacing estimate
-    // (Cheesy Arena has no schedule-based gate either - see checkCanStartMatch). The
-    // countdown below is shown purely as an ETA, not a hard requirement.
-    final twoMinuteWarningApplicable = fieldState == FieldState.FIELD_STATE_RESET;
+    // Gated on the estimated start countdown (the same one shown above) rather than field
+    // readiness: applicable as long as the estimated start hasn't passed yet. If there's no
+    // estimate at all (e.g. first match of the event, a big gap - see CheesyEventStatus),
+    // there's nothing to gate on, so allow it rather than blocking the warning.
+    final twoMinuteWarningApplicable = !hasEstimate || remainingSec > 0;
     final twoMinuteWarningExpiresAt = serverState.hr.twoMinuteWarningExpiresAtUnixSec.toInt();
 
     return Row(
@@ -109,10 +103,7 @@ class HeadRefereePreMatchIO extends HookConsumerWidget {
                 ),
               ),
               Expanded(
-                child: FieldActionButton(
-                  state: fieldState,
-                  onPressed: onFieldActionPressed,
-                ),
+                child: FieldActionButton(),
               ),
             ],
           ),

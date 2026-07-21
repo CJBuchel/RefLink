@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:ref_link/providers/referee_panel_provider.dart';
 
-class RefereeModeButtons extends HookConsumerWidget {
-  const RefereeModeButtons({super.key});
+class FoulsCardsModeButtons extends StatelessWidget {
+  final VoidCallback onToggleSubtraction;
+  final VoidCallback onEnterCardMode;
+
+  const FoulsCardsModeButtons({
+    super.key,
+    required this.onToggleSubtraction,
+    required this.onEnterCardMode,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -14,9 +19,7 @@ class RefereeModeButtons extends HookConsumerWidget {
           height: 80,
           width: 250,
           child: OutlinedButton(
-            onPressed: () => ref
-                .read(refereeSubtractionModeProvider.notifier)
-                .toggleSubtractionMode(),
+            onPressed: onToggleSubtraction,
             style: OutlinedButton.styleFrom(
               backgroundColor: Colors.yellow,
               shadowColor: Colors.black,
@@ -39,8 +42,7 @@ class RefereeModeButtons extends HookConsumerWidget {
           height: 80,
           width: 250,
           child: OutlinedButton(
-            onPressed: () =>
-                ref.read(refereeCardModeProvider.notifier).setCardMode(true),
+            onPressed: onEnterCardMode,
             style: OutlinedButton.styleFrom(
               backgroundColor: Colors.orange,
               shadowColor: Colors.black,
