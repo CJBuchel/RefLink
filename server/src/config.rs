@@ -22,6 +22,10 @@ pub struct ServerConfig {
   #[arg(long, default_value_t = 5)]
   pub match_rotations: u16,
 
+  /// Redis connection string
+  #[arg(long, env, default_value = "redis://127.0.0.1/")]
+  pub redis_url: String,
+
   /// Enable the FMS (Cheesy Arena) connector
   #[arg(long, env, default_value_t = true)]
   pub fms_enabled: bool,

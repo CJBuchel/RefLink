@@ -37,7 +37,7 @@ impl Server {
     }
 
     // Init DB
-    if let Err(e) = init_db(None).await {
+    if let Err(e) = init_db(Some(self.config.redis_url.clone())).await {
       log::error!("Failed to initialize database: {}", e);
       return Err(e);
     }

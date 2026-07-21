@@ -5,6 +5,10 @@ services:
       dockerfile: Dockerfile
     environment:
       REDIS_URL: redis://redis:6379
+      FMS_HOST: ${FMS_HOST:-10.0.100.5}
+      FMS_PORT: ${FMS_PORT:-8080}
+      FMS_DISPLAY_ID: ${FMS_DISPLAY_ID:-5333}
+      FMS_ADMIN_PASSWORD: ${FMS_ADMIN_PASSWORD:-}
     depends_on:
       - redis
     ports:
