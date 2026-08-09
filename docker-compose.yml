@@ -9,6 +9,8 @@ services:
       FMS_PORT: ${FMS_PORT:-8080}
       FMS_DISPLAY_ID: ${FMS_DISPLAY_ID:-5333}
       FMS_ADMIN_PASSWORD: ${FMS_ADMIN_PASSWORD:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - redis
     ports:

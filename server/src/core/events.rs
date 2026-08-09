@@ -42,9 +42,16 @@ impl EventBus {
   }
 
   pub fn publish<T: Clone + Send + Sync + 'static>(&self, event: ChangeEvent<T>) -> Result<()> {
-    if let Some(sender_box) = self.channels.get(&TypeId::of::<T>())
-      && let Some(sender) = sender_box.downcast_ref::<broadcast::Sender<ChangeEvent<T>>>()
-    {
+    // Must create the channel here too (not just in `subscribe`) - otherwise a publish that
+    // happens to be the first-ever touch of type `T` (no subscriber has called `subscribe::<T>`
+    // yet) would silently no-op instead of at least registering the channel for whoever
+    // subscribes next.
+    let sender_box = self.channels.entry(TypeId::of::<T>()).or_insert_with(|| {
+      let (tx, _rx) = broadcast::channel::<ChangeEvent<T>>(self.capacity);
+      Box::new(tx) as Box<dyn Any + Send + Sync>
+    });
+
+    if let Some(sender) = sender_box.downcast_ref::<broadcast::Sender<ChangeEvent<T>>>() {
       // Ignored if there are currently no subscribers.
       let _ = sender.send(event);
     }

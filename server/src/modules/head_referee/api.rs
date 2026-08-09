@@ -101,6 +101,7 @@ impl HeadRefereePanelService for HeadRefereeApi {
             match event {
               Ok(ChangeEvent::Record { id, data: Some(record), .. }) if id == fms_info.match_id.to_string() => {
                 match_state = Some(record);
+                rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or(rotation);
                 yield Ok(build_response(&fms_info, match_state.as_ref(), rotation, panel_presence));
               }
               Ok(_) => {}
