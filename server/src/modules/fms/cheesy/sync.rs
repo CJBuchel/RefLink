@@ -376,13 +376,9 @@ pub async fn run(
       // Fire-once relay, no state of our own involved - see BypassToggleRequest.
       event = bypass_rx.recv() => {
         let station = match event {
-          Ok(ChangeEvent::Message { data, .. }) => data.station,
-          Ok(_) => continue,
-          Err(broadcast::error::RecvError::Lagged(n)) => {
-            log::warn!("[FMS/sync] Lagged behind by {n} bypass toggle requests");
-            continue;
-          }
-          Err(broadcast::error::RecvError::Closed) => return,
+          Some(ChangeEvent::Message { data, .. }) => data.station,
+          Some(_) => continue,
+          None => return,
         };
         if let Some(key) = cheesy_station_key(station)
           && referee_cmd_tx.send(encode("toggleBypass", key)).await.is_err()
@@ -399,7 +395,7 @@ pub async fn run(
       // match was actually committed and posted successfully.
       event = commit_rx.recv() => {
         match event {
-          Ok(ChangeEvent::Message { .. }) => {
+          Some(ChangeEvent::Message { .. }) => {
             if referee_cmd_tx.send(encode("commitAndPost", ())).await.is_err() {
               log::warn!("[FMS/sync] Referee panel channel closed, dropping commitAndPost command");
             }
@@ -410,23 +406,15 @@ pub async fn run(
               log::warn!("[FMS/sync] Blue scoring panel channel closed, dropping commitMatch command");
             }
           }
-          Ok(_) => continue,
-          Err(broadcast::error::RecvError::Lagged(n)) => {
-            log::warn!("[FMS/sync] Lagged behind by {n} commit-and-post requests");
-            continue;
-          }
-          Err(broadcast::error::RecvError::Closed) => return,
+          Some(_) => continue,
+          None => return,
         }
       }
       event = state_rx.recv() => {
         let record = match event {
-          Ok(ChangeEvent::Record { data: Some(record), .. }) => record,
-          Ok(_) => continue,
-          Err(broadcast::error::RecvError::Lagged(n)) => {
-            log::warn!("[FMS/sync] Lagged behind by {n} match state events");
-            continue;
-          }
-          Err(broadcast::error::RecvError::Closed) => return,
+          Some(ChangeEvent::Record { data: Some(record), .. }) => record,
+          Some(_) => continue,
+          None => return,
         };
 
         // Cheesy Arena resets its own foul list (and score) whenever it loads a new match, so

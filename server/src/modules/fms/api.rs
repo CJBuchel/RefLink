@@ -1,6 +1,5 @@
 use std::pin::Pin;
 
-use tokio::sync::broadcast;
 use tokio_stream::Stream;
 use tonic::{Request, Response, Status};
 
@@ -46,13 +45,9 @@ impl FmsService for FmsApi {
 
       loop {
         match rx.recv().await {
-          Ok(ChangeEvent::Message { data, .. }) => yield Ok(data),
-          Ok(_) => continue,
-          Err(broadcast::error::RecvError::Lagged(n)) => {
-            log::warn!("StreamMatchInfo lagged behind by {n} events");
-            continue;
-          }
-          Err(broadcast::error::RecvError::Closed) => break,
+          Some(ChangeEvent::Message { data, .. }) => yield Ok(data),
+          Some(_) => continue,
+          None => break,
         }
       }
     };
@@ -70,13 +65,9 @@ impl FmsService for FmsApi {
     let stream = async_stream::stream! {
       loop {
         match rx.recv().await {
-          Ok(ChangeEvent::Message { data, .. }) => yield Ok(data),
-          Ok(_) => continue,
-          Err(broadcast::error::RecvError::Lagged(n)) => {
-            log::warn!("StreamConnectionStatus lagged behind by {n} events");
-            continue;
-          }
-          Err(broadcast::error::RecvError::Closed) => break,
+          Some(ChangeEvent::Message { data, .. }) => yield Ok(data),
+          Some(_) => continue,
+          None => break,
         }
       }
     };

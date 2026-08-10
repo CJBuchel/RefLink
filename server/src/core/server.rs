@@ -31,7 +31,7 @@ impl Server {
     init_config(self.config.clone());
 
     // Init event bus
-    if let Err(e) = init_event_bus(1024) {
+    if let Err(e) = init_event_bus() {
       log::error!("Failed to initialize event bus: {}", e);
       return Err(e);
     }

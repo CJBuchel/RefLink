@@ -1,6 +1,5 @@
-use std::pin::Pin;
+use std::{pin::Pin, time::Duration};
 
-use tokio::sync::broadcast;
 use tokio_stream::{Stream, StreamExt};
 use tonic::{Request, Response, Status};
 
@@ -30,7 +29,24 @@ use crate::{
   },
 };
 
+// The event bus now guarantees delivery of every published event to every subscriber (see
+// core::events::EventBus), so this is no longer compensating for dropped/lagged events - it's a
+// second line of defense against staleness from causes other than the bus itself (e.g. a bug
+// in one of the event-driven branches below, or a state change this stream doesn't subscribe
+// to at all).
+const RECONCILE_INTERVAL: Duration = Duration::from_secs(2);
+
 pub struct HeadRefereeApi;
+
+// Re-derives stream state straight from source of truth (DB/Redis + in-memory presence), the
+// same functions used at stream-start - used for the periodic reconciliation tick.
+async fn reconcile(match_rotations: u16) -> (FmsMatchInfo, Option<MatchStateRecord>, i32, PanelPresence) {
+  let fms_info = FmsMatchInfo::get_current().await.ok().flatten().unwrap_or_default();
+  let match_state = MatchStateRecord::get_match_state(fms_info.match_id).await.ok();
+  let rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or(0);
+  let panel_presence = presence::snapshot();
+  (fms_info, match_state, rotation, panel_presence)
+}
 
 #[tonic::async_trait]
 impl HeadRefereePanelService for HeadRefereeApi {
@@ -75,53 +91,71 @@ impl HeadRefereePanelService for HeadRefereeApi {
     let mut panel_presence = presence::snapshot();
 
     let stream = async_stream::stream! {
-      yield Ok(build_response(&fms_info, match_state.as_ref(), rotation, panel_presence));
+      let mut last = Some(build_response(&fms_info, match_state.as_ref(), rotation, panel_presence));
+      yield Ok(last.clone().unwrap());
+
+      // Fires every RECONCILE_INTERVAL regardless of whether any event arrived, so a client is
+      // never stuck on stale state for longer than that - independent of missed/lagged/dropped
+      // broadcast events, which pure push delivery can never fully rule out.
+      let mut reconcile_tick = tokio::time::interval(RECONCILE_INTERVAL);
+      reconcile_tick.tick().await; // first tick fires immediately - already covered by the yield above
 
       loop {
         tokio::select! {
+          _ = reconcile_tick.tick() => {
+            (fms_info, match_state, rotation, panel_presence) = reconcile(match_rotations).await;
+            let candidate = build_response(&fms_info, match_state.as_ref(), rotation, panel_presence);
+            if last.as_ref() != Some(&candidate) {
+              last = Some(candidate.clone());
+              yield Ok(candidate);
+            }
+          }
           event = fms_rx.recv() => {
             match event {
-              Ok(ChangeEvent::Message { data, .. }) => {
+              Some(ChangeEvent::Message { data, .. }) => {
                 let match_changed = data.match_id != fms_info.match_id;
                 fms_info = data;
                 if match_changed {
                   match_state = MatchStateRecord::get_match_state(fms_info.match_id).await.ok();
                   rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or(rotation);
                 }
-                yield Ok(build_response(&fms_info, match_state.as_ref(), rotation, panel_presence));
+                let candidate = build_response(&fms_info, match_state.as_ref(), rotation, panel_presence);
+                if last.as_ref() != Some(&candidate) {
+                  last = Some(candidate.clone());
+                  yield Ok(candidate);
+                }
               }
-              Ok(_) => {}
-              Err(broadcast::error::RecvError::Lagged(n)) => {
-                log::warn!("HeadRefereeStream lagged behind FMS events by {n}");
-              }
-              Err(broadcast::error::RecvError::Closed) => break,
+              Some(_) => {}
+              None => break,
             }
           }
           event = match_state_rx.recv() => {
             match event {
-              Ok(ChangeEvent::Record { id, data: Some(record), .. }) if id == fms_info.match_id.to_string() => {
+              Some(ChangeEvent::Record { id, data: Some(record), .. }) if id == fms_info.match_id.to_string() => {
                 match_state = Some(record);
                 rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or(rotation);
-                yield Ok(build_response(&fms_info, match_state.as_ref(), rotation, panel_presence));
+                let candidate = build_response(&fms_info, match_state.as_ref(), rotation, panel_presence);
+                if last.as_ref() != Some(&candidate) {
+                  last = Some(candidate.clone());
+                  yield Ok(candidate);
+                }
               }
-              Ok(_) => {}
-              Err(broadcast::error::RecvError::Lagged(n)) => {
-                log::warn!("HeadRefereeStream lagged behind match state events by {n}");
-              }
-              Err(broadcast::error::RecvError::Closed) => break,
+              Some(_) => {}
+              None => break,
             }
           }
           event = presence_rx.recv() => {
             match event {
-              Ok(ChangeEvent::Message { data, .. }) => {
+              Some(ChangeEvent::Message { data, .. }) => {
                 panel_presence = data;
-                yield Ok(build_response(&fms_info, match_state.as_ref(), rotation, panel_presence));
+                let candidate = build_response(&fms_info, match_state.as_ref(), rotation, panel_presence);
+                if last.as_ref() != Some(&candidate) {
+                  last = Some(candidate.clone());
+                  yield Ok(candidate);
+                }
               }
-              Ok(_) => {}
-              Err(broadcast::error::RecvError::Lagged(n)) => {
-                log::warn!("HeadRefereeStream lagged behind presence events by {n}");
-              }
-              Err(broadcast::error::RecvError::Closed) => break,
+              Some(_) => {}
+              None => break,
             }
           }
         }

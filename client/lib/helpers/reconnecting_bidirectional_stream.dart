@@ -84,7 +84,11 @@ class ReconnectingBidirectionalStream<ClientT, ServerT> {
       _connected = true;
       _retryCount = 0;
 
-      onConnected?.call();
+      // Deferred to a microtask so it always fires after the current synchronous provider
+      // build pass finishes - callers that assign `onConnected` from a sibling provider built
+      // in the same pass (regardless of build order) are guaranteed to have it set by the time
+      // this actually runs.
+      Future.microtask(() => onConnected?.call());
     } catch (_) {
       _handleDisconnect();
     } finally {

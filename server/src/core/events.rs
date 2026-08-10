@@ -1,14 +1,17 @@
-use std::any::{Any, TypeId};
+use std::{
+  any::{Any, TypeId},
+  sync::Mutex,
+};
 
 use anyhow::Result;
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
-use tokio::sync::broadcast;
+use tokio::sync::mpsc;
 
 pub static EVENT_BUS: OnceCell<EventBus> = OnceCell::new();
 
-pub fn init_event_bus(capacity: usize) -> Result<()> {
-  EVENT_BUS.set(EventBus::new(capacity)).map_err(|_| anyhow::anyhow!("Event bus already initialized"))
+pub fn init_event_bus() -> Result<()> {
+  EVENT_BUS.set(EventBus::new()).map_err(|_| anyhow::anyhow!("Event bus already initialized"))
 }
 
 #[derive(Clone, Debug)]
@@ -28,47 +31,59 @@ pub enum ChangeEvent<T> {
   Message { topic: String, data: T },
 }
 
-/// A type-keyed multi-channel broadcast bus: one broadcast channel is lazily created per
-/// distinct event payload type `T`, so unrelated domains (e.g. FMS match info vs referee
-/// panel state) don't need to share a single giant event enum.
+type Subscribers<T> = Mutex<Vec<mpsc::UnboundedSender<ChangeEvent<T>>>>;
+
+/// A type-keyed fan-out event bus: one unbounded queue per subscriber, not one shared bounded
+/// broadcast channel. A shared bounded channel means a single slow/busy consumer can force its
+/// own old events to be evicted once the buffer fills (a "lagged" gap the consumer has no way
+/// to fill back in), even though every other consumer was keeping up fine. Giving each
+/// subscriber its own unbounded queue instead means every event published after it subscribes
+/// is guaranteed to reach it, in order, queued for as long as it takes to actually read it -
+/// there is no lagged/dropped state to handle. Event volume here is low-frequency, per-match
+/// domain events (match state, presence, FMS info), not a high-throughput stream, so unbounded
+/// queuing per subscriber is safe: a queue only grows if a subscriber's task has stalled or
+/// leaked, which is itself a bug worth surfacing rather than silently masking via eviction.
 pub struct EventBus {
   channels: DashMap<TypeId, Box<dyn Any + Send + Sync>>,
-  capacity: usize,
 }
 
 impl EventBus {
-  pub fn new(capacity: usize) -> Self {
-    Self { channels: DashMap::new(), capacity }
+  pub fn new() -> Self {
+    Self { channels: DashMap::new() }
   }
 
   pub fn publish<T: Clone + Send + Sync + 'static>(&self, event: ChangeEvent<T>) -> Result<()> {
-    // Must create the channel here too (not just in `subscribe`) - otherwise a publish that
-    // happens to be the first-ever touch of type `T` (no subscriber has called `subscribe::<T>`
-    // yet) would silently no-op instead of at least registering the channel for whoever
-    // subscribes next.
-    let sender_box = self.channels.entry(TypeId::of::<T>()).or_insert_with(|| {
-      let (tx, _rx) = broadcast::channel::<ChangeEvent<T>>(self.capacity);
-      Box::new(tx) as Box<dyn Any + Send + Sync>
-    });
+    // Must create the channel entry here too (not just in `subscribe`) - otherwise a publish
+    // that happens to be the first-ever touch of type `T` (no subscriber has called
+    // `subscribe::<T>` yet) would silently no-op instead of at least registering the channel
+    // for whoever subscribes next.
+    let entry = self
+      .channels
+      .entry(TypeId::of::<T>())
+      .or_insert_with(|| Box::new(Subscribers::<T>::new(Vec::new())) as Box<dyn Any + Send + Sync>);
 
-    if let Some(sender) = sender_box.downcast_ref::<broadcast::Sender<ChangeEvent<T>>>() {
-      // Ignored if there are currently no subscribers.
-      let _ = sender.send(event);
+    if let Some(subscribers) = entry.downcast_ref::<Subscribers<T>>() {
+      let mut senders = subscribers.lock().unwrap();
+      // Prunes closed subscribers (dropped receivers, e.g. a client disconnected) as a side
+      // effect of sending, so the list doesn't grow unbounded over the server's lifetime.
+      senders.retain(|tx| tx.send(event.clone()).is_ok());
     }
 
     Ok(())
   }
 
-  pub fn subscribe<T: Clone + Send + Sync + 'static>(&self) -> Result<broadcast::Receiver<ChangeEvent<T>>> {
-    let sender_box = self.channels.entry(TypeId::of::<T>()).or_insert_with(|| {
-      let (tx, _rx) = broadcast::channel::<ChangeEvent<T>>(self.capacity);
-      Box::new(tx) as Box<dyn Any + Send + Sync>
-    });
+  pub fn subscribe<T: Clone + Send + Sync + 'static>(&self) -> Result<mpsc::UnboundedReceiver<ChangeEvent<T>>> {
+    let entry = self
+      .channels
+      .entry(TypeId::of::<T>())
+      .or_insert_with(|| Box::new(Subscribers::<T>::new(Vec::new())) as Box<dyn Any + Send + Sync>);
 
-    let sender = sender_box
-      .downcast_ref::<broadcast::Sender<ChangeEvent<T>>>()
+    let subscribers = entry
+      .downcast_ref::<Subscribers<T>>()
       .ok_or_else(|| anyhow::anyhow!("Event bus channel type mismatch"))?;
 
-    Ok(sender.subscribe())
+    let (tx, rx) = mpsc::unbounded_channel();
+    subscribers.lock().unwrap().push(tx);
+    Ok(rx)
   }
 }
