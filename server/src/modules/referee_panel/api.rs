@@ -112,7 +112,10 @@ impl RefereePanelService for RefereePanelApi {
 
       // Fires every RECONCILE_INTERVAL regardless of whether any event arrived, so a client is
       // never stuck on stale state for longer than that - independent of missed/lagged/dropped
-      // broadcast events, which pure push delivery can never fully rule out.
+      // broadcast events, which pure push delivery can never fully rule out. Always yields
+      // (even when nothing changed) so this doubles as a heartbeat - the client uses a gap in
+      // receiving *anything* to detect a silently-wedged stream and force a reconnect, which
+      // only works if silence during genuinely idle periods is impossible to confuse with that.
       let mut reconcile_tick = tokio::time::interval(RECONCILE_INTERVAL);
       reconcile_tick.tick().await; // first tick fires immediately - already covered by the yield above
 
@@ -121,10 +124,8 @@ impl RefereePanelService for RefereePanelApi {
           _ = reconcile_tick.tick() => {
             (fms_info, match_state, rotation) = reconcile(match_rotations).await;
             let candidate = build_response(&fms_info, match_state.as_ref(), panel_type, rotation);
-            if last.as_ref() != Some(&candidate) {
-              last = Some(candidate.clone());
-              yield Ok(candidate);
-            }
+            last = Some(candidate.clone());
+            yield Ok(candidate);
           }
           event = fms_rx.recv() => {
             match event {

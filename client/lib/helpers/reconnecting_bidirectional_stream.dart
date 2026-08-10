@@ -16,6 +16,13 @@ class ReconnectingBidirectionalStream<ClientT, ServerT> {
     this._connect, {
     this.retryDelay = const Duration(seconds: 1),
     this.maxRetryDelay = const Duration(seconds: 16),
+    // The server sends a heartbeat (real update or unchanged-state repeat) at least every 2s
+    // on every subscription it serves - see RECONCILE_INTERVAL server-side. A gap this much
+    // longer than that means the underlying HTTP/2 stream has gone silent (e.g. a lost/delayed
+    // WINDOW_UPDATE wedging just this one stream's flow-control window - the connection and any
+    // brand-new call on it keep working fine, which is why this can hide behind an otherwise
+    // "connected" state indefinitely unless something actively watches for silence).
+    this.livenessTimeout = const Duration(seconds: 8),
     this.onConnected,
     this.onDisconnected,
   });
@@ -38,6 +45,7 @@ class ReconnectingBidirectionalStream<ClientT, ServerT> {
 
   final Duration retryDelay;
   final Duration maxRetryDelay;
+  final Duration livenessTimeout;
 
   final StreamController<ServerT> _incoming =
       StreamController<ServerT>.broadcast();
@@ -47,6 +55,7 @@ class ReconnectingBidirectionalStream<ClientT, ServerT> {
   StreamSubscription<ServerT>? _subscription;
 
   Timer? _retryTimer;
+  Timer? _livenessTimer;
 
   bool _closed = false;
   bool _connecting = false;
@@ -83,6 +92,7 @@ class ReconnectingBidirectionalStream<ClientT, ServerT> {
 
       _connected = true;
       _retryCount = 0;
+      _resetLivenessTimer();
 
       // Deferred to a microtask so it always fires after the current synchronous provider
       // build pass finishes - callers that assign `onConnected` from a sibling provider built
@@ -96,11 +106,30 @@ class ReconnectingBidirectionalStream<ClientT, ServerT> {
     }
   }
 
+  void _resetLivenessTimer() {
+    _livenessTimer?.cancel();
+    _livenessTimer = Timer(livenessTimeout, _handleStaleConnection);
+  }
+
+  // The stream never errored or closed - gRPC/TCP has no idea anything is wrong - but nothing
+  // has arrived in `livenessTimeout`, well past the server's heartbeat cadence. Force a full
+  // reconnect: a fresh call gets a brand-new HTTP/2 stream (and flow-control window), sidestepping
+  // whatever wedged the old one instead of waiting indefinitely for an error that may never come.
+  void _handleStaleConnection() {
+    if (_closed || !_connected) {
+      return;
+    }
+
+    debugPrint('ReconnectingBidirectionalStream: no data for $livenessTimeout, forcing reconnect');
+    _handleDisconnect();
+  }
+
   void _handleMessage(ServerT message) {
     if (_closed) {
       return;
     }
 
+    _resetLivenessTimer();
     _incoming.add(message);
   }
 
@@ -121,6 +150,9 @@ class ReconnectingBidirectionalStream<ClientT, ServerT> {
     if (_closed) {
       return;
     }
+
+    _livenessTimer?.cancel();
+    _livenessTimer = null;
 
     if (_connected) {
       _connected = false;
@@ -155,6 +187,7 @@ class ReconnectingBidirectionalStream<ClientT, ServerT> {
     _closed = true;
 
     _retryTimer?.cancel();
+    _livenessTimer?.cancel();
 
     await _subscription?.cancel();
     await _outgoing?.close();
