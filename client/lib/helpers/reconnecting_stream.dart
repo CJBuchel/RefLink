@@ -13,17 +13,28 @@ class ReconnectingStream<T> {
   StreamController<bool>? _connectionStateController;
   StreamSubscription<T>? _subscription;
   Timer? _retryTimer;
+  Timer? _livenessTimer;
   bool _closed = false;
   bool _isConnected = false;
   int _retryCount = 0;
+
+  final Duration _livenessTimeout;
 
   ReconnectingStream(
     Future<ResponseStream<T>> Function() createStream, {
     Duration retryDelay = const Duration(seconds: 1),
     Duration maxRetryDelay = const Duration(seconds: 16),
+    // The server heartbeats at least every HEARTBEAT_INTERVAL on every stream it serves (see
+    // server core::events::with_heartbeat) - a gap this much longer means the stream has gone
+    // silently unresponsive without gRPC/TCP raising an error on either side (e.g. a lost
+    // WINDOW_UPDATE wedging this one stream's flow-control window; the underlying connection
+    // and any brand-new call on it keep working fine, which is why this can hide behind an
+    // otherwise "connected" state indefinitely unless something actively watches for silence).
+    Duration livenessTimeout = const Duration(seconds: 8),
   }) : _createStream = createStream,
        _retryDelay = retryDelay,
-       _maxRetryDelay = maxRetryDelay;
+       _maxRetryDelay = maxRetryDelay,
+       _livenessTimeout = livenessTimeout;
 
   Stream<T> get stream {
     _controller ??= StreamController<T>.broadcast(onListen: _connect);
@@ -67,9 +78,11 @@ class ReconnectingStream<T> {
     try {
       final grpcStream = await _createStream();
       bool firstDataReceived = false;
+      _resetLivenessTimer();
       _subscription = grpcStream.listen(
         (data) {
           if (!_closed) {
+            _resetLivenessTimer();
             if (!firstDataReceived) {
               firstDataReceived = true;
               _setConnectionState(true); // Only set connected after first data
@@ -102,9 +115,28 @@ class ReconnectingStream<T> {
     }
   }
 
+  void _resetLivenessTimer() {
+    _livenessTimer?.cancel();
+    _livenessTimer = Timer(_livenessTimeout, _handleStaleConnection);
+  }
+
+  // The stream never errored or completed - gRPC/TCP has no idea anything is wrong - but
+  // nothing has arrived in `_livenessTimeout`, well past the server's heartbeat cadence. Force
+  // a reconnect: a fresh call gets a brand-new HTTP/2 stream, sidestepping whatever wedged the
+  // old one instead of waiting indefinitely for an error that may never come.
+  void _handleStaleConnection() {
+    if (_closed) return;
+
+    logger.w('Stream stale (no data for $_livenessTimeout), forcing reconnect');
+    _setConnectionState(false);
+    _scheduleReconnect();
+  }
+
   void _scheduleReconnect() {
     _subscription?.cancel();
     _retryTimer?.cancel();
+    _livenessTimer?.cancel();
+    _livenessTimer = null;
 
     // Exponential backoff: 1s, 2s, 4s, 8s... up to maxRetryDelay
     final delayMs = (_retryDelay.inMilliseconds * (1 << _retryCount)).clamp(
@@ -122,6 +154,7 @@ class ReconnectingStream<T> {
     _closed = true;
     _setConnectionState(false);
     _retryTimer?.cancel();
+    _livenessTimer?.cancel();
     _subscription?.cancel();
     _controller?.close();
     _connectionStateController?.close();

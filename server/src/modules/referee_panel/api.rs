@@ -1,4 +1,4 @@
-use std::{pin::Pin, time::Duration};
+use std::pin::Pin;
 
 use tokio::sync::watch;
 use tokio_stream::{Stream, StreamExt};
@@ -7,7 +7,7 @@ use tonic::{Request, Response, Status};
 use crate::{
   config::CONFIG,
   core::{
-    events::{ChangeEvent, EVENT_BUS},
+    events::{ChangeEvent, EVENT_BUS, HEARTBEAT_INTERVAL, with_heartbeat},
     shutdown::with_shutdown,
   },
   generated::{
@@ -25,13 +25,6 @@ use crate::{
     referee_panel::presence,
   },
 };
-
-// The event bus now guarantees delivery of every published event to every subscriber (see
-// core::events::EventBus), so this is no longer compensating for dropped/lagged events - it's a
-// second line of defense against staleness from causes other than the bus itself (e.g. a bug
-// in one of the event-driven branches below, or a state change this stream doesn't subscribe
-// to at all).
-const RECONCILE_INTERVAL: Duration = Duration::from_secs(2);
 
 pub struct RefereePanelApi;
 
@@ -106,27 +99,17 @@ impl RefereePanelService for RefereePanelApi {
     let mut rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or(0);
     let mut panel_type: Option<PanelType> = None;
 
-    let stream = async_stream::stream! {
-      let mut last = Some(build_response(&fms_info, match_state.as_ref(), panel_type, rotation));
-      yield Ok(last.clone().unwrap());
+    // Cloned before `panel_type_rx` is moved into `events` below - `resync` needs its own
+    // independent handle so it can read the current panel type at any later heartbeat tick.
+    let panel_type_rx_for_resync = panel_type_rx.clone();
 
-      // Fires every RECONCILE_INTERVAL regardless of whether any event arrived, so a client is
-      // never stuck on stale state for longer than that - independent of missed/lagged/dropped
-      // broadcast events, which pure push delivery can never fully rule out. Always yields
-      // (even when nothing changed) so this doubles as a heartbeat - the client uses a gap in
-      // receiving *anything* to detect a silently-wedged stream and force a reconnect, which
-      // only works if silence during genuinely idle periods is impossible to confuse with that.
-      let mut reconcile_tick = tokio::time::interval(RECONCILE_INTERVAL);
-      reconcile_tick.tick().await; // first tick fires immediately - already covered by the yield above
+    // Yields a fresh candidate on every relevant event, with no dedup of its own -
+    // `with_heartbeat` below de-dupes and also fills the gaps between events.
+    let events = async_stream::stream! {
+      yield build_response(&fms_info, match_state.as_ref(), panel_type, rotation);
 
       loop {
         tokio::select! {
-          _ = reconcile_tick.tick() => {
-            (fms_info, match_state, rotation) = reconcile(match_rotations).await;
-            let candidate = build_response(&fms_info, match_state.as_ref(), panel_type, rotation);
-            last = Some(candidate.clone());
-            yield Ok(candidate);
-          }
           event = fms_rx.recv() => {
             match event {
               Some(ChangeEvent::Message { data, .. }) => {
@@ -136,11 +119,7 @@ impl RefereePanelService for RefereePanelApi {
                   match_state = MatchStateRecord::get_match_state(fms_info.match_id).await.ok();
                   rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or(rotation);
                 }
-                let candidate = build_response(&fms_info, match_state.as_ref(), panel_type, rotation);
-                if last.as_ref() != Some(&candidate) {
-                  last = Some(candidate.clone());
-                  yield Ok(candidate);
-                }
+                yield build_response(&fms_info, match_state.as_ref(), panel_type, rotation);
               }
               Some(_) => {}
               None => break,
@@ -151,11 +130,7 @@ impl RefereePanelService for RefereePanelApi {
               Some(ChangeEvent::Record { id, data: Some(record), .. }) if id == fms_info.match_id.to_string() => {
                 match_state = Some(record);
                 rotation = MatchStateRecord::compute_rotation(match_rotations).await.unwrap_or(rotation);
-                let candidate = build_response(&fms_info, match_state.as_ref(), panel_type, rotation);
-                if last.as_ref() != Some(&candidate) {
-                  last = Some(candidate.clone());
-                  yield Ok(candidate);
-                }
+                yield build_response(&fms_info, match_state.as_ref(), panel_type, rotation);
               }
               Some(_) => {}
               None => break,
@@ -163,15 +138,22 @@ impl RefereePanelService for RefereePanelApi {
           }
           _ = panel_type_rx.changed() => {
             panel_type = *panel_type_rx.borrow();
-            let candidate = build_response(&fms_info, match_state.as_ref(), panel_type, rotation);
-            if last.as_ref() != Some(&candidate) {
-              last = Some(candidate.clone());
-              yield Ok(candidate);
-            }
+            yield build_response(&fms_info, match_state.as_ref(), panel_type, rotation);
           }
         }
       }
     };
+
+    let resync = move || {
+      let panel_type_rx = panel_type_rx_for_resync.clone();
+      async move {
+        let (fms_info, match_state, rotation) = reconcile(match_rotations).await;
+        let panel_type = *panel_type_rx.borrow();
+        build_response(&fms_info, match_state.as_ref(), panel_type, rotation)
+      }
+    };
+
+    let stream = with_heartbeat(events, HEARTBEAT_INTERVAL, resync).map(Ok);
 
     Ok(Response::new(Box::pin(with_shutdown(stream))))
   }
