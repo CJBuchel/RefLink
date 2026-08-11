@@ -151,11 +151,13 @@ impl Accumulator {
   // quick succession (abort immediately followed by discard results), a downstream watcher
   // can miss the intermediate PostMatch value entirely and never notice the transition. This
   // accumulator processes every field message in order, so it can't miss it.
+  //
+  // No match_id == 0 special case: Cheesy's Test match type is never assigned a real match
+  // id and always reports 0, so a guard here would silently disable this exact reset for
+  // every test-match redo. The PostMatch -> PreMatch transition itself is what's gated on,
+  // and idle/no-match-loaded state never reaches STATE_POST_MATCH, so this can't misfire
+  // while the field just sits idle.
   fn check_match_reset(&mut self) -> Option<i32> {
-    if self.match_id == 0 {
-      return None;
-    }
-
     if self.match_state == STATE_POST_MATCH {
       self.reset_pending_for = Some(self.match_id);
       None

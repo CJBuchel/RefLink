@@ -108,7 +108,10 @@ impl Table {
 
   async fn __get_record<T: Message + Default>(&mut self, id: String) -> Result<Option<T>> {
     let full_key = format!("{}:{}:{}", self.name, DATA_PREFIX, id);
-    let bytes: Vec<u8> = match self.db_con.get(full_key).await {
+    // Typed as Option<Vec<u8>> so a missing key (Nil) is distinguishable from a key that
+    // exists but holds zero bytes - which happens legitimately, since prost never encodes
+    // default-valued fields, so an all-default record serializes to an empty byte string.
+    let bytes: Option<Vec<u8>> = match self.db_con.get(full_key).await {
       Ok(v) => v,
       Err(e) => {
         log::error!("Failed to get record from Redis: {}", e);
@@ -116,10 +119,10 @@ impl Table {
       }
     };
 
-    // If bytes are empty, the key doesn't exist
-    if bytes.is_empty() {
-      return Ok(None);
-    }
+    let bytes = match bytes {
+      Some(b) => b,
+      None => return Ok(None),
+    };
 
     let record: T = match Message::decode(bytes.as_slice()) {
       Ok(rec) => rec,
@@ -143,8 +146,9 @@ impl Table {
 
     let full_keys: Vec<String> = ids.iter().map(|id| format!("{}:{}:{}", self.name, DATA_PREFIX, id)).collect();
 
-    // Get all values at once
-    let bytes_vec: Vec<Vec<u8>> = match self.db_con.mget(full_keys).await {
+    // Get all values at once. Typed as Option<Vec<u8>> per-key so a missing key (Nil) is
+    // distinguishable from a key that exists but holds zero bytes (see __get_record).
+    let bytes_vec: Vec<Option<Vec<u8>>> = match self.db_con.mget(full_keys).await {
       Ok(v) => v,
       Err(e) => {
         log::error!("Failed to get records from Redis: {}", e);
@@ -153,9 +157,10 @@ impl Table {
     };
 
     for (id, bytes) in ids.into_iter().zip(bytes_vec.into_iter()) {
-      if bytes.is_empty() {
-        continue; // Skip non-existing records
-      }
+      let bytes = match bytes {
+        Some(b) => b,
+        None => continue, // Skip non-existing records
+      };
 
       let record: T = match Message::decode(bytes.as_slice()) {
         Ok(rec) => rec,
