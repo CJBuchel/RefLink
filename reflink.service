@@ -1,0 +1,15 @@
+[Unit]
+Description=RefLink server
+After=network.target redis-server.service mosquitto.service
+Wants=redis-server.service mosquitto.service
+
+[Service]
+Type=simple
+WorkingDirectory=/root/RefLink
+ExecStart=/root/RefLink/target/release/server
+EnvironmentFile=/root/RefLink/.env
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
