@@ -69,6 +69,27 @@ extension MqttPublishing on MqttServerClient {
   }
 }
 
+/// Subscribes to `topic`, waiting for an actual connection first if necessary. `client.subscribe`
+/// throws synchronously if called before the client reaches `connected` state - `Mqtt.build()`
+/// fires `connect()` without awaiting it (Riverpod's `build()` can't be async), so a provider
+/// built before that connect resolves would otherwise crash the whole widget tree instead of
+/// just waiting its turn. Only needs to handle the very first connect - `resubscribeOnAutoReconnect`
+/// covers every reconnect after that automatically.
+void subscribeTopic(MqttServerClient client, String topic) {
+  if (client.connectionStatus?.state == MqttConnectionState.connected) {
+    client.subscribe(topic, MqttQos.atLeastOnce);
+    return;
+  }
+
+  late final StreamSubscription<bool> subscription;
+  subscription = _connectionStateController.stream.listen((connected) {
+    if (connected) {
+      client.subscribe(topic, MqttQos.atLeastOnce);
+      subscription.cancel();
+    }
+  });
+}
+
 /// Every subscribed topic's messages arrive on the client's single shared `updates` stream -
 /// this filters it down to one topic and decodes each payload, subscribing to the topic as a
 /// side effect. Multiple callers filtering the same broadcast stream independently is fine
@@ -79,7 +100,7 @@ Stream<T> subscribeDecoded<T extends GeneratedMessage>(
   String topic,
   T Function(List<int>) fromBuffer,
 ) {
-  client.subscribe(topic, MqttQos.atLeastOnce);
+  subscribeTopic(client, topic);
 
   return client.updates!.expand((event) => event).where((msg) => msg.topic == topic).map((msg) {
     final publish = msg.payload as MqttPublishMessage;
@@ -144,12 +165,32 @@ class Mqtt extends _$Mqtt {
       _connectionStateController.add(false);
     };
 
-    client.connect().catchError((Object e) {
-      logger.e('MQTT connect failed: $e');
-      return null;
+    var closed = false;
+    ref.onDispose(() {
+      closed = true;
+      client.disconnect();
     });
 
-    ref.onDispose(client.disconnect);
+    // `autoReconnect` (set above) explicitly does not cover a failed *initial* connect per
+    // mqtt_client's own docs - it only takes over once a connection has succeeded at least
+    // once. Without retrying here, the broker being briefly unreachable at app startup (e.g.
+    // the tablet powers on before the server/broker does) would leave the client stuck
+    // disconnected forever instead of ever getting the chance to succeed later.
+    Future<void> connectWithRetry() async {
+      var delay = const Duration(seconds: 1);
+      while (!closed) {
+        try {
+          await client.connect();
+          return;
+        } catch (e) {
+          logger.e('MQTT connect failed: $e, retrying in $delay');
+          await Future<void>.delayed(delay);
+          delay = delay * 2 > const Duration(seconds: 16) ? const Duration(seconds: 16) : delay * 2;
+        }
+      }
+    }
+
+    connectWithRetry();
 
     return client;
   }

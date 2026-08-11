@@ -25,7 +25,7 @@ class RefereePanelPresence extends _$RefereePanelPresence {
   @override
   PanelPresence build() {
     final client = ref.watch(mqttProvider);
-    client.subscribe(presenceTopicWildcard, MqttQos.atLeastOnce);
+    subscribeTopic(client, presenceTopicWildcard);
 
     final subscription = client.updates!
         .expand((event) => event)

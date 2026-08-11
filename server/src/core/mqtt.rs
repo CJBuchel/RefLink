@@ -44,6 +44,7 @@ pub async fn init_mqtt(config: MqttConfig, topics: &[&str]) -> Result<()> {
   let (client, mut eventloop) = AsyncClient::new(options, 256);
 
   for topic in topics {
+    log::info!("[MQTT] Subscribing to {topic}");
     client.subscribe(*topic, QoS::AtLeastOnce).await?;
   }
 
@@ -53,7 +54,14 @@ pub async fn init_mqtt(config: MqttConfig, topics: &[&str]) -> Result<()> {
   tokio::spawn(async move {
     loop {
       match eventloop.poll().await {
+        Ok(rumqttc::Event::Incoming(rumqttc::Packet::ConnAck(ack))) => {
+          log::info!("[MQTT] Connected to broker ({ack:?})");
+        }
+        Ok(rumqttc::Event::Incoming(rumqttc::Packet::SubAck(ack))) => {
+          log::info!("[MQTT] Subscription acknowledged ({ack:?})");
+        }
         Ok(rumqttc::Event::Incoming(rumqttc::Packet::Publish(publish))) => {
+          log::info!("[MQTT] Incoming publish: topic={} len={}", publish.topic, publish.payload.len());
           if let Some(bus) = EVENT_BUS.get() {
             let inbound = MqttInbound { topic: publish.topic, payload: publish.payload.to_vec() };
             let _ = bus.publish(ChangeEvent::Message { topic: inbound.topic.clone(), data: inbound });

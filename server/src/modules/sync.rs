@@ -94,19 +94,25 @@ fn build_response(
 }
 
 async fn publish_match_state(response: &HeadRefereeStreamResponse) {
+  log::info!("[sync] Publishing match state (rotate_in={})", response.rotate_in);
   if let Err(e) = mqtt::publish(TOPIC_MATCH_STATE, true, response).await {
     log::warn!("[sync] Failed to publish match state: {e}");
   }
 }
 
 async fn handle_submit(inbound: MqttInbound) {
+  log::info!("[sync] handle_submit: topic={}", inbound.topic);
+
   if let Some(panel) = panel_from_submit_topic(&inbound.topic) {
     match RefereeStreamRequest::decode(inbound.payload.as_slice()) {
       Ok(request) => {
-        if let Some(state) = request.state
-          && let Err(e) = MatchStateRecord::update_panel_state(request.match_id, panel, state).await
-        {
-          log::warn!("[sync] Failed to update panel state: {e}");
+        if let Some(state) = request.state {
+          match MatchStateRecord::update_panel_state(request.match_id, panel, state).await {
+            Ok(_) => log::info!("[sync] Updated panel state for match {} ({panel:?})", request.match_id),
+            Err(e) => log::warn!("[sync] Failed to update panel state: {e}"),
+          }
+        } else {
+          log::warn!("[sync] Referee panel submit had no state field");
         }
       }
       Err(e) => log::warn!("[sync] Failed to decode referee panel submit: {e}"),
@@ -114,14 +120,19 @@ async fn handle_submit(inbound: MqttInbound) {
   } else if inbound.topic == TOPIC_HEAD_REFEREE_SUBMIT {
     match HeadRefereeStreamRequest::decode(inbound.payload.as_slice()) {
       Ok(request) => {
-        if let Some(state) = request.state
-          && let Err(e) = MatchStateRecord::update_head_referee_state(request.match_id, state).await
-        {
-          log::warn!("[sync] Failed to update head referee state: {e}");
+        if let Some(state) = request.state {
+          match MatchStateRecord::update_head_referee_state(request.match_id, state).await {
+            Ok(_) => log::info!("[sync] Updated head referee state for match {}", request.match_id),
+            Err(e) => log::warn!("[sync] Failed to update head referee state: {e}"),
+          }
+        } else {
+          log::warn!("[sync] Head referee submit had no state field");
         }
       }
       Err(e) => log::warn!("[sync] Failed to decode head referee submit: {e}"),
     }
+  } else {
+    log::warn!("[sync] Unrecognized submit topic: {}", inbound.topic);
   }
 }
 

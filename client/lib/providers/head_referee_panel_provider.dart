@@ -75,6 +75,18 @@ class HeadRefereePanel extends _$HeadRefereePanel {
         : HeadRefereeStreamRequest();
 
     buffer.matchId = matchId;
+
+    // Republish on every (re)connect - a publish attempt while genuinely disconnected just
+    // silently no-ops (see MqttPublishing._publishBytes), and unlike subscriptions there's no
+    // automatic resend-on-reconnect for publishes otherwise.
+    final client = ref.read(mqttProvider);
+    final connectionSubscription = mqttConnectionStatusStream(client).listen((connected) {
+      if (connected) {
+        ref.read(mqttProvider).publishProto(headRefereeSubmitTopic, state);
+      }
+    });
+    ref.onDispose(connectionSubscription.cancel);
+
     return buffer;
   }
 

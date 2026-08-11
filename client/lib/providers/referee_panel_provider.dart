@@ -99,10 +99,19 @@ class RefereePanel extends _$RefereePanel {
     buffer.panel = panelType;
     buffer.matchId = matchId;
 
-    // Presence is now broker-native (LWT + retained, see mqtt_provider.dart) - the panel just
-    // needs to keep publishing its own submitted state, no separate identity handshake to get
-    // right or lose track of on reconnect.
     _publish(buffer);
+
+    // A publish attempt while genuinely disconnected just silently no-ops (see
+    // MqttPublishing._publishBytes) - unlike subscriptions, there's no automatic "resend on
+    // reconnect" for publishes, so this covers it explicitly. Same class of bug as the old
+    // gRPC `onConnected` identity race fixed earlier this session: without this, a connect
+    // that lands after this provider already built (racing the very first connect, or any
+    // later reconnect) would leave the broker never hearing this panel's state.
+    final client = ref.read(mqttProvider);
+    final connectionSubscription = mqttConnectionStatusStream(client).listen((connected) {
+      if (connected) _publish(state);
+    });
+    ref.onDispose(connectionSubscription.cancel);
 
     return buffer;
   }
