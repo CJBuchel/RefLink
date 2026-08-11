@@ -112,6 +112,57 @@ abstract class _$ServerApiPort extends $Notifier<int> {
   }
 }
 
+@ProviderFor(MqttPort)
+final mqttPortProvider = MqttPortProvider._();
+
+final class MqttPortProvider extends $NotifierProvider<MqttPort, int> {
+  MqttPortProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'mqttPortProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$mqttPortHash();
+
+  @$internal
+  @override
+  MqttPort create() => MqttPort();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$mqttPortHash() => r'32e275ef101ead03f8eea1ae764711daabb75502';
+
+abstract class _$MqttPort extends $Notifier<int> {
+  int build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<int, int>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<int, int>,
+              int,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(Tls)
 final tlsProvider = TlsProvider._();
 

@@ -92,4 +92,4 @@ final class ArenaMatchInfoProvider
   }
 }
 
-String _$arenaMatchInfoHash() => r'051d1231a0f887b928753f8d6b7515a1f2efdd0a';
+String _$arenaMatchInfoHash() => r'59ab23b906ab25f1c7b2f19f96da2f291e149950';

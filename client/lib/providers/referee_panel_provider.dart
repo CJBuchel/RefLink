@@ -2,72 +2,68 @@ import 'package:ref_link/generated/api.pbgrpc.dart';
 import 'package:ref_link/helpers/local_storage.dart';
 import 'package:ref_link/helpers/protobuf_helper.dart';
 import 'package:ref_link/models/panel_types.dart';
+import 'package:ref_link/providers/mqtt_provider.dart';
 import 'package:ref_link/providers/panel_id_provider.dart';
 import 'package:ref_link/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:ref_link/helpers/reconnecting_bidirectional_stream.dart';
-import 'package:ref_link/providers/grpc_channel_provider.dart';
 
 part 'referee_panel_provider.g.dart';
-
-@Riverpod(keepAlive: true)
-RefereePanelServiceClient refereePanelService(Ref ref) {
-  final channel = ref.watch(grpcChannelProvider);
-  return RefereePanelServiceClient(channel);
-}
-
-@Riverpod(keepAlive: true)
-ReconnectingBidirectionalStream<RefereeStreamRequest, RefereeStreamResponse>
-refereePanelConnection(Ref ref) {
-  final client = ref.watch(refereePanelServiceProvider);
-
-  final connection =
-      ReconnectingBidirectionalStream<
-        RefereeStreamRequest,
-        RefereeStreamResponse
-      >((outgoing) => client.refereeStream(outgoing));
-
-  ref.onDispose(connection.close);
-
-  return connection;
-}
 
 @Riverpod(keepAlive: true)
 class RefereePanelServer extends _$RefereePanelServer {
   static const _key = "refereePanelServerState";
 
-  RefereeStreamResponse getRefereePanelServerState() {
+  HeadRefereeStreamResponse getRefereePanelServerState() {
     final buffer = localStorage.getString(_key);
     return buffer != null
-        ? ProtobufHelper.decode(buffer, RefereeStreamResponse.fromBuffer)
-        : RefereeStreamResponse();
+        ? ProtobufHelper.decode(buffer, HeadRefereeStreamResponse.fromBuffer)
+        : HeadRefereeStreamResponse();
   }
 
-  void _setRefereePanelServerState(RefereeStreamResponse newState) {
+  void _setRefereePanelServerState(HeadRefereeStreamResponse newState) {
     localStorage.setString(_key, ProtobufHelper.encode(newState));
   }
 
-  void _updateState(RefereeStreamResponse newState) {
+  void _updateState(HeadRefereeStreamResponse newState) {
     state = newState;
     _setRefereePanelServerState(newState);
   }
 
   @override
-  RefereeStreamResponse build() {
-    final connection = ref.read(refereePanelConnectionProvider);
-
-    connection.stream.listen((message) {
-      _updateState(message);
-    });
+  HeadRefereeStreamResponse build() {
+    final client = ref.watch(mqttProvider);
+    final subscription = subscribeDecoded(
+      client,
+      matchStateTopic,
+      HeadRefereeStreamResponse.fromBuffer,
+    ).listen(_updateState);
+    ref.onDispose(subscription.cancel);
 
     return getRefereePanelServerState();
+  }
+}
+
+// Near/far panels pair up across the field and see each other's calls; mirrors
+// `partner_panel_state()` server-side (server/src/modules/sync.rs) - the shared broadcast
+// carries every panel's state, so this just picks out the one this panel pairs with.
+RefereePanelState? partnerPanelState(HeadRefereeStreamResponse serverState, PanelType panelType) {
+  switch (panelType) {
+    case PanelType.PANEL_TYPE_RED_NEAR:
+      return serverState.hasRf() ? serverState.rf : null;
+    case PanelType.PANEL_TYPE_RED_FAR:
+      return serverState.hasRn() ? serverState.rn : null;
+    case PanelType.PANEL_TYPE_BLUE_NEAR:
+      return serverState.hasBf() ? serverState.bf : null;
+    case PanelType.PANEL_TYPE_BLUE_FAR:
+      return serverState.hasBn() ? serverState.bn : null;
+    default:
+      return null;
   }
 }
 
 @Riverpod(keepAlive: true)
 class RefereePanel extends _$RefereePanel {
   static const _key = "refereePanelState";
-  late final connection = ref.read(refereePanelConnectionProvider);
 
   PanelType panelType = PanelType.PANEL_TYPE_UNSPECIFIED;
   int matchId = 0;
@@ -103,24 +99,26 @@ class RefereePanel extends _$RefereePanel {
     buffer.panel = panelType;
     buffer.matchId = matchId;
 
-    // The server only knows this panel exists once it actually receives a message - sitting
-    // on the panel screen without touching a control previously never sent anything, so the
-    // head referee's presence display stayed stuck on "disconnected". Announce on every
-    // (re)connect, not just here on first build, since a later reconnect after a network drop
-    // doesn't re-run build().
-    connection.onConnected = () => connection.send(state);
-    if (connection.isConnected) {
-      connection.send(buffer);
-    }
+    // Presence is now broker-native (LWT + retained, see mqtt_provider.dart) - the panel just
+    // needs to keep publishing its own submitted state, no separate identity handshake to get
+    // right or lose track of on reconnect.
+    _publish(buffer);
 
     return buffer;
+  }
+
+  void _publish(RefereeStreamRequest request) {
+    final topic = submitTopicFor(panelType);
+    if (topic != null) {
+      ref.read(mqttProvider).publishProto(topic, request);
+    }
   }
 
   void _updateAndSend(RefereeStreamRequest update) {
     update.matchId = matchId;
     update.panel = panelType;
     localStorage.setString(_key, ProtobufHelper.encode(update));
-    connection.send(update);
+    _publish(update);
     state = update;
   }
 

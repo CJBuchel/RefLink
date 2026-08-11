@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ref_link/generated/api.pb.dart';
+import 'package:ref_link/providers/presence_provider.dart';
 import 'package:ref_link/views/head_referee/pre_match_layout/connection_indicator.dart';
 
 class ConnectionStatusPanel extends StatelessWidget {

@@ -2,34 +2,20 @@ import 'package:ref_link/generated/api.pbgrpc.dart';
 import 'package:ref_link/helpers/grpc_call_wrapper.dart';
 import 'package:ref_link/helpers/local_storage.dart';
 import 'package:ref_link/helpers/protobuf_helper.dart';
-import 'package:ref_link/helpers/reconnecting_bidirectional_stream.dart';
 import 'package:ref_link/providers/grpc_channel_provider.dart';
+import 'package:ref_link/providers/mqtt_provider.dart';
 import 'package:ref_link/utils/grpc_result.dart';
 import 'package:ref_link/utils/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'head_referee_panel_provider.g.dart';
 
+// ToggleBypass/CommitAndPost are the only RPCs left here - genuinely request/response-shaped
+// fire-once relays. Match/rotation/presence state moved to MQTT (see mqtt_provider.dart).
 @Riverpod(keepAlive: true)
 HeadRefereePanelServiceClient headRefereePanelService(Ref ref) {
   final channel = ref.watch(grpcChannelProvider);
   return HeadRefereePanelServiceClient(channel);
-}
-
-@Riverpod(keepAlive: true)
-ReconnectingBidirectionalStream<HeadRefereeStreamRequest, HeadRefereeStreamResponse>
-headRefereePanelConnection(Ref ref) {
-  final client = ref.watch(headRefereePanelServiceProvider);
-
-  final connection =
-      ReconnectingBidirectionalStream<
-        HeadRefereeStreamRequest,
-        HeadRefereeStreamResponse
-      >((outgoing) => client.headRefereeStream(outgoing));
-
-  ref.onDispose(connection.close);
-
-  return connection;
 }
 
 @Riverpod(keepAlive: true)
@@ -54,11 +40,13 @@ class HeadRefereePanelServer extends _$HeadRefereePanelServer {
 
   @override
   HeadRefereeStreamResponse build() {
-    final connection = ref.read(headRefereePanelConnectionProvider);
-
-    connection.stream.listen((message) {
-      _updateState(message);
-    });
+    final client = ref.watch(mqttProvider);
+    final subscription = subscribeDecoded(
+      client,
+      matchStateTopic,
+      HeadRefereeStreamResponse.fromBuffer,
+    ).listen(_updateState);
+    ref.onDispose(subscription.cancel);
 
     return getHeadRefereePanelServerState();
   }
@@ -67,7 +55,6 @@ class HeadRefereePanelServer extends _$HeadRefereePanelServer {
 @Riverpod(keepAlive: true)
 class HeadRefereePanel extends _$HeadRefereePanel {
   static const _key = "headRefereePanelState";
-  late final connection = ref.read(headRefereePanelConnectionProvider);
 
   int matchId = 0;
 
@@ -94,7 +81,7 @@ class HeadRefereePanel extends _$HeadRefereePanel {
   void _updateAndSend(HeadRefereeStreamRequest update) {
     update.matchId = matchId;
     localStorage.setString(_key, ProtobufHelper.encode(update));
-    connection.send(update);
+    ref.read(mqttProvider).publishProto(headRefereeSubmitTopic, update);
     state = update;
   }
 

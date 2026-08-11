@@ -18,6 +18,9 @@ dependencies:
   go_router: ^17.3.0
   grpc: ^5.1.0
   protobuf: ^6.0.0
+  mqtt_client: ^10.11.11
+  typed_data: ^1.4.0
+  fixnum: ^1.1.1
 
 dev_dependencies:
   flutter_test:

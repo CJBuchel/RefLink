@@ -57,7 +57,8 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final refereePanelServer = ref.watch(refereePanelServerProvider);
     final refereePanel = ref.watch(refereePanelProvider);
-    bool isRed = isRedPanelFromString(ref.watch(panelIdProvider));
+    final panelId = ref.watch(panelIdProvider);
+    bool isRed = isRedPanelFromString(panelId);
 
     MatchStationState allianceStation1 = isRed
         ? refereePanelServer.redAllianceState.allianceTeam1State
@@ -72,7 +73,8 @@ class RefereeAutoMatchPhase extends HookConsumerWidget {
         : refereePanelServer.blueAllianceState.allianceTeam3State;
 
     final localPanel = refereePanel.state;
-    final partnerPanel = refereePanelServer.partnerPanel;
+    final partnerPanel =
+        partnerPanelState(refereePanelServer, getPanelFromString(panelId)) ?? RefereePanelState();
 
     // Auto only requires every station to have a call made - unlike endgame, we don't
     // require the calls to match the partner panel's.

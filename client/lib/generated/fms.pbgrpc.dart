@@ -20,6 +20,9 @@ import 'fms.pb.dart' as $0;
 
 export 'fms.pb.dart';
 
+/// FmsMatchInfo/FmsConnectionStatus are also published (retained) to reflink/fms/match-info and
+/// reflink/fms/connection-status over MQTT, unchanged as message types - GetMatchInfo stays as a
+/// plain unary gRPC call purely for a one-shot fetch convenience.
 @$pb.GrpcServiceName('reflink.fms.FmsService')
 class FmsServiceClient extends $grpc.Client {
   /// The hostname for this service.
@@ -39,24 +42,6 @@ class FmsServiceClient extends $grpc.Client {
     return $createUnaryCall(_$getMatchInfo, request, options: options);
   }
 
-  $grpc.ResponseStream<$0.FmsMatchInfo> streamMatchInfo(
-    $0.StreamMatchInfoRequest request, {
-    $grpc.CallOptions? options,
-  }) {
-    return $createStreamingCall(
-        _$streamMatchInfo, $async.Stream.fromIterable([request]),
-        options: options);
-  }
-
-  $grpc.ResponseStream<$0.FmsConnectionStatus> streamConnectionStatus(
-    $0.StreamConnectionStatusRequest request, {
-    $grpc.CallOptions? options,
-  }) {
-    return $createStreamingCall(
-        _$streamConnectionStatus, $async.Stream.fromIterable([request]),
-        options: options);
-  }
-
   // method descriptors
 
   static final _$getMatchInfo =
@@ -64,16 +49,6 @@ class FmsServiceClient extends $grpc.Client {
           '/reflink.fms.FmsService/GetMatchInfo',
           ($0.GetMatchInfoRequest value) => value.writeToBuffer(),
           $0.FmsMatchInfo.fromBuffer);
-  static final _$streamMatchInfo =
-      $grpc.ClientMethod<$0.StreamMatchInfoRequest, $0.FmsMatchInfo>(
-          '/reflink.fms.FmsService/StreamMatchInfo',
-          ($0.StreamMatchInfoRequest value) => value.writeToBuffer(),
-          $0.FmsMatchInfo.fromBuffer);
-  static final _$streamConnectionStatus = $grpc.ClientMethod<
-          $0.StreamConnectionStatusRequest, $0.FmsConnectionStatus>(
-      '/reflink.fms.FmsService/StreamConnectionStatus',
-      ($0.StreamConnectionStatusRequest value) => value.writeToBuffer(),
-      $0.FmsConnectionStatus.fromBuffer);
 }
 
 @$pb.GrpcServiceName('reflink.fms.FmsService')
@@ -89,23 +64,6 @@ abstract class FmsServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.GetMatchInfoRequest.fromBuffer(value),
         ($0.FmsMatchInfo value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.StreamMatchInfoRequest, $0.FmsMatchInfo>(
-        'StreamMatchInfo',
-        streamMatchInfo_Pre,
-        false,
-        true,
-        ($core.List<$core.int> value) =>
-            $0.StreamMatchInfoRequest.fromBuffer(value),
-        ($0.FmsMatchInfo value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.StreamConnectionStatusRequest,
-            $0.FmsConnectionStatus>(
-        'StreamConnectionStatus',
-        streamConnectionStatus_Pre,
-        false,
-        true,
-        ($core.List<$core.int> value) =>
-            $0.StreamConnectionStatusRequest.fromBuffer(value),
-        ($0.FmsConnectionStatus value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.FmsMatchInfo> getMatchInfo_Pre($grpc.ServiceCall $call,
@@ -115,21 +73,4 @@ abstract class FmsServiceBase extends $grpc.Service {
 
   $async.Future<$0.FmsMatchInfo> getMatchInfo(
       $grpc.ServiceCall call, $0.GetMatchInfoRequest request);
-
-  $async.Stream<$0.FmsMatchInfo> streamMatchInfo_Pre($grpc.ServiceCall $call,
-      $async.Future<$0.StreamMatchInfoRequest> $request) async* {
-    yield* streamMatchInfo($call, await $request);
-  }
-
-  $async.Stream<$0.FmsMatchInfo> streamMatchInfo(
-      $grpc.ServiceCall call, $0.StreamMatchInfoRequest request);
-
-  $async.Stream<$0.FmsConnectionStatus> streamConnectionStatus_Pre(
-      $grpc.ServiceCall $call,
-      $async.Future<$0.StreamConnectionStatusRequest> $request) async* {
-    yield* streamConnectionStatus($call, await $request);
-  }
-
-  $async.Stream<$0.FmsConnectionStatus> streamConnectionStatus(
-      $grpc.ServiceCall call, $0.StreamConnectionStatusRequest request);
 }

@@ -1,23 +1,13 @@
-import 'package:ref_link/generated/api.pbgrpc.dart';
-import 'package:ref_link/helpers/reconnecting_stream.dart';
-import 'package:ref_link/providers/grpc_channel_provider.dart';
+import 'package:ref_link/providers/mqtt_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'health_provider.g.dart';
 
-@Riverpod(keepAlive: true)
-HealthServiceClient healthService(Ref ref) {
-  final channel = ref.watch(grpcChannelProvider);
-  return HealthServiceClient(channel);
-}
-
-@Riverpod(keepAlive: true)
+// The gRPC health-check stream is gone - the MQTT client's own connection state already is
+// the "is the server reachable" signal (see mqtt_provider.dart's mqttConnectionStatusProvider).
+// Kept as a thin wrapper under its old name so callers (e.g. the connected/disconnected banner
+// in base/app_bar.dart) don't need to change.
+@riverpod
 Stream<bool> isConnected(Ref ref) {
-  final reconnectingStream = ReconnectingStream<GetHealthResponse>(() async {
-    final client = ref.read(healthServiceProvider);
-    return client.streamHealth(GetHealthRequest());
-  });
-
-  ref.onDispose(reconnectingStream.close);
-  return reconnectingStream.connectionState;
+  return mqttConnectionStatusStream(ref.watch(mqttProvider));
 }

@@ -1,15 +1,12 @@
 use std::{
   any::{Any, TypeId},
-  future::Future,
   sync::Mutex,
-  time::Duration,
 };
 
 use anyhow::Result;
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
 use tokio::sync::mpsc;
-use tokio_stream::{Stream, StreamExt};
 
 pub static EVENT_BUS: OnceCell<EventBus> = OnceCell::new();
 
@@ -88,64 +85,5 @@ impl EventBus {
     let (tx, rx) = mpsc::unbounded_channel();
     subscribers.lock().unwrap().push(tx);
     Ok(rx)
-  }
-}
-
-/// Shared cadence for every server-push route's `with_heartbeat` call - one constant so every
-/// route stays consistent, and every client-side watchdog timeout can be defined relative to
-/// it instead of each guessing its own number.
-pub const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(2);
-
-/// Wraps any event-driven stream so it also emits at least once every `interval`, even if
-/// `source` stays silent - the point isn't the data (a client already has it), it's that a
-/// gap in receiving *anything* is what a client-side watchdog needs to detect a connection
-/// that's gone quiet without either side seeing an error, and force a reconnect (see
-/// `ReconnectingBidirectionalStream`/`ReconnectingStream` client-side). `EventBus` above only
-/// guarantees an event queued for a subscriber is never dropped inside this process - it can't
-/// guarantee the network stream carrying it to a specific client is actually still flowing.
-/// Every server-push route gets this same guarantee by composing through here instead of
-/// hand-rolling a reconcile tick per route, so a future route gets it for free too.
-///
-/// `resync` re-derives the current value from source of truth (not from replaying missed
-/// events), so a periodic tick is still correct even if every prior event on `source` was
-/// somehow missed. Also de-duplicates consecutive identical values from `source` itself, so
-/// callers can yield a fresh candidate on every relevant event without checking themselves
-/// whether it actually changed - only genuine changes and heartbeat ticks reach the client.
-pub fn with_heartbeat<S, T, F, Fut>(source: S, interval: Duration, resync: F) -> impl Stream<Item = T>
-where
-  S: Stream<Item = T> + Send + 'static,
-  T: Clone + PartialEq + Send + 'static,
-  F: Fn() -> Fut + Send + 'static,
-  Fut: Future<Output = T> + Send,
-{
-  async_stream::stream! {
-    tokio::pin!(source);
-
-    let mut ticker = tokio::time::interval(interval);
-    ticker.tick().await; // fires immediately - source's own first item covers t=0, not this
-
-    let mut last: Option<T> = None;
-
-    loop {
-      tokio::select! {
-        item = source.next() => {
-          match item {
-            Some(value) => {
-              let changed = last.as_ref() != Some(&value);
-              last = Some(value.clone());
-              if changed {
-                yield value;
-              }
-            }
-            None => break,
-          }
-        }
-        _ = ticker.tick() => {
-          let value = resync().await;
-          last = Some(value.clone());
-          yield value;
-        }
-      }
-    }
   }
 }

@@ -5,6 +5,10 @@ services:
       dockerfile: Dockerfile
     environment:
       REDIS_URL: redis://redis:6379
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      MQTT_USERNAME: ${MQTT_USERNAME:-}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:-}
       FMS_HOST: ${FMS_HOST:-10.0.100.5}
       FMS_PORT: ${FMS_PORT:-8080}
       FMS_DISPLAY_ID: ${FMS_DISPLAY_ID:-5333}
@@ -13,6 +17,7 @@ services:
       - "host.docker.internal:host-gateway"
     depends_on:
       - redis
+      - mqtt
     ports:
       - "50051:50051"
 
@@ -24,5 +29,14 @@ services:
     ports:
       - "6379:6379"
 
+  mqtt:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto:/mosquitto/data
+    ports:
+      - "1883:1883"
+
 volumes:
   redis:
+  mosquitto:

@@ -59,90 +59,6 @@ final class HeadRefereePanelServiceProvider
 String _$headRefereePanelServiceHash() =>
     r'979709bcef2381e48680210ef5849c5eee0773bf';
 
-@ProviderFor(headRefereePanelConnection)
-final headRefereePanelConnectionProvider =
-    HeadRefereePanelConnectionProvider._();
-
-final class HeadRefereePanelConnectionProvider
-    extends
-        $FunctionalProvider<
-          ReconnectingBidirectionalStream<
-            HeadRefereeStreamRequest,
-            HeadRefereeStreamResponse
-          >,
-          ReconnectingBidirectionalStream<
-            HeadRefereeStreamRequest,
-            HeadRefereeStreamResponse
-          >,
-          ReconnectingBidirectionalStream<
-            HeadRefereeStreamRequest,
-            HeadRefereeStreamResponse
-          >
-        >
-    with
-        $Provider<
-          ReconnectingBidirectionalStream<
-            HeadRefereeStreamRequest,
-            HeadRefereeStreamResponse
-          >
-        > {
-  HeadRefereePanelConnectionProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'headRefereePanelConnectionProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$headRefereePanelConnectionHash();
-
-  @$internal
-  @override
-  $ProviderElement<
-    ReconnectingBidirectionalStream<
-      HeadRefereeStreamRequest,
-      HeadRefereeStreamResponse
-    >
-  >
-  $createElement($ProviderPointer pointer) => $ProviderElement(pointer);
-
-  @override
-  ReconnectingBidirectionalStream<
-    HeadRefereeStreamRequest,
-    HeadRefereeStreamResponse
-  >
-  create(Ref ref) {
-    return headRefereePanelConnection(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(
-    ReconnectingBidirectionalStream<
-      HeadRefereeStreamRequest,
-      HeadRefereeStreamResponse
-    >
-    value,
-  ) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride:
-          $SyncValueProvider<
-            ReconnectingBidirectionalStream<
-              HeadRefereeStreamRequest,
-              HeadRefereeStreamResponse
-            >
-          >(value),
-    );
-  }
-}
-
-String _$headRefereePanelConnectionHash() =>
-    r'55882ec0eacab2d7b8019cde8184f3b8f555334b';
-
 @ProviderFor(HeadRefereePanelServer)
 final headRefereePanelServerProvider = HeadRefereePanelServerProvider._();
 
@@ -177,7 +93,7 @@ final class HeadRefereePanelServerProvider
 }
 
 String _$headRefereePanelServerHash() =>
-    r'bcbc60fb17bc395d57fbc56cf58fc1efe0f5907f';
+    r'f8b39dcbc9233a6fc2b96a39a8e2a8b82a1390c1';
 
 abstract class _$HeadRefereePanelServer
     extends $Notifier<HeadRefereeStreamResponse> {
@@ -231,7 +147,7 @@ final class HeadRefereePanelProvider
   }
 }
 
-String _$headRefereePanelHash() => r'4e2c45f239e35cce44fd45e01581e276fb7b1b72';
+String _$headRefereePanelHash() => r'fbe672bb63bec62a6ad2ac33e0f076c86b521a03';
 
 abstract class _$HeadRefereePanel extends $Notifier<HeadRefereeStreamRequest> {
   HeadRefereeStreamRequest build();

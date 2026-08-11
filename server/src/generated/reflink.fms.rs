@@ -45,10 +45,6 @@ pub struct FmsConnectionStatus {
 }
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GetMatchInfoRequest {}
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct StreamMatchInfoRequest {}
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct StreamConnectionStatusRequest {}
 /// Generated client implementations.
 pub mod fms_service_client {
     #![allow(
@@ -60,6 +56,9 @@ pub mod fms_service_client {
     )]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    /// FmsMatchInfo/FmsConnectionStatus are also published (retained) to reflink/fms/match-info and
+    /// reflink/fms/connection-status over MQTT, unchanged as message types - GetMatchInfo stays as a
+    /// plain unary gRPC call purely for a one-shot fetch convenience.
     #[derive(Debug, Clone)]
     pub struct FmsServiceClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -161,56 +160,6 @@ pub mod fms_service_client {
                 .insert(GrpcMethod::new("reflink.fms.FmsService", "GetMatchInfo"));
             self.inner.unary(req, path, codec).await
         }
-        pub async fn stream_match_info(
-            &mut self,
-            request: impl tonic::IntoRequest<super::StreamMatchInfoRequest>,
-        ) -> std::result::Result<
-            tonic::Response<tonic::codec::Streaming<super::FmsMatchInfo>>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::unknown(
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic_prost::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/reflink.fms.FmsService/StreamMatchInfo",
-            );
-            let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("reflink.fms.FmsService", "StreamMatchInfo"));
-            self.inner.server_streaming(req, path, codec).await
-        }
-        pub async fn stream_connection_status(
-            &mut self,
-            request: impl tonic::IntoRequest<super::StreamConnectionStatusRequest>,
-        ) -> std::result::Result<
-            tonic::Response<tonic::codec::Streaming<super::FmsConnectionStatus>>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::unknown(
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic_prost::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/reflink.fms.FmsService/StreamConnectionStatus",
-            );
-            let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(
-                    GrpcMethod::new("reflink.fms.FmsService", "StreamConnectionStatus"),
-                );
-            self.inner.server_streaming(req, path, codec).await
-        }
     }
 }
 /// Generated server implementations.
@@ -230,33 +179,10 @@ pub mod fms_service_server {
             &self,
             request: tonic::Request<super::GetMatchInfoRequest>,
         ) -> std::result::Result<tonic::Response<super::FmsMatchInfo>, tonic::Status>;
-        /// Server streaming response type for the StreamMatchInfo method.
-        type StreamMatchInfoStream: tonic::codegen::tokio_stream::Stream<
-                Item = std::result::Result<super::FmsMatchInfo, tonic::Status>,
-            >
-            + std::marker::Send
-            + 'static;
-        async fn stream_match_info(
-            &self,
-            request: tonic::Request<super::StreamMatchInfoRequest>,
-        ) -> std::result::Result<
-            tonic::Response<Self::StreamMatchInfoStream>,
-            tonic::Status,
-        >;
-        /// Server streaming response type for the StreamConnectionStatus method.
-        type StreamConnectionStatusStream: tonic::codegen::tokio_stream::Stream<
-                Item = std::result::Result<super::FmsConnectionStatus, tonic::Status>,
-            >
-            + std::marker::Send
-            + 'static;
-        async fn stream_connection_status(
-            &self,
-            request: tonic::Request<super::StreamConnectionStatusRequest>,
-        ) -> std::result::Result<
-            tonic::Response<Self::StreamConnectionStatusStream>,
-            tonic::Status,
-        >;
     }
+    /// FmsMatchInfo/FmsConnectionStatus are also published (retained) to reflink/fms/match-info and
+    /// reflink/fms/connection-status over MQTT, unchanged as message types - GetMatchInfo stays as a
+    /// plain unary gRPC call purely for a one-shot fetch convenience.
     #[derive(Debug)]
     pub struct FmsServiceServer<T> {
         inner: Arc<T>,
@@ -374,101 +300,6 @@ pub mod fms_service_server {
                                 max_encoding_message_size,
                             );
                         let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                "/reflink.fms.FmsService/StreamMatchInfo" => {
-                    #[allow(non_camel_case_types)]
-                    struct StreamMatchInfoSvc<T: FmsService>(pub Arc<T>);
-                    impl<
-                        T: FmsService,
-                    > tonic::server::ServerStreamingService<
-                        super::StreamMatchInfoRequest,
-                    > for StreamMatchInfoSvc<T> {
-                        type Response = super::FmsMatchInfo;
-                        type ResponseStream = T::StreamMatchInfoStream;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::ResponseStream>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::StreamMatchInfoRequest>,
-                        ) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as FmsService>::stream_match_info(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let method = StreamMatchInfoSvc(inner);
-                        let codec = tonic_prost::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.server_streaming(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                "/reflink.fms.FmsService/StreamConnectionStatus" => {
-                    #[allow(non_camel_case_types)]
-                    struct StreamConnectionStatusSvc<T: FmsService>(pub Arc<T>);
-                    impl<
-                        T: FmsService,
-                    > tonic::server::ServerStreamingService<
-                        super::StreamConnectionStatusRequest,
-                    > for StreamConnectionStatusSvc<T> {
-                        type Response = super::FmsConnectionStatus;
-                        type ResponseStream = T::StreamConnectionStatusStream;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::ResponseStream>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::StreamConnectionStatusRequest>,
-                        ) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as FmsService>::stream_connection_status(&inner, request)
-                                    .await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let method = StreamConnectionStatusSvc(inner);
-                        let codec = tonic_prost::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.server_streaming(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)

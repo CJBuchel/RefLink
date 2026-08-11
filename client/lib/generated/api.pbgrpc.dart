@@ -20,134 +20,6 @@ import 'api.pb.dart' as $0;
 
 export 'api.pb.dart';
 
-@$pb.GrpcServiceName('reflink.api.HealthService')
-class HealthServiceClient extends $grpc.Client {
-  /// The hostname for this service.
-  static const $core.String defaultHost = '';
-
-  /// OAuth scopes needed for the client.
-  static const $core.List<$core.String> oauthScopes = [
-    '',
-  ];
-
-  HealthServiceClient(super.channel, {super.options, super.interceptors});
-
-  $grpc.ResponseFuture<$0.GetHealthResponse> getHealth(
-    $0.GetHealthRequest request, {
-    $grpc.CallOptions? options,
-  }) {
-    return $createUnaryCall(_$getHealth, request, options: options);
-  }
-
-  $grpc.ResponseStream<$0.GetHealthResponse> streamHealth(
-    $0.GetHealthRequest request, {
-    $grpc.CallOptions? options,
-  }) {
-    return $createStreamingCall(
-        _$streamHealth, $async.Stream.fromIterable([request]),
-        options: options);
-  }
-
-  // method descriptors
-
-  static final _$getHealth =
-      $grpc.ClientMethod<$0.GetHealthRequest, $0.GetHealthResponse>(
-          '/reflink.api.HealthService/GetHealth',
-          ($0.GetHealthRequest value) => value.writeToBuffer(),
-          $0.GetHealthResponse.fromBuffer);
-  static final _$streamHealth =
-      $grpc.ClientMethod<$0.GetHealthRequest, $0.GetHealthResponse>(
-          '/reflink.api.HealthService/StreamHealth',
-          ($0.GetHealthRequest value) => value.writeToBuffer(),
-          $0.GetHealthResponse.fromBuffer);
-}
-
-@$pb.GrpcServiceName('reflink.api.HealthService')
-abstract class HealthServiceBase extends $grpc.Service {
-  $core.String get $name => 'reflink.api.HealthService';
-
-  HealthServiceBase() {
-    $addMethod($grpc.ServiceMethod<$0.GetHealthRequest, $0.GetHealthResponse>(
-        'GetHealth',
-        getHealth_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.GetHealthRequest.fromBuffer(value),
-        ($0.GetHealthResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.GetHealthRequest, $0.GetHealthResponse>(
-        'StreamHealth',
-        streamHealth_Pre,
-        false,
-        true,
-        ($core.List<$core.int> value) => $0.GetHealthRequest.fromBuffer(value),
-        ($0.GetHealthResponse value) => value.writeToBuffer()));
-  }
-
-  $async.Future<$0.GetHealthResponse> getHealth_Pre($grpc.ServiceCall $call,
-      $async.Future<$0.GetHealthRequest> $request) async {
-    return getHealth($call, await $request);
-  }
-
-  $async.Future<$0.GetHealthResponse> getHealth(
-      $grpc.ServiceCall call, $0.GetHealthRequest request);
-
-  $async.Stream<$0.GetHealthResponse> streamHealth_Pre($grpc.ServiceCall $call,
-      $async.Future<$0.GetHealthRequest> $request) async* {
-    yield* streamHealth($call, await $request);
-  }
-
-  $async.Stream<$0.GetHealthResponse> streamHealth(
-      $grpc.ServiceCall call, $0.GetHealthRequest request);
-}
-
-@$pb.GrpcServiceName('reflink.api.RefereePanelService')
-class RefereePanelServiceClient extends $grpc.Client {
-  /// The hostname for this service.
-  static const $core.String defaultHost = '';
-
-  /// OAuth scopes needed for the client.
-  static const $core.List<$core.String> oauthScopes = [
-    '',
-  ];
-
-  RefereePanelServiceClient(super.channel, {super.options, super.interceptors});
-
-  $grpc.ResponseStream<$0.RefereeStreamResponse> refereeStream(
-    $async.Stream<$0.RefereeStreamRequest> request, {
-    $grpc.CallOptions? options,
-  }) {
-    return $createStreamingCall(_$refereeStream, request, options: options);
-  }
-
-  // method descriptors
-
-  static final _$refereeStream =
-      $grpc.ClientMethod<$0.RefereeStreamRequest, $0.RefereeStreamResponse>(
-          '/reflink.api.RefereePanelService/RefereeStream',
-          ($0.RefereeStreamRequest value) => value.writeToBuffer(),
-          $0.RefereeStreamResponse.fromBuffer);
-}
-
-@$pb.GrpcServiceName('reflink.api.RefereePanelService')
-abstract class RefereePanelServiceBase extends $grpc.Service {
-  $core.String get $name => 'reflink.api.RefereePanelService';
-
-  RefereePanelServiceBase() {
-    $addMethod(
-        $grpc.ServiceMethod<$0.RefereeStreamRequest, $0.RefereeStreamResponse>(
-            'RefereeStream',
-            refereeStream,
-            true,
-            true,
-            ($core.List<$core.int> value) =>
-                $0.RefereeStreamRequest.fromBuffer(value),
-            ($0.RefereeStreamResponse value) => value.writeToBuffer()));
-  }
-
-  $async.Stream<$0.RefereeStreamResponse> refereeStream(
-      $grpc.ServiceCall call, $async.Stream<$0.RefereeStreamRequest> request);
-}
-
 @$pb.GrpcServiceName('reflink.api.HeadRefereePanelService')
 class HeadRefereePanelServiceClient extends $grpc.Client {
   /// The hostname for this service.
@@ -160,13 +32,6 @@ class HeadRefereePanelServiceClient extends $grpc.Client {
 
   HeadRefereePanelServiceClient(super.channel,
       {super.options, super.interceptors});
-
-  $grpc.ResponseStream<$0.HeadRefereeStreamResponse> headRefereeStream(
-    $async.Stream<$0.HeadRefereeStreamRequest> request, {
-    $grpc.CallOptions? options,
-  }) {
-    return $createStreamingCall(_$headRefereeStream, request, options: options);
-  }
 
   $grpc.ResponseFuture<$0.ToggleBypassResponse> toggleBypass(
     $0.ToggleBypassRequest request, {
@@ -184,11 +49,6 @@ class HeadRefereePanelServiceClient extends $grpc.Client {
 
   // method descriptors
 
-  static final _$headRefereeStream = $grpc.ClientMethod<
-          $0.HeadRefereeStreamRequest, $0.HeadRefereeStreamResponse>(
-      '/reflink.api.HeadRefereePanelService/HeadRefereeStream',
-      ($0.HeadRefereeStreamRequest value) => value.writeToBuffer(),
-      $0.HeadRefereeStreamResponse.fromBuffer);
   static final _$toggleBypass =
       $grpc.ClientMethod<$0.ToggleBypassRequest, $0.ToggleBypassResponse>(
           '/reflink.api.HeadRefereePanelService/ToggleBypass',
@@ -206,15 +66,6 @@ abstract class HeadRefereePanelServiceBase extends $grpc.Service {
   $core.String get $name => 'reflink.api.HeadRefereePanelService';
 
   HeadRefereePanelServiceBase() {
-    $addMethod($grpc.ServiceMethod<$0.HeadRefereeStreamRequest,
-            $0.HeadRefereeStreamResponse>(
-        'HeadRefereeStream',
-        headRefereeStream,
-        true,
-        true,
-        ($core.List<$core.int> value) =>
-            $0.HeadRefereeStreamRequest.fromBuffer(value),
-        ($0.HeadRefereeStreamResponse value) => value.writeToBuffer()));
     $addMethod(
         $grpc.ServiceMethod<$0.ToggleBypassRequest, $0.ToggleBypassResponse>(
             'ToggleBypass',
@@ -234,10 +85,6 @@ abstract class HeadRefereePanelServiceBase extends $grpc.Service {
                 $0.CommitAndPostRequest.fromBuffer(value),
             ($0.CommitAndPostResponse value) => value.writeToBuffer()));
   }
-
-  $async.Stream<$0.HeadRefereeStreamResponse> headRefereeStream(
-      $grpc.ServiceCall call,
-      $async.Stream<$0.HeadRefereeStreamRequest> request);
 
   $async.Future<$0.ToggleBypassResponse> toggleBypass_Pre(
       $grpc.ServiceCall $call,

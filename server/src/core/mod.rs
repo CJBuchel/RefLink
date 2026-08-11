@@ -1,6 +1,7 @@
 pub mod api;
 pub mod events;
 pub mod logging;
+pub mod mqtt;
 pub mod scheduler;
 pub mod server;
 pub mod shutdown;

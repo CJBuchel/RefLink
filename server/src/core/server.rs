@@ -2,9 +2,14 @@ use anyhow::Result;
 
 use crate::{
   config::{ServerConfig, init_config},
-  core::{api::Api, events::init_event_bus, scheduler::SchedulerPool},
+  core::{
+    api::Api,
+    events::init_event_bus,
+    mqtt::{MqttConfig, init_mqtt},
+    scheduler::SchedulerPool,
+  },
   db::init_db,
-  modules::fms,
+  modules::{fms, sync},
 };
 
 pub struct Server {
@@ -42,6 +47,20 @@ impl Server {
       return Err(e);
     }
 
+    // Init MQTT
+    let mqtt_config = MqttConfig {
+      host: self.config.mqtt_host.clone(),
+      port: self.config.mqtt_port,
+      username: self.config.mqtt_username.clone(),
+      password: self.config.mqtt_password.clone(),
+    };
+    if let Err(e) =
+      init_mqtt(mqtt_config, &[sync::TOPIC_REFEREE_SUBMIT_WILDCARD, sync::TOPIC_HEAD_REFEREE_SUBMIT]).await
+    {
+      log::error!("Failed to initialize MQTT client: {}", e);
+      return Err(e);
+    }
+
     pub async fn api_service(config: ServerConfig) {
       let api_socket_addr = format!("{}:{}", config.addr, config.api_port).parse().expect("Error parsing API address");
       let api_server = Api::new(api_socket_addr);
@@ -52,6 +71,10 @@ impl Server {
 
     // Spawn API Server
     self.scheduler.spawn(api_service(self.config.clone()));
+
+    // Spawn the referee/HR match state sync task (ingests MQTT submissions, republishes the
+    // aggregated match state)
+    self.scheduler.spawn(sync::run());
 
     // Spawn FMS connector (Cheesy Arena)
     if self.config.fms_enabled {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ref_link/providers/head_referee_panel_provider.dart';
+import 'package:ref_link/providers/presence_provider.dart';
 import 'package:ref_link/views/head_referee/pre_match_layout/connection_status_panel.dart';
 import 'package:ref_link/views/head_referee/pre_match_layout/pre_match_io.dart';
 import 'package:ref_link/views/head_referee/pre_match_layout/team_panel.dart';
@@ -11,6 +12,7 @@ class HeadRefereePreMatchPhase extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final serverState = ref.watch(headRefereePanelServerProvider);
+    final presence = ref.watch(refereePanelPresenceProvider);
 
     return Column(
       children: [
@@ -25,7 +27,7 @@ class HeadRefereePreMatchPhase extends HookConsumerWidget {
               ),
               Expanded(
                 child: ConnectionStatusPanel(
-                  presence: serverState.panelPresence,
+                  presence: presence,
                 ),
               ),
               TeamPanel(

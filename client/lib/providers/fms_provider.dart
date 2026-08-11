@@ -1,10 +1,12 @@
 import 'package:ref_link/generated/fms.pbgrpc.dart';
-import 'package:ref_link/helpers/reconnecting_stream.dart';
 import 'package:ref_link/providers/grpc_channel_provider.dart';
+import 'package:ref_link/providers/mqtt_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'fms_provider.g.dart';
 
+// GetMatchInfo stays a plain unary gRPC call; StreamMatchInfo moved to MQTT (retained, see
+// server/src/modules/fms/cheesy/client.rs's publish_match_info).
 @Riverpod(keepAlive: true)
 FmsServiceClient fmsService(Ref ref) {
   final channel = ref.watch(grpcChannelProvider);
@@ -13,13 +15,8 @@ FmsServiceClient fmsService(Ref ref) {
 
 @Riverpod(keepAlive: true)
 Stream<FmsMatchInfo> arenaMatchInfo(Ref ref) {
-  final reconnectingStream = ReconnectingStream<FmsMatchInfo>(() async {
-    final client = ref.read(fmsServiceProvider);
-    return client.streamMatchInfo(StreamMatchInfoRequest());
-  });
-
-  ref.onDispose(reconnectingStream.close);
-  return reconnectingStream.stream;
+  final client = ref.watch(mqttProvider);
+  return subscribeDecoded(client, fmsMatchInfoTopic, FmsMatchInfo.fromBuffer);
 }
 
 String matchTypeLabel(MatchType type) {

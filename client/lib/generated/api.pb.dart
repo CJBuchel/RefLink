@@ -20,82 +20,6 @@ export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
 
 export 'common.pb.dart';
 
-class GetHealthRequest extends $pb.GeneratedMessage {
-  factory GetHealthRequest() => create();
-
-  GetHealthRequest._();
-
-  factory GetHealthRequest.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory GetHealthRequest.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'GetHealthRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
-      createEmptyInstance: create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetHealthRequest clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetHealthRequest copyWith(void Function(GetHealthRequest) updates) =>
-      super.copyWith((message) => updates(message as GetHealthRequest))
-          as GetHealthRequest;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static GetHealthRequest create() => GetHealthRequest._();
-  @$core.override
-  GetHealthRequest createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static GetHealthRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GetHealthRequest>(create);
-  static GetHealthRequest? _defaultInstance;
-}
-
-class GetHealthResponse extends $pb.GeneratedMessage {
-  factory GetHealthResponse() => create();
-
-  GetHealthResponse._();
-
-  factory GetHealthResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory GetHealthResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'GetHealthResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
-      createEmptyInstance: create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetHealthResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetHealthResponse copyWith(void Function(GetHealthResponse) updates) =>
-      super.copyWith((message) => updates(message as GetHealthResponse))
-          as GetHealthResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static GetHealthResponse create() => GetHealthResponse._();
-  @$core.override
-  GetHealthResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static GetHealthResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GetHealthResponse>(create);
-  static GetHealthResponse? _defaultInstance;
-}
-
 class RefereeStreamRequest extends $pb.GeneratedMessage {
   factory RefereeStreamRequest({
     $1.PanelType? panel,
@@ -351,145 +275,6 @@ class MatchAllianceState extends $pb.GeneratedMessage {
   MatchStationState ensureAllianceTeam3State() => $_ensure(2);
 }
 
-class RefereeStreamResponse extends $pb.GeneratedMessage {
-  factory RefereeStreamResponse({
-    $core.int? matchId,
-    $1.MatchPhase? matchPhase,
-    MatchAllianceState? redAllianceState,
-    MatchAllianceState? blueAllianceState,
-    $1.RefereePanelState? partnerPanel,
-    $core.int? rotateIn,
-    $core.bool? refReviewRequired,
-  }) {
-    final result = create();
-    if (matchId != null) result.matchId = matchId;
-    if (matchPhase != null) result.matchPhase = matchPhase;
-    if (redAllianceState != null) result.redAllianceState = redAllianceState;
-    if (blueAllianceState != null) result.blueAllianceState = blueAllianceState;
-    if (partnerPanel != null) result.partnerPanel = partnerPanel;
-    if (rotateIn != null) result.rotateIn = rotateIn;
-    if (refReviewRequired != null) result.refReviewRequired = refReviewRequired;
-    return result;
-  }
-
-  RefereeStreamResponse._();
-
-  factory RefereeStreamResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory RefereeStreamResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'RefereeStreamResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
-      createEmptyInstance: create)
-    ..aI(1, _omitFieldNames ? '' : 'matchId')
-    ..aE<$1.MatchPhase>(2, _omitFieldNames ? '' : 'matchPhase',
-        enumValues: $1.MatchPhase.values)
-    ..aOM<MatchAllianceState>(3, _omitFieldNames ? '' : 'redAllianceState',
-        subBuilder: MatchAllianceState.create)
-    ..aOM<MatchAllianceState>(4, _omitFieldNames ? '' : 'blueAllianceState',
-        subBuilder: MatchAllianceState.create)
-    ..aOM<$1.RefereePanelState>(5, _omitFieldNames ? '' : 'partnerPanel',
-        subBuilder: $1.RefereePanelState.create)
-    ..aI(7, _omitFieldNames ? '' : 'rotateIn')
-    ..aOB(8, _omitFieldNames ? '' : 'refReviewRequired')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  RefereeStreamResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  RefereeStreamResponse copyWith(
-          void Function(RefereeStreamResponse) updates) =>
-      super.copyWith((message) => updates(message as RefereeStreamResponse))
-          as RefereeStreamResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static RefereeStreamResponse create() => RefereeStreamResponse._();
-  @$core.override
-  RefereeStreamResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static RefereeStreamResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<RefereeStreamResponse>(create);
-  static RefereeStreamResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.int get matchId => $_getIZ(0);
-  @$pb.TagNumber(1)
-  set matchId($core.int value) => $_setSignedInt32(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasMatchId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearMatchId() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $1.MatchPhase get matchPhase => $_getN(1);
-  @$pb.TagNumber(2)
-  set matchPhase($1.MatchPhase value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasMatchPhase() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearMatchPhase() => $_clearField(2);
-
-  @$pb.TagNumber(3)
-  MatchAllianceState get redAllianceState => $_getN(2);
-  @$pb.TagNumber(3)
-  set redAllianceState(MatchAllianceState value) => $_setField(3, value);
-  @$pb.TagNumber(3)
-  $core.bool hasRedAllianceState() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearRedAllianceState() => $_clearField(3);
-  @$pb.TagNumber(3)
-  MatchAllianceState ensureRedAllianceState() => $_ensure(2);
-
-  @$pb.TagNumber(4)
-  MatchAllianceState get blueAllianceState => $_getN(3);
-  @$pb.TagNumber(4)
-  set blueAllianceState(MatchAllianceState value) => $_setField(4, value);
-  @$pb.TagNumber(4)
-  $core.bool hasBlueAllianceState() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearBlueAllianceState() => $_clearField(4);
-  @$pb.TagNumber(4)
-  MatchAllianceState ensureBlueAllianceState() => $_ensure(3);
-
-  @$pb.TagNumber(5)
-  $1.RefereePanelState get partnerPanel => $_getN(4);
-  @$pb.TagNumber(5)
-  set partnerPanel($1.RefereePanelState value) => $_setField(5, value);
-  @$pb.TagNumber(5)
-  $core.bool hasPartnerPanel() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearPartnerPanel() => $_clearField(5);
-  @$pb.TagNumber(5)
-  $1.RefereePanelState ensurePartnerPanel() => $_ensure(4);
-
-  /// Matches remaining until rotation (0 = rotate now) - the client derives whether/when to
-  /// notify from this rather than a separate boolean.
-  @$pb.TagNumber(7)
-  $core.int get rotateIn => $_getIZ(5);
-  @$pb.TagNumber(7)
-  set rotateIn($core.int value) => $_setSignedInt32(5, value);
-  @$pb.TagNumber(7)
-  $core.bool hasRotateIn() => $_has(5);
-  @$pb.TagNumber(7)
-  void clearRotateIn() => $_clearField(7);
-
-  @$pb.TagNumber(8)
-  $core.bool get refReviewRequired => $_getBF(6);
-  @$pb.TagNumber(8)
-  set refReviewRequired($core.bool value) => $_setBool(6, value);
-  @$pb.TagNumber(8)
-  $core.bool hasRefReviewRequired() => $_has(6);
-  @$pb.TagNumber(8)
-  void clearRefReviewRequired() => $_clearField(8);
-}
-
 class HeadRefereeStreamRequest extends $pb.GeneratedMessage {
   factory HeadRefereeStreamRequest({
     $core.int? matchId,
@@ -560,98 +345,12 @@ class HeadRefereeStreamRequest extends $pb.GeneratedMessage {
   $1.HeadRefereePanelState ensureState() => $_ensure(1);
 }
 
-/// Whether each of the four regular referee panels currently has a live connection to the
-/// server - internal to RefLink, unrelated to Cheesy Arena.
-class PanelPresence extends $pb.GeneratedMessage {
-  factory PanelPresence({
-    $core.bool? rn,
-    $core.bool? rf,
-    $core.bool? bn,
-    $core.bool? bf,
-  }) {
-    final result = create();
-    if (rn != null) result.rn = rn;
-    if (rf != null) result.rf = rf;
-    if (bn != null) result.bn = bn;
-    if (bf != null) result.bf = bf;
-    return result;
-  }
-
-  PanelPresence._();
-
-  factory PanelPresence.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory PanelPresence.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'PanelPresence',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'reflink.api'),
-      createEmptyInstance: create)
-    ..aOB(1, _omitFieldNames ? '' : 'rn')
-    ..aOB(2, _omitFieldNames ? '' : 'rf')
-    ..aOB(3, _omitFieldNames ? '' : 'bn')
-    ..aOB(4, _omitFieldNames ? '' : 'bf')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  PanelPresence clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  PanelPresence copyWith(void Function(PanelPresence) updates) =>
-      super.copyWith((message) => updates(message as PanelPresence))
-          as PanelPresence;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static PanelPresence create() => PanelPresence._();
-  @$core.override
-  PanelPresence createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static PanelPresence getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<PanelPresence>(create);
-  static PanelPresence? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.bool get rn => $_getBF(0);
-  @$pb.TagNumber(1)
-  set rn($core.bool value) => $_setBool(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasRn() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearRn() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.bool get rf => $_getBF(1);
-  @$pb.TagNumber(2)
-  set rf($core.bool value) => $_setBool(1, value);
-  @$pb.TagNumber(2)
-  $core.bool hasRf() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearRf() => $_clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.bool get bn => $_getBF(2);
-  @$pb.TagNumber(3)
-  set bn($core.bool value) => $_setBool(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasBn() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearBn() => $_clearField(3);
-
-  @$pb.TagNumber(4)
-  $core.bool get bf => $_getBF(3);
-  @$pb.TagNumber(4)
-  set bf($core.bool value) => $_setBool(3, value);
-  @$pb.TagNumber(4)
-  $core.bool hasBf() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearBf() => $_clearField(4);
-}
-
+/// ----- Server -> Client (published, retained, to reflink/match/state) -----
+///
+/// The one shared broadcast every tablet (including HR) subscribes to. A regular referee panel
+/// derives its own "partner panel" locally from whichever of rn/rf/bn/bf matches its own panel
+/// type (the same pairing `partner_panel_state()` used to compute server-side), and reads
+/// `hr.ref_review_required` directly rather than a separate top-level duplicate of that field.
 class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
   factory HeadRefereeStreamResponse({
     $core.int? matchId,
@@ -663,7 +362,6 @@ class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
     $1.RefereePanelState? bn,
     $1.RefereePanelState? bf,
     $core.int? rotateIn,
-    PanelPresence? panelPresence,
     $1.HeadRefereePanelState? hr,
   }) {
     final result = create();
@@ -676,7 +374,6 @@ class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
     if (bn != null) result.bn = bn;
     if (bf != null) result.bf = bf;
     if (rotateIn != null) result.rotateIn = rotateIn;
-    if (panelPresence != null) result.panelPresence = panelPresence;
     if (hr != null) result.hr = hr;
     return result;
   }
@@ -710,8 +407,6 @@ class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
     ..aOM<$1.RefereePanelState>(8, _omitFieldNames ? '' : 'bf',
         subBuilder: $1.RefereePanelState.create)
     ..aI(10, _omitFieldNames ? '' : 'rotateIn')
-    ..aOM<PanelPresence>(11, _omitFieldNames ? '' : 'panelPresence',
-        subBuilder: PanelPresence.create)
     ..aOM<$1.HeadRefereePanelState>(12, _omitFieldNames ? '' : 'hr',
         subBuilder: $1.HeadRefereePanelState.create)
     ..hasRequiredFields = false;
@@ -829,30 +524,19 @@ class HeadRefereeStreamResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   void clearRotateIn() => $_clearField(10);
 
-  @$pb.TagNumber(11)
-  PanelPresence get panelPresence => $_getN(9);
-  @$pb.TagNumber(11)
-  set panelPresence(PanelPresence value) => $_setField(11, value);
-  @$pb.TagNumber(11)
-  $core.bool hasPanelPresence() => $_has(9);
-  @$pb.TagNumber(11)
-  void clearPanelPresence() => $_clearField(11);
-  @$pb.TagNumber(11)
-  PanelPresence ensurePanelPresence() => $_ensure(9);
-
   /// Echoes back the server's authoritative (clamped) copy of the head referee's own
   /// submitted state - notably `field_state`, since the one-way MATCH->COUNT->RESET
   /// transition is enforced server-side, not by the submitting client.
   @$pb.TagNumber(12)
-  $1.HeadRefereePanelState get hr => $_getN(10);
+  $1.HeadRefereePanelState get hr => $_getN(9);
   @$pb.TagNumber(12)
   set hr($1.HeadRefereePanelState value) => $_setField(12, value);
   @$pb.TagNumber(12)
-  $core.bool hasHr() => $_has(10);
+  $core.bool hasHr() => $_has(9);
   @$pb.TagNumber(12)
   void clearHr() => $_clearField(12);
   @$pb.TagNumber(12)
-  $1.HeadRefereePanelState ensureHr() => $_ensure(10);
+  $1.HeadRefereePanelState ensureHr() => $_ensure(9);
 }
 
 /// Fire-once, "ask Cheesy Arena to flip this station's bypass" - deliberately not part of

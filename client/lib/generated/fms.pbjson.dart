@@ -123,21 +123,3 @@ const GetMatchInfoRequest$json = {
 /// Descriptor for `GetMatchInfoRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List getMatchInfoRequestDescriptor =
     $convert.base64Decode('ChNHZXRNYXRjaEluZm9SZXF1ZXN0');
-
-@$core.Deprecated('Use streamMatchInfoRequestDescriptor instead')
-const StreamMatchInfoRequest$json = {
-  '1': 'StreamMatchInfoRequest',
-};
-
-/// Descriptor for `StreamMatchInfoRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List streamMatchInfoRequestDescriptor =
-    $convert.base64Decode('ChZTdHJlYW1NYXRjaEluZm9SZXF1ZXN0');
-
-@$core.Deprecated('Use streamConnectionStatusRequestDescriptor instead')
-const StreamConnectionStatusRequest$json = {
-  '1': 'StreamConnectionStatusRequest',
-};
-
-/// Descriptor for `StreamConnectionStatusRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List streamConnectionStatusRequestDescriptor =
-    $convert.base64Decode('Ch1TdHJlYW1Db25uZWN0aW9uU3RhdHVzUmVxdWVzdA==');

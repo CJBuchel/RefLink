@@ -4,19 +4,16 @@ package reflink.api;
 
 import public "common.proto";
 
-message GetHealthRequest {}
-message GetHealthResponse {}
-
-service HealthService {
-  rpc GetHealth(GetHealthRequest) returns (GetHealthResponse);
-  rpc StreamHealth(GetHealthRequest) returns (stream GetHealthResponse);
-}
-
 // ==========================
 // Head/Referee Panel
 // ==========================
+//
+// Referee panel and head referee state now travels over MQTT (see docs/mqtt topics), not gRPC -
+// these messages are reused unchanged as MQTT payloads (encoded with the same
+// `prost::Message`/Dart `fromBuffer` as before), just delivered differently. Only the two
+// genuinely request/response-shaped actions below (ToggleBypass, CommitAndPost) stay as gRPC.
 
-// ----- Client -> Server -----
+// ----- Client -> Server (published to reflink/referee-panel/{panel}/submit) -----
 
 message RefereeStreamRequest {
   common.PanelType panel = 1;
@@ -24,7 +21,7 @@ message RefereeStreamRequest {
   common.RefereePanelState state = 3;
 }
 
-// ----- Server -> Client -----
+// ----- Server -> Client (published, retained, to reflink/match/state) -----
 
 message MatchStationState {
   string team_number = 1;
@@ -38,32 +35,19 @@ message MatchAllianceState {
   MatchStationState alliance_team_3_state = 3;
 }
 
-message RefereeStreamResponse {
-  int32 match_id = 1;
-  common.MatchPhase match_phase = 2;
-  MatchAllianceState red_alliance_state = 3;
-  MatchAllianceState blue_alliance_state = 4;
-  common.RefereePanelState partner_panel = 5;
-  // Matches remaining until rotation (0 = rotate now) - the client derives whether/when to
-  // notify from this rather than a separate boolean.
-  int32 rotate_in = 7;
-  bool ref_review_required = 8;
-}
+// ----- Client -> Server (published to reflink/head-referee/submit) -----
 
 message HeadRefereeStreamRequest {
   int32 match_id = 1;
   common.HeadRefereePanelState state = 2;
 }
 
-// Whether each of the four regular referee panels currently has a live connection to the
-// server - internal to RefLink, unrelated to Cheesy Arena.
-message PanelPresence {
-  bool rn = 1;
-  bool rf = 2;
-  bool bn = 3;
-  bool bf = 4;
-}
-
+// ----- Server -> Client (published, retained, to reflink/match/state) -----
+//
+// The one shared broadcast every tablet (including HR) subscribes to. A regular referee panel
+// derives its own "partner panel" locally from whichever of rn/rf/bn/bf matches its own panel
+// type (the same pairing `partner_panel_state()` used to compute server-side), and reads
+// `hr.ref_review_required` directly rather than a separate top-level duplicate of that field.
 message HeadRefereeStreamResponse {
   int32 match_id = 1;
   common.MatchPhase match_phase = 2;
@@ -74,17 +58,11 @@ message HeadRefereeStreamResponse {
   common.RefereePanelState bn = 7;
   common.RefereePanelState bf = 8;
   int32 rotate_in = 10;
-  PanelPresence panel_presence = 11;
   // Echoes back the server's authoritative (clamped) copy of the head referee's own
   // submitted state - notably `field_state`, since the one-way MATCH->COUNT->RESET
   // transition is enforced server-side, not by the submitting client.
   common.HeadRefereePanelState hr = 12;
 }
-
-service RefereePanelService {
-  rpc RefereeStream(stream RefereeStreamRequest) returns (stream RefereeStreamResponse);
-}
-
 
 // Fire-once, "ask Cheesy Arena to flip this station's bypass" - deliberately not part of
 // HeadRefereeStreamRequest's persisted state. Cheesy Arena is the sole owner of whether a
@@ -106,7 +84,6 @@ message CommitAndPostRequest {}
 message CommitAndPostResponse {}
 
 service HeadRefereePanelService {
-  rpc HeadRefereeStream(stream HeadRefereeStreamRequest) returns (stream HeadRefereeStreamResponse);
   rpc ToggleBypass(ToggleBypassRequest) returns (ToggleBypassResponse);
   rpc CommitAndPost(CommitAndPostRequest) returns (CommitAndPostResponse);
 }

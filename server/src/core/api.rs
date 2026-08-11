@@ -8,13 +8,9 @@ use tower_http::cors::{Any, CorsLayer};
 use crate::{
   core::shutdown::ShutdownNotifier,
   generated::{
-    api::{
-      head_referee_panel_service_server::HeadRefereePanelServiceServer, health_service_server::HealthServiceServer,
-      referee_panel_service_server::RefereePanelServiceServer,
-    },
-    fms::fms_service_server::FmsServiceServer,
+    api::head_referee_panel_service_server::HeadRefereePanelServiceServer, fms::fms_service_server::FmsServiceServer,
   },
-  modules::{fms::FmsApi, head_referee::HeadRefereeApi, health::HealthApi, referee_panel::RefereePanelApi},
+  modules::{fms::FmsApi, head_referee::HeadRefereeApi},
 };
 
 pub struct Api {
@@ -41,8 +37,7 @@ impl Api {
       // HTTP/2 keep alive (detect unresponsive clients). Unlike the client - which finds out
       // a connection died almost immediately, because the OS kills the socket the instant the
       // network interface drops - the server has no such signal and can only find out by
-      // actively probing. Kept tight (worst case ~9s to notice) since presence indicators
-      // (e.g. the head referee's panel connection display) depend on this.
+      // actively probing.
       .http2_keepalive_interval(Some(Duration::from_secs(5)))
       .http2_keepalive_timeout(Some(Duration::from_secs(4)))
       // Max concurrent streams per connection
@@ -52,9 +47,8 @@ impl Api {
       .layer(cors)
       // Add gRPC-Web layer support
       .layer(GrpcWebLayer::new())
-      // Add services
-      .add_service(HealthServiceServer::new(HealthApi {}))
-      .add_service(RefereePanelServiceServer::new(RefereePanelApi {}))
+      // Add services - referee panel/HR match state and presence are MQTT now (see
+      // modules::sync), so only the genuinely request/response-shaped RPCs are left on gRPC.
       .add_service(HeadRefereePanelServiceServer::new(HeadRefereeApi {}))
       .add_service(FmsServiceServer::new(FmsApi {}));
     match router

@@ -7,6 +7,7 @@ use tokio_tungstenite::{connect_async, tungstenite::Message, tungstenite::client
 use crate::{
   core::{
     events::{ChangeEvent, EVENT_BUS},
+    mqtt,
     shutdown::ShutdownNotifier,
   },
   generated::{
@@ -329,10 +330,13 @@ async fn publish_match_info(info: FmsMatchInfo, tx: &watch::Sender<Option<FmsMat
   if let Some(bus) = EVENT_BUS.get() {
     let _ = bus.publish(ChangeEvent::Message { topic: "current".to_string(), data: info.clone() });
   }
+  if let Err(e) = mqtt::publish(mqtt::TOPIC_FMS_MATCH_INFO, true, &info).await {
+    log::warn!("[FMS] Failed to publish match info over MQTT: {e}");
+  }
   let _ = tx.send(Some(info));
 }
 
-fn publish_connection_status(connected: bool, config: &CheesyConfig, last_error: Option<String>) {
+async fn publish_connection_status(connected: bool, config: &CheesyConfig, last_error: Option<String>) {
   let status = FmsConnectionStatus {
     connected,
     host: config.host.clone(),
@@ -340,7 +344,10 @@ fn publish_connection_status(connected: bool, config: &CheesyConfig, last_error:
     last_error: last_error.unwrap_or_default(),
   };
   if let Some(bus) = EVENT_BUS.get() {
-    let _ = bus.publish(ChangeEvent::Message { topic: "status".to_string(), data: status });
+    let _ = bus.publish(ChangeEvent::Message { topic: "status".to_string(), data: status.clone() });
+  }
+  if let Err(e) = mqtt::publish(mqtt::TOPIC_FMS_CONNECTION_STATUS, true, &status).await {
+    log::warn!("[FMS] Failed to publish connection status over MQTT: {e}");
   }
 }
 
@@ -365,7 +372,7 @@ async fn run_field_monitor(
       Ok((mut ws, _)) => {
         log::info!("[FMS] Field monitor connected");
         delay = Duration::from_secs(1);
-        publish_connection_status(true, &config, None);
+        publish_connection_status(true, &config, None).await;
 
         loop {
           tokio::select! {
@@ -405,11 +412,11 @@ async fn run_field_monitor(
         }
 
         log::warn!("[FMS] Field monitor disconnected");
-        publish_connection_status(false, &config, Some("disconnected".to_string()));
+        publish_connection_status(false, &config, Some("disconnected".to_string())).await;
       }
       Err(e) => {
         log::debug!("[FMS] Field monitor connect failed: {e}");
-        publish_connection_status(false, &config, Some(e.to_string()));
+        publish_connection_status(false, &config, Some(e.to_string())).await;
       }
     }
 

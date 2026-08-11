@@ -9,53 +9,6 @@ part of 'health_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(healthService)
-final healthServiceProvider = HealthServiceProvider._();
-
-final class HealthServiceProvider
-    extends
-        $FunctionalProvider<
-          HealthServiceClient,
-          HealthServiceClient,
-          HealthServiceClient
-        >
-    with $Provider<HealthServiceClient> {
-  HealthServiceProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'healthServiceProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$healthServiceHash();
-
-  @$internal
-  @override
-  $ProviderElement<HealthServiceClient> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  HealthServiceClient create(Ref ref) {
-    return healthService(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(HealthServiceClient value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<HealthServiceClient>(value),
-    );
-  }
-}
-
-String _$healthServiceHash() => r'14d38fb6c1bdce03a96070f98ef74adf2a2d2e23';
-
 @ProviderFor(isConnected)
 final isConnectedProvider = IsConnectedProvider._();
 
@@ -68,7 +21,7 @@ final class IsConnectedProvider
         argument: null,
         retry: null,
         name: r'isConnectedProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -87,4 +40,4 @@ final class IsConnectedProvider
   }
 }
 
-String _$isConnectedHash() => r'e0561f30c954ed9fa13ec4144e995739b7d83ce2';
+String _$isConnectedHash() => r'af9389a3cf71e84ab6003f84415b75f2d43f8610';

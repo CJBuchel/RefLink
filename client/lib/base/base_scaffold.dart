@@ -43,9 +43,9 @@ class BaseScaffold extends HookConsumerWidget {
     ref.listen(refereePanelServerProvider, (previous, next) {
       if (panelType == PanelType.PANEL_TYPE_HEAD_REFEREE) return;
 
-      final wasRequired = previous?.refReviewRequired ?? false;
+      final wasRequired = previous?.hr.refReviewRequired ?? false;
       final isPostMatch = next.matchPhase == MatchPhase.MATCH_PHASE_POST_MATCH;
-      if (!wasRequired && next.refReviewRequired && isPostMatch) {
+      if (!wasRequired && next.hr.refReviewRequired && isPostMatch) {
         PopupDialog.warn(
           title: "Referee Review Requested",
           message: const Text("The head referee wants to review this match."),

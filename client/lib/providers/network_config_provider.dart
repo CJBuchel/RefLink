@@ -63,6 +63,34 @@ class ServerApiPort extends _$ServerApiPort {
   }
 }
 
+// Mqtt Port
+@Riverpod(keepAlive: true)
+class MqttPort extends _$MqttPort {
+  static const String _key = 'mqtt_port';
+  static const int _defaultPort = 1883;
+  void setPort(int port) {
+    localStorage.setInt(_key, port);
+    state = port;
+  }
+
+  int getPort() {
+    return state;
+  }
+
+  int _getStoredPort() {
+    int port = _defaultPort;
+    if (localStorage.containsKey(_key)) {
+      port = localStorage.getInt(_key) ?? _defaultPort;
+    }
+    return port;
+  }
+
+  @override
+  int build() {
+    return _getStoredPort();
+  }
+}
+
 // TLS
 @Riverpod(keepAlive: true)
 class Tls extends _$Tls {

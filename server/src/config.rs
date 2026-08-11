@@ -46,6 +46,22 @@ pub struct ServerConfig {
   /// unless the event has no admin password configured)
   #[arg(long, env)]
   pub fms_admin_password: Option<String>,
+
+  /// Hostname/IP of the MQTT broker
+  #[arg(long, env, default_value = "127.0.0.1")]
+  pub mqtt_host: String,
+
+  /// Port of the MQTT broker
+  #[arg(long, env, default_value_t = 1883)]
+  pub mqtt_port: u16,
+
+  /// MQTT broker username, if auth is enabled
+  #[arg(long, env)]
+  pub mqtt_username: Option<String>,
+
+  /// MQTT broker password, if auth is enabled
+  #[arg(long, env)]
+  pub mqtt_password: Option<String>,
 }
 
 impl ServerConfig {

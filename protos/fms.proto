@@ -33,11 +33,10 @@ message FmsConnectionStatus {
 }
 
 message GetMatchInfoRequest {}
-message StreamMatchInfoRequest {}
-message StreamConnectionStatusRequest {}
 
+// FmsMatchInfo/FmsConnectionStatus are also published (retained) to reflink/fms/match-info and
+// reflink/fms/connection-status over MQTT, unchanged as message types - GetMatchInfo stays as a
+// plain unary gRPC call purely for a one-shot fetch convenience.
 service FmsService {
   rpc GetMatchInfo(GetMatchInfoRequest) returns (FmsMatchInfo);
-  rpc StreamMatchInfo(StreamMatchInfoRequest) returns (stream FmsMatchInfo);
-  rpc StreamConnectionStatus(StreamConnectionStatusRequest) returns (stream FmsConnectionStatus);
 }

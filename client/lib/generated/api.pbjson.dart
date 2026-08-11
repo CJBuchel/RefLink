@@ -15,24 +15,6 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
-@$core.Deprecated('Use getHealthRequestDescriptor instead')
-const GetHealthRequest$json = {
-  '1': 'GetHealthRequest',
-};
-
-/// Descriptor for `GetHealthRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getHealthRequestDescriptor =
-    $convert.base64Decode('ChBHZXRIZWFsdGhSZXF1ZXN0');
-
-@$core.Deprecated('Use getHealthResponseDescriptor instead')
-const GetHealthResponse$json = {
-  '1': 'GetHealthResponse',
-};
-
-/// Descriptor for `GetHealthResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getHealthResponseDescriptor =
-    $convert.base64Decode('ChFHZXRIZWFsdGhSZXNwb25zZQ==');
-
 @$core.Deprecated('Use refereeStreamRequestDescriptor instead')
 const RefereeStreamRequest$json = {
   '1': 'RefereeStreamRequest',
@@ -125,65 +107,6 @@ final $typed_data.Uint8List matchAllianceStateDescriptor = $convert.base64Decode
     'ISYWxsaWFuY2VUZWFtMlN0YXRlElEKFWFsbGlhbmNlX3RlYW1fM19zdGF0ZRgDIAEoCzIeLnJl'
     'ZmxpbmsuYXBpLk1hdGNoU3RhdGlvblN0YXRlUhJhbGxpYW5jZVRlYW0zU3RhdGU=');
 
-@$core.Deprecated('Use refereeStreamResponseDescriptor instead')
-const RefereeStreamResponse$json = {
-  '1': 'RefereeStreamResponse',
-  '2': [
-    {'1': 'match_id', '3': 1, '4': 1, '5': 5, '10': 'matchId'},
-    {
-      '1': 'match_phase',
-      '3': 2,
-      '4': 1,
-      '5': 14,
-      '6': '.reflink.common.MatchPhase',
-      '10': 'matchPhase'
-    },
-    {
-      '1': 'red_alliance_state',
-      '3': 3,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.api.MatchAllianceState',
-      '10': 'redAllianceState'
-    },
-    {
-      '1': 'blue_alliance_state',
-      '3': 4,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.api.MatchAllianceState',
-      '10': 'blueAllianceState'
-    },
-    {
-      '1': 'partner_panel',
-      '3': 5,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.common.RefereePanelState',
-      '10': 'partnerPanel'
-    },
-    {'1': 'rotate_in', '3': 7, '4': 1, '5': 5, '10': 'rotateIn'},
-    {
-      '1': 'ref_review_required',
-      '3': 8,
-      '4': 1,
-      '5': 8,
-      '10': 'refReviewRequired'
-    },
-  ],
-};
-
-/// Descriptor for `RefereeStreamResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List refereeStreamResponseDescriptor = $convert.base64Decode(
-    'ChVSZWZlcmVlU3RyZWFtUmVzcG9uc2USGQoIbWF0Y2hfaWQYASABKAVSB21hdGNoSWQSOwoLbW'
-    'F0Y2hfcGhhc2UYAiABKA4yGi5yZWZsaW5rLmNvbW1vbi5NYXRjaFBoYXNlUgptYXRjaFBoYXNl'
-    'Ek0KEnJlZF9hbGxpYW5jZV9zdGF0ZRgDIAEoCzIfLnJlZmxpbmsuYXBpLk1hdGNoQWxsaWFuY2'
-    'VTdGF0ZVIQcmVkQWxsaWFuY2VTdGF0ZRJPChNibHVlX2FsbGlhbmNlX3N0YXRlGAQgASgLMh8u'
-    'cmVmbGluay5hcGkuTWF0Y2hBbGxpYW5jZVN0YXRlUhFibHVlQWxsaWFuY2VTdGF0ZRJGCg1wYX'
-    'J0bmVyX3BhbmVsGAUgASgLMiEucmVmbGluay5jb21tb24uUmVmZXJlZVBhbmVsU3RhdGVSDHBh'
-    'cnRuZXJQYW5lbBIbCglyb3RhdGVfaW4YByABKAVSCHJvdGF0ZUluEi4KE3JlZl9yZXZpZXdfcm'
-    'VxdWlyZWQYCCABKAhSEXJlZlJldmlld1JlcXVpcmVk');
-
 @$core.Deprecated('Use headRefereeStreamRequestDescriptor instead')
 const HeadRefereeStreamRequest$json = {
   '1': 'HeadRefereeStreamRequest',
@@ -205,22 +128,6 @@ final $typed_data.Uint8List headRefereeStreamRequestDescriptor = $convert.base64
     'ChhIZWFkUmVmZXJlZVN0cmVhbVJlcXVlc3QSGQoIbWF0Y2hfaWQYASABKAVSB21hdGNoSWQSOw'
     'oFc3RhdGUYAiABKAsyJS5yZWZsaW5rLmNvbW1vbi5IZWFkUmVmZXJlZVBhbmVsU3RhdGVSBXN0'
     'YXRl');
-
-@$core.Deprecated('Use panelPresenceDescriptor instead')
-const PanelPresence$json = {
-  '1': 'PanelPresence',
-  '2': [
-    {'1': 'rn', '3': 1, '4': 1, '5': 8, '10': 'rn'},
-    {'1': 'rf', '3': 2, '4': 1, '5': 8, '10': 'rf'},
-    {'1': 'bn', '3': 3, '4': 1, '5': 8, '10': 'bn'},
-    {'1': 'bf', '3': 4, '4': 1, '5': 8, '10': 'bf'},
-  ],
-};
-
-/// Descriptor for `PanelPresence`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List panelPresenceDescriptor = $convert.base64Decode(
-    'Cg1QYW5lbFByZXNlbmNlEg4KAnJuGAEgASgIUgJybhIOCgJyZhgCIAEoCFICcmYSDgoCYm4YAy'
-    'ABKAhSAmJuEg4KAmJmGAQgASgIUgJiZg==');
 
 @$core.Deprecated('Use headRefereeStreamResponseDescriptor instead')
 const HeadRefereeStreamResponse$json = {
@@ -285,14 +192,6 @@ const HeadRefereeStreamResponse$json = {
     },
     {'1': 'rotate_in', '3': 10, '4': 1, '5': 5, '10': 'rotateIn'},
     {
-      '1': 'panel_presence',
-      '3': 11,
-      '4': 1,
-      '5': 11,
-      '6': '.reflink.api.PanelPresence',
-      '10': 'panelPresence'
-    },
-    {
       '1': 'hr',
       '3': 12,
       '4': 1,
@@ -314,9 +213,8 @@ final $typed_data.Uint8List headRefereeStreamResponseDescriptor = $convert.base6
     'BiABKAsyIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICcmYSMQoCYm4YByABKA'
     'syIS5yZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICYm4SMQoCYmYYCCABKAsyIS5y'
     'ZWZsaW5rLmNvbW1vbi5SZWZlcmVlUGFuZWxTdGF0ZVICYmYSGwoJcm90YXRlX2luGAogASgFUg'
-    'hyb3RhdGVJbhJBCg5wYW5lbF9wcmVzZW5jZRgLIAEoCzIaLnJlZmxpbmsuYXBpLlBhbmVsUHJl'
-    'c2VuY2VSDXBhbmVsUHJlc2VuY2USNQoCaHIYDCABKAsyJS5yZWZsaW5rLmNvbW1vbi5IZWFkUm'
-    'VmZXJlZVBhbmVsU3RhdGVSAmhy');
+    'hyb3RhdGVJbhI1CgJochgMIAEoCzIlLnJlZmxpbmsuY29tbW9uLkhlYWRSZWZlcmVlUGFuZWxT'
+    'dGF0ZVICaHI=');
 
 @$core.Deprecated('Use toggleBypassRequestDescriptor instead')
 const ToggleBypassRequest$json = {
